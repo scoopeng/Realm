@@ -42,6 +42,26 @@ task runTest(type: JavaExec) {
     mainClass = 'com.example.mongoexport.TestMain'
 }
 
+task runConnectivityTest(type: JavaExec) {
+    classpath = sourceSets.main.runtimeClasspath
+    mainClass = 'com.example.mongoexport.MongoConnectivityTest'
+}
+
+task runInspect(type: JavaExec) {
+    classpath = sourceSets.main.runtimeClasspath
+    mainClass = 'com.example.mongoexport.InspectCollections'
+}
+
+task runExport(type: JavaExec) {
+    classpath = sourceSets.main.runtimeClasspath
+    mainClass = 'com.example.mongoexport.ExportRequestedCollections'
+}
+
+task runFullExport(type: JavaExec) {
+    classpath = sourceSets.main.runtimeClasspath
+    mainClass = 'com.example.mongoexport.ExportFullDetail'
+}
+
 tasks.withType(JavaCompile) {
     options.encoding = 'UTF-8'
 }

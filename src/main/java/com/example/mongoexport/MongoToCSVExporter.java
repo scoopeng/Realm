@@ -56,7 +56,9 @@ public class MongoToCSVExporter {
             String fileName = generateFileName(collectionName);
             Path filePath = Paths.get(config.getOutputDirectory(), fileName);
             
-            try (CSVWriter writer = new CSVWriter(new FileWriter(filePath.toString(), StandardCharsets.UTF_8))) {
+            // Use tab delimiter for MySQL bulk loading compatibility
+            try (CSVWriter writer = new CSVWriter(new FileWriter(filePath.toString(), StandardCharsets.UTF_8), 
+                    '\t', CSVWriter.DEFAULT_QUOTE_CHARACTER, CSVWriter.DEFAULT_ESCAPE_CHARACTER, CSVWriter.DEFAULT_LINE_END)) {
                 // Write header
                 String[] header = fieldsToExport.toArray(new String[0]);
                 writer.writeNext(header);
