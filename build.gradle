@@ -1,0 +1,55 @@
+plugins {
+    id 'java'
+    id 'application'
+}
+
+group = 'com.example'
+version = '1.0-SNAPSHOT'
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_11
+    targetCompatibility = JavaVersion.VERSION_11
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    // MongoDB driver
+    implementation 'org.mongodb:mongodb-driver-sync:5.2.1'
+    
+    // CSV processing
+    implementation 'com.opencsv:opencsv:5.9'
+    
+    // Logging
+    implementation 'ch.qos.logback:logback-classic:1.4.14'
+    
+    // Configuration
+    implementation 'com.typesafe:config:1.4.3'
+    
+    // Testing
+    testImplementation platform('org.junit:junit-bom:5.10.0')
+    testImplementation 'org.junit.jupiter:junit-jupiter'
+}
+
+application {
+    mainClass = 'com.example.mongoexport.Main'
+}
+
+task runTest(type: JavaExec) {
+    classpath = sourceSets.main.runtimeClasspath
+    mainClass = 'com.example.mongoexport.TestMain'
+}
+
+tasks.withType(JavaCompile) {
+    options.encoding = 'UTF-8'
+}
+
+tasks.withType(JavaExec) {
+    systemProperty 'file.encoding', 'UTF-8'
+}
+
+test {
+    useJUnitPlatform()
+}
