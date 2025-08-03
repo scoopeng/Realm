@@ -19,6 +19,10 @@ MongoDB to CSV export utility designed for flexible data extraction with special
 - **Build**: `./gradlew build`
 - **Run**: `./gradlew run` (requires MongoDB connection)
 - **Test Export**: `./gradlew runTest` (runs without MongoDB)
+- **Database Analysis**: `./gradlew runAnalyze` (analyzes database structure)
+- **Pre-Join Export**: `./gradlew runPreJoin` (exports joined collections)
+- **Enhanced Pre-Join**: `./gradlew runEnhancedPreJoin` (exports with denormalized indicators)
+- **Test Pre-Join**: `./gradlew runTestPreJoin` (sample joined exports without MongoDB)
 - **Clean**: `./gradlew clean`
 - **Test**: `./gradlew test`
 
@@ -52,6 +56,41 @@ MongoDB to CSV export utility designed for flexible data extraction with special
 5. **TestMain** (`src/main/java/com/example/mongoexport/TestMain.java`)
    - Standalone test demonstrating CSV output without MongoDB
    - Useful for testing export logic
+
+6. **DatabaseAnalyzer** (`src/main/java/com/example/mongoexport/DatabaseAnalyzer.java`)
+   - Analyzes all collections in the database
+   - Reports document counts, field structures, and data types
+   - Identifies potential foreign key relationships
+   - Generates comprehensive analysis report in output directory
+
+7. **PreJoinExporter** (`src/main/java/com/example/mongoexport/PreJoinExporter.java`)
+   - Creates rich denormalized datasets by joining multiple collections
+   - Three main export views:
+     - **Complete Property Listings**: Joins listings + properties + agents + brokerages
+     - **Transaction History**: Joins transactions + properties + listings + agents
+     - **Agent Performance**: Aggregates agent metrics from listings and transactions
+   - Handles nested documents and array fields gracefully
+
+8. **TestPreJoinExporter** (`src/main/java/com/example/mongoexport/TestPreJoinExporter.java`)
+   - Generates sample pre-joined CSV files without MongoDB
+   - Shows the structure of joined exports with realistic test data
+
+9. **EnhancedPreJoinExporter** (`src/main/java/com/example/mongoexport/EnhancedPreJoinExporter.java`)
+   - Advanced version with denormalized indicators for multi-value fields
+   - **Property-Centric View**: 150+ columns including:
+     - All property attributes and calculated metrics
+     - Boolean indicators for each lifestyle (lifestyle_luxury, lifestyle_urban, etc.)
+     - Boolean indicators for each tag and feature
+     - School ratings and distances
+     - Full agent and brokerage details
+     - Market metrics and financial data
+   - **Agent Performance View**: 100+ columns including:
+     - Complete performance metrics (sales volume, transaction counts)
+     - Specialty indicators as boolean columns
+     - Price range specialization counts
+     - Geographic coverage analysis
+     - Marketing effectiveness metrics
+   - Designed for wide-table analytics with easy filtering/grouping
 
 ## Export Strategy Details
 
@@ -113,6 +152,35 @@ private static void exportNewCollection(MongoToCSVExporter exporter) {
 
 ### Testing Without MongoDB
 Run `./gradlew runTest` to see example CSV output without requiring database connection
+
+### Using Cleaned Exporters
+Cleaned versions of the Ultra exporters are available that remove meaningless fields and resolve foreign keys:
+- `./gradlew runUltraListingsCleaned` - Listings with ~67 meaningless columns removed
+- `./gradlew runUltraTransactionCleaned` - Transactions with foreign keys resolved and empty fields removed  
+- `./gradlew runUltraAgentPerformanceCleaned` - Agent performance with cleaned fields
+
+See `CLEANED_EXPORTER_CHANGES.md` for details on what was removed and why.
+
+## Database Structure Summary
+
+### Key Collections for Real Estate Data
+1. **properties** (1.9M docs) - Core property data with addresses and locations
+2. **listings** (64K active) - Active property listings with features and pricing
+3. **agents** (28K docs) - Real estate agent profiles
+4. **transactions** (23K docs) - Completed sales with pricing and parties
+5. **people** (620K docs) - Person records linked to agents
+6. **agentclients** (572K docs) - Agent-client relationships
+
+### Key Relationships
+- listings → properties (via property field)
+- listings → agents (via listingAgentId)
+- transactions → listings and properties
+- agents → people (via person field)
+
+### Pre-Joined Export Views
+1. **Complete Property Listings** - Comprehensive view with property details, agent info, and pricing
+2. **Transaction History** - Sales data with buyer/seller info and financial details
+3. **Agent Performance** - Metrics including sales volume, listing counts, and client numbers
 
 ## Technical Stack
 - Java 11

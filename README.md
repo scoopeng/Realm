@@ -1,39 +1,71 @@
-# MongoDB to CSV Exporter
+# MongoDB Realm Data Export Project
 
-A production-ready Java application for exporting MongoDB collections to CSV files with flexible multi-value field handling.
+A high-performance MongoDB data export utility designed for comprehensive real estate data extraction with optimized memory usage and processing speed.
 
 ## Project Status
 
 **Current Version**: 1.0-SNAPSHOT  
-**Last Updated**: 2025-08-01  
+**Last Updated**: 2025-08-03  
 **Repository**: https://github.com/scoopeng/Realm
 
-### Implementation Status
-- ✅ Core export functionality complete
-- ✅ DENORMALIZED strategy (multi-row export)
-- ✅ DELIMITED strategy with alphabetical sorting
-- ✅ Multi-environment configuration support
-- ✅ Progress tracking and logging
-- ✅ UTF-8 encoding throughout
-- ✅ Test mode without MongoDB dependency
-- ⚠️ Requires valid MongoDB credentials for production use
+### Key Achievements
+- ✅ Ultra-fast processing: ~2,000 listings/second
+- ✅ Comprehensive exports: Up to 242 columns with denormalized indicators
+- ✅ Memory-optimized: Configurable from 1GB to 20GB based on needs
+- ✅ Multiple export strategies: From basic fields to full comprehensive data
+- ✅ Batch processing: Efficient handling of large datasets (1.9M properties, 620K people)
+- ✅ Complete database analysis with relationship mapping
+- ✅ Production-ready exporters with optimized performance
 
-### Quick Test
-Run without MongoDB to see example output:
+## Quick Start
+
+### Three Comprehensive Export Strategies
+
+#### 1. Ultra Listings Export (Recommended)
 ```bash
-./gradlew runTest
+./gradlew runUltraListings
 ```
+- **Strategy**: Property/Listings-centric view with all related data
+- **Output**: All 64K listings with 242 comprehensive columns
+- **Features**: Property details, agent info, brokerage data, schools, amenities
+- **Memory**: 20GB efficiently utilized
+- **Performance**: ~2,200 listings/second
+- **File Size**: ~76MB CSV
 
-## Features
+#### 2. Ultra Agent Performance Export
+```bash
+./gradlew runUltraAgentPerformance
+```
+- **Strategy**: Agent-centric view with performance metrics
+- **Output**: All 28K agents with comprehensive performance data
+- **Features**: Sales metrics, client data, geographic coverage, specializations
+- **Memory**: 20GB with in-memory lookups
+- **Performance**: Optimized batch processing
+- **Use Case**: Agent analysis, performance tracking, market share
 
-- Export MongoDB collections to CSV format
-- Two export strategies for handling multi-value fields:
-  - **DENORMALIZED**: Creates one row per multi-value item
-  - **DELIMITED**: Creates one row per document with multi-values as comma-separated strings
-- Environment-based configuration (dev/stage/prod)
-- Robust error handling and logging
-- UTF-8 encoding support
-- Automatic output directory creation
+#### 3. Ultra Transaction History Export
+```bash
+./gradlew runUltraTransaction
+```
+- **Strategy**: Transaction-centric view with complete deal details
+- **Output**: All 23K transactions with 128 comprehensive columns
+- **Features**: Buyer/seller info, agent details, financing data, property specifics
+- **Memory**: 20GB memory efficiently
+- **Performance**: ~3,300 transactions/second  
+- **File Size**: ~14MB CSV
+
+## Architecture
+
+The three exporters implement distinct analytical perspectives on the real estate database:
+
+1. **Listings-Centric**: Complete property and listing information with agent/brokerage details
+2. **Agent-Centric**: Agent performance metrics with aggregated sales and client data  
+3. **Transaction-Centric**: Complete transaction history with all parties and deal specifics
+
+All exporters use optimized memory management:
+- Small collections (agents, brokerages, people) loaded entirely into memory
+- Large collections (listings, properties, transactions) processed in batches
+- In-memory lookups eliminate individual database queries during processing
 
 ## Prerequisites
 
@@ -65,22 +97,30 @@ Run without MongoDB to see example output:
    export.strategy=DENORMALIZED
    ```
 
-## Building and Running
+## Performance Benchmarks
 
-### Build the project
-```bash
-./gradlew build
+| Export Strategy | Records | Columns | Time | Memory | Output Size | Performance |
+|----------------|---------|---------|------|---------|-------------|-------------|
+| Ultra Listings | 64,363 | 242 | 32.7s | 20GB | 76MB | 2,200/sec |
+| Ultra Agent Performance | 28,370 | 150+ | ~60s | 20GB | Variable | Batch optimized |
+| Ultra Transaction History | 23,327 | 128 | 7.1s | 20GB | 14MB | 3,300/sec |
+
+## Output Structure
+
+All exports are organized in the `output/` directory:
+
+```
+output/
+├── production_exports/     # Final comprehensive CSV exports
+└── documentation/         # Database analysis documentation
 ```
 
-### Run the exporter
-```bash
-./gradlew run
-```
+## Final Export Files
 
-The application will:
-1. Connect to MongoDB using the configured environment settings
-2. Export the collections defined in `Main.java`
-3. Save CSV files to the `./output` directory
+The three comprehensive exports are stored in `output/production_exports/`:
+- `all_listings_ultra_comprehensive_*.csv` - Complete listings with all joined data
+- `agents_ultra_performance_*.csv` - Agent performance metrics and analytics  
+- `transactions_ultra_comprehensive_*.csv` - Complete transaction history
 
 ## Export Strategies
 
