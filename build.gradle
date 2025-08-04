@@ -66,6 +66,20 @@ task runUltraTransaction(type: JavaExec) {
     description = 'Export comprehensive transaction history with all joined data'
 }
 
+task runUltraTransactionCleaned(type: JavaExec) {
+    classpath = sourceSets.main.runtimeClasspath
+    mainClass = 'com.example.mongoexport.UltraTransactionExporterCleaned'
+    jvmArgs = ['-Xmx20g', '-Xms10g']
+    description = 'Export cleaned transactions with resolved foreign keys and removed empty fields'
+}
+
+task runUltraAgentPerformanceCleaned(type: JavaExec) {
+    classpath = sourceSets.main.runtimeClasspath
+    mainClass = 'com.example.mongoexport.UltraAgentPerformanceExporterCleaned'
+    jvmArgs = ['-Xmx20g', '-Xms10g']
+    description = 'Export cleaned agent performance with resolved foreign keys'
+}
+
 task runTestCityMapping(type: JavaExec) {
     classpath = sourceSets.main.runtimeClasspath
     mainClass = 'com.example.mongoexport.TestCityMapping'

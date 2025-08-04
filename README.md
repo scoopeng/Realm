@@ -23,31 +23,35 @@ A high-performance MongoDB data export utility designed for comprehensive real e
 
 #### 1. Ultra Listings Export (Recommended)
 ```bash
-./gradlew runUltraListings
+./gradlew runUltraListings           # Original: 259 columns
+./gradlew runUltraListingsCleaned    # Cleaned: ~192 columns (recommended)
 ```
 - **Strategy**: Property/Listings-centric view with all related data
-- **Output**: All 64K listings with 242 comprehensive columns
+- **Output**: All 64K listings with comprehensive columns
 - **Features**: Property details, agent info, brokerage data, schools, amenities
-- **Memory**: 20GB efficiently utilized
+- **Cleaned Version**: Removes ~67 meaningless columns, fixes brokerage city issue
 - **Performance**: ~2,200 listings/second
-- **File Size**: ~76MB CSV
+- **File Size**: ~76MB CSV (cleaned version ~56MB)
 
 #### 2. Ultra Agent Performance Export
 ```bash
-./gradlew runUltraAgentPerformance
+./gradlew runUltraAgentPerformance         # Original: 156 columns
+./gradlew runUltraAgentPerformanceCleaned  # Cleaned: ~150 columns (recommended)
 ```
 - **Strategy**: Agent-centric view with performance metrics
 - **Output**: All 28K agents with comprehensive performance data
 - **Features**: Sales metrics, client data, geographic coverage, specializations
-- **Memory**: 20GB with in-memory lookups
+- **Cleaned Version**: Resolves foreign keys, removes deleted/archived fields
 - **Performance**: Optimized batch processing
 - **Use Case**: Agent analysis, performance tracking, market share
 
 #### 3. Ultra Transaction History Export
 ```bash
-./gradlew runUltraTransaction
+./gradlew runUltraTransaction         # Original: 147 columns
+./gradlew runUltraTransactionCleaned  # Cleaned: ~120 columns (recommended)
 ```
 - **Strategy**: Transaction-centric view with complete deal details
+- **Cleaned Version**: Replaces ObjectIds with names, removes empty features
 - **Output**: All 23K transactions with 128 comprehensive columns
 - **Features**: Buyer/seller info, agent details, financing data, property specifics
 - **Memory**: 20GB memory efficiently
