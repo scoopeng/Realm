@@ -42,99 +42,26 @@ task runUltraListings(type: JavaExec) {
     classpath = sourceSets.main.runtimeClasspath
     mainClass = 'com.example.mongoexport.UltraListingsExporter'
     jvmArgs = ['-Xmx20g', '-Xms10g']
-    description = 'Export all listings with comprehensive fields (259 columns)'
+    description = 'Export all listings with comprehensive fields (~192 columns, human-readable headers)'
 }
 
-task runUltraListingsCleaned(type: JavaExec) {
-    classpath = sourceSets.main.runtimeClasspath
-    mainClass = 'com.example.mongoexport.UltraListingsExporterCleaned'
-    jvmArgs = ['-Xmx20g', '-Xms10g']
-    description = 'Export all listings with cleaned fields (~192 columns, removed meaningless fields)'
-}
 
 task runUltraAgentPerformance(type: JavaExec) {
     classpath = sourceSets.main.runtimeClasspath
     mainClass = 'com.example.mongoexport.UltraAgentPerformanceExporter'
     jvmArgs = ['-Xmx20g', '-Xms10g']
-    description = 'Export comprehensive agent performance metrics'
+    description = 'Export comprehensive agent performance metrics (~150 columns, human-readable headers)'
 }
 
 task runUltraTransaction(type: JavaExec) {
     classpath = sourceSets.main.runtimeClasspath
     mainClass = 'com.example.mongoexport.UltraTransactionExporter'
     jvmArgs = ['-Xmx20g', '-Xms10g']
-    description = 'Export comprehensive transaction history with all joined data'
+    description = 'Export comprehensive transaction history (~120 columns, human-readable headers)'
 }
 
-task runUltraTransactionCleaned(type: JavaExec) {
-    classpath = sourceSets.main.runtimeClasspath
-    mainClass = 'com.example.mongoexport.UltraTransactionExporterCleaned'
-    jvmArgs = ['-Xmx20g', '-Xms10g']
-    description = 'Export cleaned transactions with resolved foreign keys and removed empty fields'
-}
 
-task runUltraAgentPerformanceCleaned(type: JavaExec) {
-    classpath = sourceSets.main.runtimeClasspath
-    mainClass = 'com.example.mongoexport.UltraAgentPerformanceExporterCleaned'
-    jvmArgs = ['-Xmx20g', '-Xms10g']
-    description = 'Export cleaned agent performance with resolved foreign keys'
-}
 
-task runTestCityMapping(type: JavaExec) {
-    classpath = sourceSets.main.runtimeClasspath
-    mainClass = 'com.example.mongoexport.TestCityMapping'
-    jvmArgs = ['-Xmx2g']
-    description = 'Test city field mapping investigation'
-}
-
-task runTestBrokerageCity(type: JavaExec) {
-    classpath = sourceSets.main.runtimeClasspath
-    mainClass = 'com.example.mongoexport.TestBrokerageCityField'
-    jvmArgs = ['-Xmx2g']
-    description = 'Test brokerage city field investigation'
-}
-
-task runTestFieldValues(type: JavaExec) {
-    classpath = sourceSets.main.runtimeClasspath
-    mainClass = 'com.example.mongoexport.TestFieldValues'
-    jvmArgs = ['-Xmx2g']
-    description = 'Test field values for potential code lookups'
-}
-
-task runTestBinaryFields(type: JavaExec) {
-    classpath = sourceSets.main.runtimeClasspath
-    mainClass = 'com.example.mongoexport.TestBinaryFields'
-    jvmArgs = ['-Xmx2g']
-    description = 'Test for binary fields with only null/false values'
-}
-
-task runTestListingFeatures(type: JavaExec) {
-    classpath = sourceSets.main.runtimeClasspath
-    mainClass = 'com.example.mongoexport.TestListingFeatures'
-    jvmArgs = ['-Xmx2g']
-    description = 'Test listing feature boolean fields'
-}
-
-task runTestListingStructure(type: JavaExec) {
-    classpath = sourceSets.main.runtimeClasspath
-    mainClass = 'com.example.mongoexport.TestListingStructure'
-    jvmArgs = ['-Xmx2g']
-    description = 'Test listing document structure'
-}
-
-task runTestTransactionFields(type: JavaExec) {
-    classpath = sourceSets.main.runtimeClasspath
-    mainClass = 'com.example.mongoexport.TestTransactionFields'
-    jvmArgs = ['-Xmx2g']
-    description = 'Test transaction fields for foreign keys and empty values'
-}
-
-task runTestAgentFields(type: JavaExec) {
-    classpath = sourceSets.main.runtimeClasspath
-    mainClass = 'com.example.mongoexport.TestAgentFields'
-    jvmArgs = ['-Xmx2g']
-    description = 'Test agent fields for foreign keys and empty values'
-}
 
 tasks.withType(JavaCompile) {
     options.encoding = 'UTF-8'

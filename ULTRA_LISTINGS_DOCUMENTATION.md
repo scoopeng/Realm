@@ -4,339 +4,265 @@
 
 The Ultra Listings Exporter provides a comprehensive view of all property listings in the system with extensive enrichment from related collections. Each row represents a single listing with detailed information including property characteristics, agent details, market profiles, location data, and search metadata. This export is designed for in-depth market analysis, property valuation studies, and agent performance tracking.
 
-**Note**: A cleaned version (`UltraListingsExporterCleaned`) is available that removes ~67 meaningless columns (always false/null fields), reducing the export from 259 to ~192 columns while maintaining all meaningful data.
+**Current Version**: Optimized export with ~192 human-readable columns (removed meaningless fields that were always false/null)
+**Performance**: ~3,500 listings/second
+**Output Format**: CSV with human-readable column headers
+
+## Key Improvements
+- Human-readable column headers for end users
+- Removed ~67 meaningless columns that only contained false/null values
+- Fixed brokerage city extraction from offices array
+- Resolved all foreign keys to human-readable values
+- Maintained high performance with optimized memory management
 
 ## Column Groups and Descriptions
 
-### 1. Core Listing Identifiers and Basic Information (8 columns)
-**Description**: Primary listing identification and fundamental property details
-- `listing_id` - MongoDB ObjectId of the listing
-- `mls_number` - Multiple Listing Service identifier
-- `property_type` - Type of property (single family, condo, townhome, etc.)
-- `status` - Current listing status (active, pending, sold, expired)
-- `list_date` - Date property was listed
-- `expiration_date` - Listing expiration date
-- `days_on_market` - Calculated days since listing
-- `created_date` - Date record was created in system
+### 1. Core Listing Information (8 columns)
+**Description**: Primary listing identification and status
+- `Listing ID` - Unique identifier for the listing
+- `MLS Number` - Multiple Listing Service identifier  
+- `Status` - Current listing status (active, pending, sold, expired)
+- `Status Category` - Broader status categorization
+- `List Date` - Date property was listed
+- `Days on Market` - Calculated days since listing
+- `Expiration Date` - Listing expiration date
+- `Last Update` - Date of last modification
 
-### 2. Address and Location Details (20 columns)
-**Description**: Complete property location information with geocoding
-- `street_address` - Full street address
-- `unit_number` - Apartment or unit number
-- `city` - City name
-- `state` - State abbreviation
-- `zipcode` - ZIP code
-- `county` - County name
-- `subdivision` - Subdivision or neighborhood name
-- `school_district` - School district
-- `elementary_school` - Elementary school zone
-- `middle_school` - Middle school zone
-- `high_school` - High school zone
-- `latitude` - GPS latitude coordinate
-- `longitude` - GPS longitude coordinate
-- `parcel_number` - Tax parcel identifier
-- `legal_description` - Legal property description
-- `zoning` - Zoning classification
-- `flood_zone` - Flood zone designation
-- `census_tract` - Census tract number
-- `map_coordinates` - Additional mapping coordinates
-- `directions` - Driving directions to property
+### 2. Pricing Information (10 columns)
+**Description**: Comprehensive pricing and fee details
+- `List Price` - Current asking price
+- `Price per Sq Ft` - Price per square foot
+- `Price History Count` - Number of price changes
+- `Original List Price` - Initial listing price
+- `Current Price Index` - Relative price indicator
+- `HOA Fee` - Homeowners association fee
+- `Listing Type` - Type of listing (exclusive, open, etc.)
+- `Listing Agreement` - Agreement type
+- `Commission Percent` - Commission percentage
+- `Showing Requirements` - Requirements for property showings
 
-### 3. Price and Financial Information (15 columns)
-**Description**: Comprehensive pricing, tax, and financial details
-- `list_price` - Current asking price
-- `original_list_price` - Initial listing price
-- `price_per_sqft` - Price per square foot
-- `previous_list_price` - Prior listing price if changed
-- `price_change_date` - Date of last price change
-- `price_change_amount` - Amount of price change
-- `tax_assessed_value` - Property tax assessment
-- `annual_property_tax` - Annual tax amount
-- `tax_year` - Tax assessment year
-- `hoa_fee` - Homeowners association fee
-- `hoa_frequency` - HOA fee payment frequency
-- `special_assessments` - Special assessment amounts
-- `estimated_mortgage` - Estimated monthly mortgage
-- `estimated_insurance` - Estimated insurance cost
-- `total_monthly_cost` - Estimated total monthly cost
+### 3. Property Details (15 columns)
+**Description**: Core property characteristics
+- `Property ID` - Property identifier
+- `Property Type` - Type of property (single family, condo, etc.)
+- `Property Sub-Type` - More specific property classification
+- `Year Built` - Year of construction
+- `Square Feet` - Total living area
+- `Lot Size` - Lot size in square feet
+- `Bedrooms` - Number of bedrooms
+- `Full Bathrooms` - Number of full bathrooms
+- `Half Bathrooms` - Number of half bathrooms
+- `Total Bathrooms` - Combined bathroom count
+- `Rooms` - Total room count
+- `Stories` - Number of stories
+- `Garage Spaces` - Garage parking spaces
+- `Carport Spaces` - Carport spaces
+- `Parking Spaces` - Total parking spaces
 
-### 4. Property Characteristics (35 columns)
-**Description**: Detailed physical property attributes and features
-- `property_style` - Architectural style
-- `year_built` - Year of construction
-- `total_sqft` - Total square footage
-- `living_sqft` - Living area square footage
-- `lot_size_sqft` - Lot size in square feet
-- `lot_size_acres` - Lot size in acres
-- `bedrooms` - Number of bedrooms
-- `full_bathrooms` - Number of full bathrooms
-- `half_bathrooms` - Number of half bathrooms
-- `total_rooms` - Total room count
-- `stories` - Number of stories
-- `garage_spaces` - Garage parking spaces
-- `carport_spaces` - Carport spaces
-- `parking_description` - Additional parking details
-- `basement_type` - Basement type (finished, unfinished, none)
-- `basement_sqft` - Basement square footage
-- `foundation_type` - Foundation type
-- `roof_type` - Roofing material
-- `exterior_material` - Exterior construction material
-- `heating_type` - Heating system type
-- `cooling_type` - Air conditioning type
-- `water_source` - Water supply source
-- `sewer_type` - Sewer system type
-- `utilities` - Available utilities
-- `pool` - Pool (yes/no)
-- `pool_type` - Type of pool if present
-- `spa` - Spa/hot tub (yes/no)
-- `fireplace_count` - Number of fireplaces
-- `view_description` - View description
-- `waterfront` - Waterfront property (yes/no)
-- `waterfront_type` - Type of waterfront
-- `energy_features` - Energy efficiency features
-- `accessibility_features` - ADA/accessibility features
-- `security_features` - Security system features
-- `smart_home_features` - Smart home technology
+### 4. Location Information (12 columns)
+**Description**: Complete address and geographic details
+- `Street Address` - Full street address
+- `Unit Number` - Apartment or unit number
+- `City` - City name
+- `State` - State abbreviation
+- `ZIP Code` - ZIP code
+- `County` - County name
+- `Subdivision` - Subdivision name
+- `Latitude` - GPS latitude coordinate
+- `Longitude` - GPS longitude coordinate
+- `Geo Precision` - Accuracy of coordinates
+- `Neighborhood` - Neighborhood name
+- `Directions` - Driving directions
 
-### 5. Interior Features and Amenities (25 columns)
-**Description**: Interior room details and amenity information
-- `kitchen_features` - Kitchen amenities and appliances
-- `master_bedroom_features` - Master bedroom details
-- `bathroom_features` - Bathroom amenities
-- `flooring_types` - Types of flooring
-- `window_features` - Window types and features
-- `laundry_features` - Laundry location and features
-- `storage_features` - Storage and closet details
-- `ceiling_features` - Ceiling types and heights
-- `living_room_features` - Living room amenities
-- `dining_room_features` - Dining room details
-- `family_room_features` - Family room amenities
-- `office_features` - Home office details
-- `bonus_room_features` - Bonus/flex room details
-- `appliances_included` - Included appliances list
-- `appliance_descriptions` - Detailed appliance info
-- `interior_paint_condition` - Interior paint condition
-- `carpet_condition` - Carpet condition
-- `hardwood_condition` - Hardwood floor condition
-- `plumbing_updates` - Recent plumbing updates
-- `electrical_updates` - Recent electrical updates
-- `hvac_age` - HVAC system age
-- `roof_age` - Roof age
-- `window_age` - Window age
-- `recent_renovations` - Recent renovation details
-- `renovation_year` - Year of major renovations
+### 5. School Information (12 columns)
+**Description**: School district and individual school details
+- `Elementary School` - Assigned elementary school
+- `Elementary Rating` - School rating/score
+- `Elementary District` - Elementary school district
+- `Elementary Distance (mi)` - Distance to school
+- `Middle School` - Assigned middle school
+- `Middle Rating` - School rating/score
+- `Middle District` - Middle school district
+- `Middle Distance (mi)` - Distance to school
+- `High School` - Assigned high school
+- `High Rating` - School rating/score
+- `High District` - High school district
+- `High Distance (mi)` - Distance to school
 
-### 6. Listing Agent Information (28 columns)
-**Description**: Complete details about the listing agent and their performance
-- `listing_agent_id` - Agent's unique identifier
-- `listing_agent_name` - Agent's full name
-- `listing_agent_email` - Agent email
-- `listing_agent_phone` - Agent phone number
-- `listing_agent_mobile` - Agent mobile number
-- `listing_agent_license` - Agent license number
-- `listing_agent_years_exp` - Years of experience
-- `listing_agent_designations` - Professional designations
-- `listing_agent_specialties` - Agent specialties
-- `listing_agent_bio` - Agent biography excerpt
-- `listing_agent_website` - Agent website
-- `listing_agent_photo_url` - Agent photo URL
-- `listing_agent_rating` - Agent rating/reviews
-- `listing_agent_total_sales` - Total career sales
-- `listing_agent_annual_sales` - Annual sales volume
-- `listing_agent_active_listings` - Current active listings
-- `listing_agent_sold_listings` - Total sold listings
-- `listing_agent_avg_dom` - Average days on market
-- `listing_agent_list_to_sold_ratio` - List to sold price ratio
-- `listing_office_id` - Listing office ID
-- `listing_office_name` - Listing office name
-- `listing_office_phone` - Office phone
-- `listing_office_email` - Office email
-- `listing_office_address` - Office address
-- `listing_office_website` - Office website
-- `cobroke_agent_id` - Co-listing agent ID if applicable
-- `cobroke_agent_name` - Co-listing agent name
-- `commission_offered` - Commission offered to buyer's agent
+### 6. Property Tags (25 columns)
+**Description**: Boolean indicators for special property features
+- `Tag: Featured` - Featured listing
+- `Tag: Coming soon` - Coming soon to market
+- `Tag: Price reduced` - Recently reduced price
+- `Tag: Open house` - Open house scheduled
+- `Tag: Virtual tour` - Virtual tour available
+- `Tag: New construction` - Newly built property
+- `Tag: Foreclosure` - Foreclosure property
+- `Tag: Short sale` - Short sale listing
+- `Tag: Auction` - Auction property
+- `Tag: Bank owned` - REO/bank owned
+- `Tag: Reo` - Real estate owned
+- `Tag: Distressed` - Distressed sale
+- `Tag: Fixer upper` - Needs renovation
+- `Tag: As is` - Sold as-is condition
+- `Tag: Estate sale` - Estate sale property
+- `Tag: Probate` - Probate sale
+- `Tag: Relocation` - Relocation sale
+- `Tag: Corporate owned` - Corporate-owned property
+- `Tag: Government owned` - Government property
+- `Tag: Tax lien` - Tax lien property
+- `Tag: Pre foreclosure` - Pre-foreclosure status
+- `Tag: Hud home` - HUD home
+- `Tag: Fannie mae` - Fannie Mae property
+- `Tag: Freddie mac` - Freddie Mac property
+- `Tag: Va owned` - VA-owned property
 
-### 7. Brokerage Information (15 columns)
-**Description**: Details about the listing brokerage/real estate company
-- `brokerage_id` - Brokerage unique identifier
-- `brokerage_name` - Brokerage company name
-- `brokerage_phone` - Main office phone
-- `brokerage_email` - Main office email
-- `brokerage_website` - Company website
-- `brokerage_address` - Headquarters address
-- `brokerage_city` - Brokerage city
-- `brokerage_state` - Brokerage state
-- `brokerage_zipcode` - Brokerage ZIP
-- `brokerage_type` - Type of brokerage (franchise, independent, etc.)
-- `brokerage_size` - Size classification
-- `brokerage_year_established` - Year founded
-- `brokerage_total_agents` - Total agent count
-- `brokerage_market_share` - Local market share percentage
-- `brokerage_specialties` - Company specialties
+### 7. Current Agent Information (18 columns)
+**Description**: Listing agent details and credentials
+- `Agent ID` - Agent identifier
+- `Agent Name` - Full agent name
+- `Agent Email` - Agent email address
+- `Agent Phone` - Agent phone number
+- `Agent License #` - License number
+- `Agent Website` - Agent website URL
+- `Agent Bio Length` - Length of agent biography
+- `Agent Photo URL` - Agent photo link
+- `Agent Years Experience` - Years in real estate
+- `Agent Designations` - Professional designations
+- `Agent Specialties` - Areas of expertise
+- `Agent Languages` - Languages spoken
+- `Agent Education` - Educational background
+- `Agent Social Media` - Social media links
+- `Agent Rating (Avg)` - Average client rating
+- `Agent Rating Count` - Number of ratings
+- `Agent Sales Last Year` - Sales in past year
+- `Agent Listings Last Year` - Listings in past year
 
-### 8. Market Profile Information (20 columns)
-**Description**: Market area statistics and demographic information
-- `market_area_name` - Market area designation
-- `market_median_price` - Area median sale price
-- `market_avg_price` - Area average sale price
-- `market_price_trend` - Price trend (up/down/stable)
-- `market_inventory_level` - Current inventory months
-- `market_days_on_market` - Area average DOM
-- `market_absorption_rate` - Market absorption rate
-- `market_new_listings_count` - New listings this month
-- `market_sold_count` - Properties sold this month
-- `market_pending_count` - Pending sales count
-- `market_price_per_sqft` - Area price per square foot
-- `area_population` - Area population
-- `area_median_income` - Median household income
-- `area_employment_rate` - Employment rate
-- `area_school_rating` - Average school rating
-- `area_crime_index` - Crime index rating
-- `area_walkability_score` - Walkability score
-- `area_transit_score` - Public transit score
-- `area_growth_rate` - Population growth rate
-- `area_new_construction` - New construction percentage
+### 8. Agent Personal Information (7 columns)
+**Description**: Additional agent contact details
+- `Agent Person ID` - Person record identifier
+- `Agent Address` - Agent office/home address
+- `Agent City` - Agent city
+- `Agent State` - Agent state
+- `Agent ZIP Code` - Agent ZIP code
+- `Agent Person Languages` - Languages from person record
+- `Agent Person Specialties` - Specialties from person record
 
-### 9. City and Location Enrichment (15 columns)
-**Description**: Enhanced city-level data from US cities database
-- `city_population` - City population
-- `city_median_income` - City median income
-- `city_median_home_value` - City median home value
-- `city_cost_of_living_index` - Cost of living index
-- `city_unemployment_rate` - Unemployment rate
-- `city_tax_rate` - Local tax rate
-- `city_school_spending` - Per-pupil spending
-- `city_crime_rate` - Crime rate per 1000
-- `city_commute_time` - Average commute time
-- `city_air_quality_index` - Air quality index
-- `city_park_acres_per_1000` - Park space per capita
-- `metro_area` - Metropolitan area name
-- `metro_population` - Metro area population
-- `distance_to_downtown` - Miles to city center
-- `distance_to_airport` - Miles to nearest airport
+### 9. Brokerage Information (11 columns)
+**Description**: Real estate brokerage details
+- `Brokerage ID` - Brokerage identifier
+- `Brokerage Name` - Brokerage company name
+- `Brokerage Phone` - Main phone number
+- `Brokerage Email` - Contact email
+- `Brokerage Website` - Company website
+- `Brokerage Address` - Office address
+- `Brokerage City` - Office city
+- `Brokerage State` - Office state
+- `Brokerage ZIP Code` - Office ZIP code
+- `Brokerage Type` - Type of brokerage
+- `Brokerage Year Established` - Year founded
 
-### 10. Search and Visibility Metrics (12 columns)
-**Description**: Property search visibility and online engagement metrics
-- `search_views_count` - Total search views
-- `search_saves_count` - Times saved by users
-- `search_inquiries_count` - Number of inquiries
-- `search_showing_requests` - Showing requests
-- `virtual_tour_views` - Virtual tour view count
-- `photo_views_count` - Photo gallery views
-- `search_ranking_score` - Search result ranking
-- `featured_listing` - Featured listing flag
-- `premium_placement` - Premium placement flag
-- `listing_quality_score` - Listing completeness score
-- `days_since_last_update` - Days since listing updated
-- `update_frequency` - How often listing updates
+### 10. Marketing and Media (9 columns)
+**Description**: Marketing materials and property media
+- `Picture Count` - Number of photos
+- `Virtual Tour URL` - Virtual tour link
+- `Video URL` - Property video link
+- `Walkthrough Video URL` - Walkthrough video
+- `Drone Video URL` - Aerial video link
+- `Matterport URL` - 3D tour link
+- `Marketing Remarks` - Public marketing description
+- `Private Remarks` - Agent-only remarks
+- `Property Description` - Detailed description
 
-### 11. Marketing and Showing Information (15 columns)
-**Description**: Marketing materials and showing logistics
-- `marketing_remarks` - Public marketing description
-- `private_remarks` - Agent-only remarks
-- `showing_instructions` - Showing instructions
-- `showing_contact` - Showing contact info
-- `lockbox_type` - Type of lockbox
-- `lockbox_code` - Lockbox access code
-- `vacant_property` - Vacant property flag
-- `tenant_occupied` - Tenant occupied flag
-- `lease_expiration` - Lease expiration if applicable
-- `possession_date` - Available possession date
-- `exclusions` - Items excluded from sale
-- `inclusions` - Items included in sale
-- `virtual_tour_url` - Virtual tour link
-- `video_url` - Property video link
-- `brochure_url` - Marketing brochure link
+### 11. Showing Information (6 columns)
+**Description**: Property showing details and access
+- `Showing Instructions` - Instructions for showings
+- `Showing Contact` - Contact for showings
+- `Lockbox Type` - Type of lockbox
+- `Lockbox Code` - Lockbox access code
+- `Gate Code` - Gate/entry code
+- `Alarm Info` - Alarm system information
 
-### 12. Offer and Contract Details (10 columns)
-**Description**: Offer management and contract status
-- `offers_received` - Number of offers received
-- `highest_offer` - Highest offer amount
-- `offer_deadline` - Offer deadline date
-- `under_contract` - Under contract flag
-- `contract_date` - Contract acceptance date
-- `contingencies` - Active contingencies
-- `closing_date` - Scheduled closing date
-- `escrow_company` - Escrow company name
-- `title_company` - Title company name
-- `home_warranty` - Home warranty included
+### 12. Transaction History (13 columns)
+**Description**: Sale information if property sold
+- `Has Transaction` - Whether property has sold
+- `Sale Date` - Date of sale
+- `Sale Price` - Final sale price
+- `Sale to List Ratio (%)` - Sale price vs list price percentage
+- `Days to Sell` - Days from listing to sale
+- `Buyer Agent ID` - Buyer's agent identifier
+- `Buyer Agent Name` - Buyer's agent name
+- `Buyer Brokerage` - Buyer's brokerage
+- `Buyers Count` - Number of buyers
+- `Buyer Names` - Names of buyers
+- `Sellers Count` - Number of sellers
+- `Seller Names` - Names of sellers
+- `Financing Type` - Type of financing used
 
-### 13. Historical and Comparative Data (12 columns)
-**Description**: Property history and market comparisons
-- `previous_sale_date` - Last sale date
-- `previous_sale_price` - Last sale price
-- `price_appreciation` - Appreciation since last sale
-- `ownership_length` - Current owner tenure
-- `listing_history_count` - Times listed previously
-- `average_neighborhood_price` - Neighborhood average
-- `price_vs_neighborhood` - Price comparison percentage
-- `similar_properties_for_sale` - Competing listings count
-- `recent_neighborhood_sales` - Recent sales count
-- `market_competition_index` - Competition level score
-- `price_confidence_score` - Pricing accuracy score
-- `likely_sale_timeframe` - Predicted sale timeframe
+### 13. Market Profile Data (11 columns)
+**Description**: Area market statistics and trends
+- `Market Area` - Market area name
+- `Market Median List Price` - Area median list price
+- `Market Median Sale Price` - Area median sale price
+- `Market Avg Days on Market` - Area average DOM
+- `Market Inventory Count` - Active listings in area
+- `Market New Listings (30d)` - New listings last 30 days
+- `Market Sold Listings (30d)` - Sales last 30 days
+- `Market Price Trend (3m)` - 3-month price trend
+- `Market Price Trend (12m)` - 12-month price trend
+- `Market Absorption Rate` - Rate of sales
+- `Market Months of Inventory` - Supply/demand ratio
 
-### 14. Tags and Categories (10 columns)
-**Description**: Property tags and categorical classifications
-- `primary_tag` - Main property tag
-- `secondary_tags` - Additional tags
-- `lifestyle_tags` - Lifestyle feature tags
-- `investment_potential` - Investment rating
-- `first_time_buyer_friendly` - First-time buyer suitable
-- `luxury_property` - Luxury designation
-- `green_certified` - Green certification
-- `historic_property` - Historic designation
-- `foreclosure_status` - Foreclosure/REO status
-- `short_sale` - Short sale flag
+### 14. Demographics (9 columns)
+**Description**: Area demographic information
+- `Market Population` - Area population
+- `Market Households` - Number of households
+- `Market Median Income` - Median household income
+- `Market Age Distribution` - Age demographics
+- `Market Income Distribution` - Income brackets
+- `Market Marital Distribution` - Marital status
+- `Market Education Level` - Education levels
+- `Market Employment Rate` - Employment percentage
+- `Market Owner-Occupied Rate` - Owner vs renter ratio
 
-### 15. Feeder Market Information (8 columns)
-**Description**: Related market areas and migration patterns
-- `primary_feeder_market` - Main feeder market
-- `secondary_feeder_markets` - Other feeder markets
-- `buyer_origin_markets` - Where buyers come from
-- `relocation_score` - Relocation appeal score
-- `investor_interest_level` - Investor interest metric
-- `vacation_home_score` - Vacation home suitability
-- `retirement_score` - Retirement suitability
-- `family_score` - Family-friendliness score
+### 15. City Data (9 columns)
+**Description**: City-level statistics
+- `City Population` - City population
+- `City Median Income` - City median income
+- `City Median Home Value` - Median home value
+- `City Unemployment Rate` - Unemployment rate
+- `City Cost of Living Index` - Cost of living index
+- `City Crime Rate` - Crime statistics
+- `City School Rating` - Overall school rating
+- `City Walk Score` - Walkability score
+- `City Transit Score` - Public transit score
 
-### 16. System and Compliance Fields (12 columns)
-**Description**: System tracking and regulatory compliance data
-- `data_source` - Source system for listing
-- `import_date` - Date imported to system
-- `last_modified` - Last modification timestamp
-- `modified_by` - User who last modified
-- `listing_agreement_type` - Type of listing agreement
-- `compensation_type` - Commission structure
-- `ada_compliant` - ADA compliance flag
-- `fair_housing_compliant` - Fair housing compliance
-- `syndication_status` - Syndication to other sites
-- `idn_status` - IDX/Internet display status
-- `copyright_notice` - Copyright information
-- `data_accuracy_score` - Data quality score
+### 16. Enhanced Tags and Search (5 columns)
+**Description**: Additional categorization and search metadata
+- `Listing Lifestyles` - Lifestyle tags
+- `Listing Tags` - Additional search tags
+- `Co-Ownership Type` - Ownership structure
+- `Tag Categories` - Tag categorizations
+- `Tag Weights Sum` - Combined tag weights
+
+### 17. Feeder Markets (4 columns)
+**Description**: Related market areas
+- `Feeder Market Count` - Number of feeder markets
+- `Primary Feeder Market` - Main feeder market
+- `Secondary Feeder Markets` - Additional markets
+- `Feeder Market Distances` - Distances to markets
 
 ## Usage Notes
 
-1. **Data Currency**: Listing data reflects the state at export time. Active listings may have changed status.
+1. **File Size**: Approximately 92MB for full export of 64,363 listings
+2. **Performance**: Exports complete in ~20 seconds
+3. **Memory Requirements**: Requires 20GB heap allocation for optimal performance
+4. **Update Frequency**: Run daily or as needed for current data
 
-2. **Price Fields**: All price fields are in USD. Empty values indicate data not available.
+## Running the Export
 
-3. **Agent Metrics**: Agent performance metrics are calculated from historical data in the system.
+```bash
+./gradlew runUltraListings
+```
 
-4. **Market Data**: Market profile information is updated monthly and may lag current conditions.
-
-5. **Enrichment Sources**: Data is enriched from multiple collections including agents, brokerages, marketProfiles, usCities, listingSearch, tags, and feederMarkets.
-
-6. **Privacy**: Some fields may contain sensitive information. Ensure proper access controls.
-
-7. **Null Handling**: Empty fields indicate data not available or not applicable for that listing.
-
-## Common Use Cases
-
-- **Market Analysis**: Analyze pricing trends, inventory levels, and market dynamics
-- **Agent Performance**: Track agent listing performance and specialization patterns
-- **Investment Research**: Identify investment opportunities based on tags and metrics
-- **Competitive Analysis**: Compare properties and understand market positioning
-- **Geographic Studies**: Analyze location-based patterns and preferences
-- **Marketing Insights**: Understand which features and descriptions drive engagement
+Output file: `output/all_listings_ultra_comprehensive_YYYYMMDD_HHMMSS.csv`

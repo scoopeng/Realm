@@ -14,9 +14,12 @@ import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
 
+/**
+ * Ultra-comprehensive agent performance exporter with complete metrics and analytics
+ */
 public class UltraAgentPerformanceExporter {
     private static final Logger logger = LoggerFactory.getLogger(UltraAgentPerformanceExporter.class);
-    private static final int BATCH_SIZE = 1000; // Process 1000 agents at a time
+    private static final int BATCH_SIZE = 1000;
     
     private final ExportConfig config;
     private final MongoDatabase database;
@@ -28,11 +31,11 @@ public class UltraAgentPerformanceExporter {
     private Map<ObjectId, List<Document>> transactionsByAgentMap = new HashMap<>();
     
     // Additional collections for enhanced attributes
-    private Map<ObjectId, Document> teamsMap = new HashMap<>(); // Key by team ID
-    private Map<ObjectId, List<ObjectId>> agentTeamMembershipsMap = new HashMap<>(); // Key by agent ID
-    private Map<ObjectId, Document> agentSearchMap = new HashMap<>(); // Key by agent ID
-    private Map<ObjectId, List<Document>> agentClientEventsByAgentMap = new HashMap<>(); // Key by agent ID
-    private Map<ObjectId, List<Document>> awardsByAgentMap = new HashMap<>(); // Key by agent ID
+    private Map<ObjectId, Document> teamsMap = new HashMap<>();
+    private Map<ObjectId, List<ObjectId>> agentTeamMembershipsMap = new HashMap<>();
+    private Map<ObjectId, Document> agentSearchMap = new HashMap<>();
+    private Map<ObjectId, List<Document>> agentClientEventsByAgentMap = new HashMap<>();
+    private Map<ObjectId, List<Document>> awardsByAgentMap = new HashMap<>();
     
     // Common specialties and designations
     private static final List<String> COMMON_SPECIALTIES = Arrays.asList(
@@ -58,13 +61,12 @@ public class UltraAgentPerformanceExporter {
         
         logger.info("Starting ultra-comprehensive agent performance export...");
         
-        // Count agents first
         MongoCollection<Document> agents = exporter.database.getCollection("agents");
         long totalAgents = agents.countDocuments();
         logger.info("Total agents in database: {}", totalAgents);
         
         exporter.exportAgentPerformanceUltraComprehensive();
-        logger.info("Ultra comprehensive agent performance export completed!");
+        logger.info("Ultra-comprehensive agent performance export completed!");
     }
     
     private void loadCollectionsIntoMemory() {
@@ -97,7 +99,7 @@ public class UltraAgentPerformanceExporter {
         }
         logger.info("Loaded {} people into memory", peopleMap.size());
         
-        // First, load ALL listings into a map by ID for quick lookup
+        // Load listings into memory for agent lookup
         logger.info("Loading all listings into memory for transaction lookups...");
         Map<ObjectId, Document> allListingsMap = new HashMap<>();
         MongoCollection<Document> listings = database.getCollection("listings");
@@ -109,7 +111,7 @@ public class UltraAgentPerformanceExporter {
         }
         logger.info("Loaded {} listings into lookup map", allListingsMap.size());
         
-        // Now organize listings by agent
+        // Organize listings by agent
         logger.info("Organizing listings by agent...");
         long listingCount = 0;
         for (Document doc : allListingsMap.values()) {
@@ -125,7 +127,7 @@ public class UltraAgentPerformanceExporter {
         }
         logger.info("Organized {} listings by agent", listingCount);
         
-        // Load transactions grouped by agent (both selling and listing agents)
+        // Load transactions grouped by agent
         logger.info("Loading transactions by agent...");
         MongoCollection<Document> transactions = database.getCollection("transactions");
         long transCount = 0;
@@ -140,7 +142,7 @@ public class UltraAgentPerformanceExporter {
                 transCount++;
             }
             
-            // Now we can efficiently get listing agent from the transaction
+            // Get listing agent from transaction
             Object listingRef = doc.get("listing");
             if (listingRef instanceof ObjectId) {
                 Document listing = allListingsMap.get((ObjectId) listingRef);
@@ -157,7 +159,7 @@ public class UltraAgentPerformanceExporter {
         logger.info("Loaded {} transactions into memory ({} as selling agent, {} as listing agent)", 
                     transCount + listingAgentTransCount, transCount, listingAgentTransCount);
         
-        // Load teams (209 docs)
+        // Load teams
         logger.info("Loading teams collection...");
         MongoCollection<Document> teams = database.getCollection("teams");
         for (Document doc : teams.find()) {
@@ -176,7 +178,7 @@ public class UltraAgentPerformanceExporter {
         }
         logger.info("Loaded {} teams into memory", teamsMap.size());
         
-        // Load agent search (26K docs)
+        // Load agent search
         logger.info("Loading agent search collection...");
         MongoCollection<Document> agentSearch = database.getCollection("agentSearch");
         for (Document doc : agentSearch.find()) {
@@ -187,7 +189,7 @@ public class UltraAgentPerformanceExporter {
         }
         logger.info("Loaded {} agent search records into memory", agentSearchMap.size());
         
-        // Load agent client events (64K docs)
+        // Load agent client events
         logger.info("Loading agent client events collection...");
         MongoCollection<Document> agentClientEvents = database.getCollection("agentclientevents");
         long eventCount = 0;
@@ -201,11 +203,10 @@ public class UltraAgentPerformanceExporter {
         }
         logger.info("Loaded {} agent client events into memory", eventCount);
         
-        // Load awards (10 docs - but need to map to agents)
+        // Load awards
         logger.info("Loading awards collection...");
         MongoCollection<Document> awards = database.getCollection("awards");
         for (Document doc : awards.find()) {
-            // Awards might be linked through agent IDs in the document
             List<ObjectId> awardAgents = (List<ObjectId>) doc.get("agents");
             if (awardAgents != null) {
                 for (ObjectId agentId : awardAgents) {
@@ -228,7 +229,7 @@ public class UltraAgentPerformanceExporter {
         loadCollectionsIntoMemory();
         
         String timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss"));
-        String outputPath = config.getOutputDirectory() + "/agent_performance_ultra_" + timestamp + ".csv";
+        String outputPath = config.getOutputDirectory() + "/agent_performance_ultra_comprehensive_" + timestamp + ".csv";
         
         try (FileWriter fileWriter = new FileWriter(outputPath); 
              CSVWriter csvWriter = new CSVWriter(fileWriter)) {
@@ -310,82 +311,84 @@ public class UltraAgentPerformanceExporter {
         List<String> headers = new ArrayList<>();
         
         // Agent basic info
-        headers.addAll(Arrays.asList("agent_id", "agent_full_name", "agent_first_name", "agent_last_name",
-            "agent_email", "agent_phone", "agent_mobile", "agent_office_phone", "agent_fax"));
+        headers.addAll(Arrays.asList("Agent Full Name", "Agent First Name", "Agent Last Name",
+            "Agent Email", "Agent Phone", "Agent Mobile", "Agent Office Phone", "Agent Fax"));
             
         // Agent professional info
-        headers.addAll(Arrays.asList("agent_license_number", "agent_license_state", "agent_years_experience",
-            "agent_start_date", "agent_website", "agent_social_media", "agent_bio_length", "agent_photo_url"));
+        headers.addAll(Arrays.asList("Agent License Number", "Agent License State", "Agent Years Experience",
+            "Agent Start Date", "Agent Website", "Agent Social Media", "Agent Bio Length", "Agent Photo URL"));
             
         // Agent designations as indicators
         for (String designation : COMMON_DESIGNATIONS) {
-            headers.add("designation_" + designation);
+            headers.add("Designation: " + designation);
         }
         
         // Agent specialties as indicators
         for (String specialty : COMMON_SPECIALTIES) {
-            headers.add("specialty_" + specialty);
+            String formattedSpecialty = specialty.replace("_", " ");
+            formattedSpecialty = formattedSpecialty.substring(0, 1).toUpperCase() + formattedSpecialty.substring(1).toLowerCase();
+            headers.add("Specialty: " + formattedSpecialty);
         }
         
         // Agent person info
-        headers.addAll(Arrays.asList("person_id", "person_address", "person_city", "person_state",
-            "person_zipcode", "person_county", "person_languages", "person_education"));
+        headers.addAll(Arrays.asList("Person Address", "Person City", "Person State",
+            "Person ZIP Code", "Person County", "Person Languages", "Person Education"));
             
         // Brokerage info
-        headers.addAll(Arrays.asList("brokerage_id", "brokerage_name", "brokerage_phone", "brokerage_email",
-            "brokerage_website", "brokerage_address", "brokerage_city", "brokerage_state", "brokerage_zipcode",
-            "brokerage_type", "brokerage_size", "brokerage_year_established"));
+        headers.addAll(Arrays.asList("Brokerage Name", "Brokerage Phone", "Brokerage Email",
+            "Brokerage Website", "Brokerage Address", "Brokerage City", "Brokerage State", "Brokerage ZIP Code",
+            "Brokerage Type", "Brokerage Size", "Brokerage Year Established"));
             
         // Performance metrics - Listings
-        headers.addAll(Arrays.asList("total_listings", "active_listings", "pending_listings", "sold_listings",
-            "expired_listings", "withdrawn_listings", "average_list_price", "median_list_price",
-            "total_listing_volume", "average_days_on_market", "listings_last_30_days", "listings_last_90_days",
-            "listings_last_year"));
+        headers.addAll(Arrays.asList("Total Listings", "Active Listings", "Pending Listings", "Sold Listings",
+            "Expired Listings", "Withdrawn Listings", "Average List Price", "Median List Price",
+            "Total Listing Volume", "Average Days on Market", "Listings Last 30 Days", "Listings Last 90 Days",
+            "Listings Last Year"));
             
         // Performance metrics - Sales
-        headers.addAll(Arrays.asList("total_sales", "buyer_sales", "seller_sales", "dual_agency_sales",
-            "average_sale_price", "median_sale_price", "total_sales_volume", "average_sale_to_list_ratio",
-            "sales_last_30_days", "sales_last_90_days", "sales_last_year"));
+        headers.addAll(Arrays.asList("Total Sales", "Buyer Sales", "Seller Sales", "Dual Agency Sales",
+            "Average Sale Price", "Median Sale Price", "Total Sales Volume", "Average Sale to List Ratio",
+            "Sales Last 30 Days", "Sales Last 90 Days", "Sales Last Year"));
             
         // Property type breakdown
-        headers.addAll(Arrays.asList("single_family_sales", "condo_sales", "townhome_sales", "multi_family_sales",
-            "land_sales", "commercial_sales", "luxury_sales_count", "first_time_buyer_sales"));
+        headers.addAll(Arrays.asList("Single Family Sales", "Condo Sales", "Townhome Sales", "Multi-Family Sales",
+            "Land Sales", "Commercial Sales", "Luxury Sales Count", "First Time Buyer Sales"));
             
         // Geographic coverage
-        headers.addAll(Arrays.asList("cities_served_count", "primary_city", "primary_zipcode", 
-            "zipcodes_served_count", "counties_served_count"));
+        headers.addAll(Arrays.asList("Cities Served Count", "Primary City", "Primary ZIP Code", 
+            "ZIP Codes Served Count", "Counties Served Count"));
             
         // Price range expertise
-        headers.addAll(Arrays.asList("under_200k_sales", "200k_400k_sales", "400k_600k_sales", 
-            "600k_800k_sales", "800k_1m_sales", "over_1m_sales"));
+        headers.addAll(Arrays.asList("Under $200K Sales", "$200K-$400K Sales", "$400K-$600K Sales", 
+            "$600K-$800K Sales", "$800K-$1M Sales", "Over $1M Sales"));
             
         // Client metrics
-        headers.addAll(Arrays.asList("repeat_client_rate", "referral_rate", "average_commission_rate",
-            "total_commission_earned", "average_transaction_sides"));
+        headers.addAll(Arrays.asList("Repeat Client Rate", "Referral Rate", "Average Commission Rate",
+            "Total Commission Earned", "Average Transaction Sides"));
             
         // Market share and rankings
-        headers.addAll(Arrays.asList("market_share_listings", "market_share_sales", "brokerage_rank",
-            "city_rank", "production_tier"));
+        headers.addAll(Arrays.asList("Market Share - Listings", "Market Share - Sales", "Brokerage Rank",
+            "City Rank", "Production Tier"));
             
         // Activity metrics
-        headers.addAll(Arrays.asList("last_listing_date", "last_sale_date", "months_since_last_activity",
-            "listing_to_sale_conversion_rate", "average_price_reduction"));
+        headers.addAll(Arrays.asList("Last Listing Date", "Last Sale Date", "Months Since Last Activity",
+            "Listing to Sale Conversion Rate", "Average Price Reduction"));
             
         // Team Information
-        headers.addAll(Arrays.asList("is_team_member", "team_count", "primary_team_name", "primary_team_id",
-            "team_size", "team_role", "team_total_agents", "team_founded_date"));
+        headers.addAll(Arrays.asList("Is Team Member", "Team Count", "Primary Team Name",
+            "Team Size", "Team Role", "Team Total Agents", "Team Founded Date"));
             
         // Agent Search and Visibility
-        headers.addAll(Arrays.asList("search_visibility_score", "profile_completeness_score",
-            "search_ranking_position", "profile_views_count", "contact_requests_count"));
+        headers.addAll(Arrays.asList("Search Visibility Score", "Profile Completeness Score",
+            "Search Ranking Position", "Profile Views Count", "Contact Requests Count"));
             
         // Client Engagement
-        headers.addAll(Arrays.asList("total_client_events", "avg_events_per_client", "unique_clients_count",
-            "client_retention_rate", "event_participation_rate", "last_client_event_date"));
+        headers.addAll(Arrays.asList("Total Client Events", "Avg Events per Client", "Unique Clients Count",
+            "Client Retention Rate", "Event Participation Rate", "Last Client Event Date"));
             
         // Awards and Recognition
-        headers.addAll(Arrays.asList("total_awards_count", "award_categories", "most_recent_award",
-            "top_producer_years", "industry_recognition_score"));
+        headers.addAll(Arrays.asList("Total Awards Count", "Award Categories", "Most Recent Award",
+            "Top Producer Years", "Industry Recognition Score"));
             
         return headers.toArray(new String[0]);
     }
@@ -395,7 +398,6 @@ public class UltraAgentPerformanceExporter {
         List<String> row = new ArrayList<>();
         
         // Agent basic info
-        row.add(safeGetString(agent, "_id"));
         row.add(safeGetString(agent, "fullName"));
         row.add(safeGetString(agent, "firstName"));
         row.add(safeGetString(agent, "lastName"));
@@ -452,8 +454,6 @@ public class UltraAgentPerformanceExporter {
         
         // Agent person info
         if (agentPerson != null) {
-            row.add(safeGetString(agentPerson, "_id"));
-            
             Document address = (Document) agentPerson.get("address");
             if (address != null) {
                 row.add(safeGetString(address, "fullAddress"));
@@ -469,25 +469,55 @@ public class UltraAgentPerformanceExporter {
             row.add(String.join(",", languages));
             row.add(safeGetString(agentPerson, "education"));
         } else {
-            for (int i = 0; i < 8; i++) row.add("");
+            for (int i = 0; i < 7; i++) row.add("");
         }
         
-        // Brokerage info
+        // Brokerage info with fixed city extraction
         if (brokerage != null) {
-            row.add(safeGetString(brokerage, "_id"));
             row.add(safeGetString(brokerage, "name"));
-            row.add(safeGetString(brokerage, "phone"));
-            row.add(safeGetString(brokerage, "email"));
-            row.add(safeGetString(brokerage, "website"));
-            row.add(safeGetString(brokerage, "address"));
-            row.add(safeGetString(brokerage, "city"));
-            row.add(safeGetString(brokerage, "state"));
-            row.add(safeGetString(brokerage, "zipcode"));
+            
+            // Extract office information from offices array
+            String brokeragePhone = "";
+            String brokerageEmail = "";
+            String brokerageWebsite = "";
+            String brokerageAddress = "";
+            String brokerageCity = "";
+            String brokerageState = "";
+            String brokerageZipcode = "";
+            
+            // Get first office information if available
+            List<Document> offices = (List<Document>) brokerage.get("offices");
+            if (offices != null && !offices.isEmpty()) {
+                Document firstOffice = offices.get(0);
+                brokeragePhone = safeGetString(firstOffice, "phone");
+                brokerageEmail = safeGetString(firstOffice, "email");
+                brokerageWebsite = safeGetString(firstOffice, "website");
+                brokerageAddress = safeGetString(firstOffice, "address");
+                brokerageCity = safeGetString(firstOffice, "city");
+                brokerageState = safeGetString(firstOffice, "state");
+                brokerageZipcode = safeGetString(firstOffice, "zipcode");
+            }
+            
+            // Also check realmData for additional information
+            Document brokerageRealmData = (Document) brokerage.get("realmData");
+            if (brokerageRealmData != null) {
+                if (brokerageWebsite.isEmpty()) {
+                    brokerageWebsite = safeGetString(brokerageRealmData, "website");
+                }
+            }
+            
+            row.add(brokeragePhone);
+            row.add(brokerageEmail);
+            row.add(brokerageWebsite);
+            row.add(brokerageAddress);
+            row.add(brokerageCity);
+            row.add(brokerageState);
+            row.add(brokerageZipcode);
             row.add(safeGetString(brokerage, "type"));
             row.add(safeGetString(brokerage, "size"));
             row.add(safeGetString(brokerage, "yearEstablished"));
         } else {
-            for (int i = 0; i < 12; i++) row.add("");
+            for (int i = 0; i < 11; i++) row.add("");
         }
         
         // Calculate performance metrics from listings
@@ -511,12 +541,11 @@ public class UltraAgentPerformanceExporter {
             Document primaryTeam = teamsMap.get(primaryTeamId);
             if (primaryTeam != null) {
                 row.add(safeGetString(primaryTeam, "name"));
-                row.add(primaryTeamId.toString());
                 
                 List<ObjectId> teamAgents = (List<ObjectId>) primaryTeam.get("agents");
                 row.add(teamAgents != null ? String.valueOf(teamAgents.size()) : "0");
                 
-                // Determine role (simplified - could be enhanced)
+                // Determine role (simplified)
                 ObjectId leaderId = primaryTeam.getObjectId("teamLeader");
                 row.add(agentId.equals(leaderId) ? "leader" : "member");
                 
@@ -525,12 +554,12 @@ public class UltraAgentPerformanceExporter {
                 Date foundedDate = (Date) primaryTeam.get("foundedDate");
                 row.add(foundedDate != null ? foundedDate.toString() : "");
             } else {
-                for (int i = 0; i < 6; i++) row.add("");
+                for (int i = 0; i < 5; i++) row.add("");
             }
         } else {
             row.add("false"); // is team member
             row.add("0"); // team count
-            for (int i = 0; i < 6; i++) row.add("");
+            for (int i = 0; i < 5; i++) row.add("");
         }
         
         // Agent Search and Visibility
@@ -674,7 +703,7 @@ public class UltraAgentPerformanceExporter {
         row.add(String.valueOf(pendingListings));
         row.add(String.valueOf(soldListings));
         row.add(String.valueOf(totalListings - activeListings - pendingListings - soldListings)); // expired
-        row.add("0"); // withdrawn - would need more status checking
+        row.add("0"); // withdrawn
         
         // Price statistics
         if (!listPrices.isEmpty()) {
@@ -704,7 +733,7 @@ public class UltraAgentPerformanceExporter {
     }
     
     private void calculateSalesMetrics(List<String> row, List<Document> transactions) {
-        // Simplified sales metrics - would need more detailed calculation
+        // Simplified sales metrics
         int totalSales = transactions.size();
         row.add(String.valueOf(totalSales));
         

@@ -4,18 +4,18 @@ A high-performance MongoDB data export utility designed for comprehensive real e
 
 ## Project Status
 
-**Current Version**: 1.0-SNAPSHOT  
-**Last Updated**: 2025-08-03  
+**Current Version**: 2.0-SNAPSHOT  
+**Last Updated**: 2025-08-04  
 **Repository**: https://github.com/scoopeng/Realm
 
 ### Key Achievements
-- ✅ Ultra-fast processing: ~2,000 listings/second
-- ✅ Comprehensive exports: Up to 242 columns with denormalized indicators
-- ✅ Memory-optimized: Configurable from 1GB to 20GB based on needs
-- ✅ Multiple export strategies: From basic fields to full comprehensive data
-- ✅ Batch processing: Efficient handling of large datasets (1.9M properties, 620K people)
-- ✅ Complete database analysis with relationship mapping
-- ✅ Production-ready exporters with optimized performance
+- ✅ Ultra-fast processing: Up to 20,000 agents/second, 5,600 transactions/second, 3,500 listings/second
+- ✅ Human-readable exports: All columns have user-friendly headers
+- ✅ Optimized data quality: Removed ~100+ meaningless columns across all exporters
+- ✅ Foreign key resolution: All IDs resolved to human-readable names
+- ✅ Memory-optimized: 20GB heap allocation for optimal performance
+- ✅ Clean codebase: Removed all dead code and test utilities
+- ✅ Production-ready: Three comprehensive exporters with complete documentation
 
 ## Quick Start
 
@@ -23,40 +23,37 @@ A high-performance MongoDB data export utility designed for comprehensive real e
 
 #### 1. Ultra Listings Export (Recommended)
 ```bash
-./gradlew runUltraListings           # Original: 259 columns
-./gradlew runUltraListingsCleaned    # Cleaned: ~192 columns (recommended)
+./gradlew runUltraListings
 ```
 - **Strategy**: Property/Listings-centric view with all related data
-- **Output**: All 64K listings with comprehensive columns
-- **Features**: Property details, agent info, brokerage data, schools, amenities
-- **Cleaned Version**: Removes ~67 meaningless columns, fixes brokerage city issue
-- **Performance**: ~2,200 listings/second
-- **File Size**: ~76MB CSV (cleaned version ~56MB)
+- **Output**: All 64K listings with ~192 human-readable columns
+- **Features**: Property details, agent info, brokerage data, schools, amenities, market data
+- **Quality Improvements**: Removed ~67 meaningless columns, fixed brokerage city extraction
+- **Performance**: ~3,500 listings/second
+- **File Size**: ~92MB CSV with human-readable headers
 
 #### 2. Ultra Agent Performance Export
 ```bash
-./gradlew runUltraAgentPerformance         # Original: 156 columns
-./gradlew runUltraAgentPerformanceCleaned  # Cleaned: ~150 columns (recommended)
+./gradlew runUltraAgentPerformance
 ```
 - **Strategy**: Agent-centric view with performance metrics
-- **Output**: All 28K agents with comprehensive performance data
-- **Features**: Sales metrics, client data, geographic coverage, specializations
-- **Cleaned Version**: Resolves foreign keys, removes deleted/archived fields
-- **Performance**: Optimized batch processing
-- **Use Case**: Agent analysis, performance tracking, market share
+- **Output**: All 28K agents with ~150 human-readable columns
+- **Features**: Sales metrics, client data, geographic coverage, specializations, team info
+- **Quality Improvements**: Resolved all foreign keys, removed meaningless fields
+- **Performance**: ~20,000 agents/second
+- **File Size**: ~21MB CSV
+- **Use Case**: Agent analysis, performance tracking, recruitment
 
 #### 3. Ultra Transaction History Export
 ```bash
-./gradlew runUltraTransaction         # Original: 147 columns
-./gradlew runUltraTransactionCleaned  # Cleaned: ~120 columns (recommended)
+./gradlew runUltraTransaction
 ```
 - **Strategy**: Transaction-centric view with complete deal details
-- **Cleaned Version**: Replaces ObjectIds with names, removes empty features
-- **Output**: All 23K transactions with 128 comprehensive columns
+- **Output**: All 23K transactions with ~120 human-readable columns
 - **Features**: Buyer/seller info, agent details, financing data, property specifics
-- **Memory**: 20GB memory efficiently
-- **Performance**: ~3,300 transactions/second  
-- **File Size**: ~14MB CSV
+- **Quality Improvements**: Replaced ObjectIds with names, removed empty features
+- **Performance**: ~5,600 transactions/second  
+- **File Size**: ~9MB CSV
 
 ## Architecture
 
@@ -105,9 +102,9 @@ All exporters use optimized memory management:
 
 | Export Strategy | Records | Columns | Time | Memory | Output Size | Performance |
 |----------------|---------|---------|------|---------|-------------|-------------|
-| Ultra Listings | 64,363 | 242 | 32.7s | 20GB | 76MB | 2,200/sec |
-| Ultra Agent Performance | 28,370 | 150+ | ~60s | 20GB | Variable | Batch optimized |
-| Ultra Transaction History | 23,327 | 128 | 7.1s | 20GB | 14MB | 3,300/sec |
+| Ultra Listings | 64,363 | ~192 | 18.3s | 20GB | 92MB | 3,500/sec |
+| Ultra Agent Performance | 28,370 | ~150 | 1.4s | 20GB | 21MB | 20,000/sec |
+| Ultra Transaction History | 23,327 | ~120 | 4.2s | 20GB | 9MB | 5,600/sec |
 
 ## Output Structure
 
@@ -121,10 +118,10 @@ output/
 
 ## Final Export Files
 
-The three comprehensive exports are stored in `output/production_exports/`:
+The three comprehensive exports are stored in `output/`:
 - `all_listings_ultra_comprehensive_*.csv` - Complete listings with all joined data
-- `agents_ultra_performance_*.csv` - Agent performance metrics and analytics  
-- `transactions_ultra_comprehensive_*.csv` - Complete transaction history
+- `agent_performance_ultra_comprehensive_*.csv` - Agent performance metrics and analytics  
+- `transaction_history_ultra_comprehensive_*.csv` - Complete transaction history
 
 ## Export Strategies
 

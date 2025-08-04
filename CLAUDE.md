@@ -17,12 +17,9 @@ MongoDB to CSV export utility designed for flexible data extraction with special
 ## Build and Run Commands
 
 - **Build**: `./gradlew build`
-- **Run**: `./gradlew run` (requires MongoDB connection)
-- **Test Export**: `./gradlew runTest` (runs without MongoDB)
-- **Database Analysis**: `./gradlew runAnalyze` (analyzes database structure)
-- **Pre-Join Export**: `./gradlew runPreJoin` (exports joined collections)
-- **Enhanced Pre-Join**: `./gradlew runEnhancedPreJoin` (exports with denormalized indicators)
-- **Test Pre-Join**: `./gradlew runTestPreJoin` (sample joined exports without MongoDB)
+- **Ultra Listings Export**: `./gradlew runUltraListings` (~192 columns, 3.5K/sec)
+- **Ultra Transaction Export**: `./gradlew runUltraTransaction` (~120 columns, 5.6K/sec)
+- **Ultra Agent Performance Export**: `./gradlew runUltraAgentPerformance` (~150 columns, 20K/sec)
 - **Clean**: `./gradlew clean`
 - **Test**: `./gradlew test`
 
@@ -30,50 +27,31 @@ MongoDB to CSV export utility designed for flexible data extraction with special
 
 ### Core Components
 
-1. **ExportStrategy** (`src/main/java/com/example/mongoexport/ExportStrategy.java`)
-   - Enum with two values: DENORMALIZED, DELIMITED
-   - Controls how multi-value fields are exported
-
-2. **ExportConfig** (`src/main/java/com/example/mongoexport/ExportConfig.java`)
+1. **ExportConfig** (`src/main/java/com/example/mongoexport/ExportConfig.java`)
    - Loads configuration from `application.properties`
    - Manages environment selection (dev/stage/prod)
    - Creates output directory automatically
    - Validates MongoDB connection strings
 
-3. **MongoToCSVExporter** (`src/main/java/com/example/mongoexport/MongoToCSVExporter.java`)
-   - Core export engine
-   - Implements both export strategies
-   - Handles multi-value field combinations
-   - **Important**: DELIMITED strategy sorts array values alphabetically for consistency
-   - Progress logging every 1000 documents
-   - Supports nested field access (e.g., "address.city")
+2. **UltraListingsExporter** (`src/main/java/com/example/mongoexport/UltraListingsExporter.java`)
+   - Comprehensive property listings export (~192 human-readable columns)
+   - In-memory collection loading for performance (20GB heap)
+   - Includes property details, agent info, brokerage data, market profiles
+   - Performance: ~3,500 listings/second
+   - Removes ~67 meaningless columns that were always false/null
 
-4. **Main** (`src/main/java/com/example/mongoexport/Main.java`)
-   - Entry point with example exports
-   - Currently configured to export: clients, products, users collections
-   - Each export demonstrates different multi-value field configurations
+3. **UltraTransactionExporter** (`src/main/java/com/example/mongoexport/UltraTransactionExporter.java`)
+   - Complete transaction history export (~120 human-readable columns)
+   - Resolves all foreign keys to human-readable names
+   - Includes buyer/seller details, agent info, property characteristics
+   - Performance: ~5,600 transactions/second
+   - Optimized batch processing
 
-5. **TestMain** (`src/main/java/com/example/mongoexport/TestMain.java`)
-   - Standalone test demonstrating CSV output without MongoDB
-   - Useful for testing export logic
-
-6. **DatabaseAnalyzer** (`src/main/java/com/example/mongoexport/DatabaseAnalyzer.java`)
-   - Analyzes all collections in the database
-   - Reports document counts, field structures, and data types
-   - Identifies potential foreign key relationships
-   - Generates comprehensive analysis report in output directory
-
-7. **PreJoinExporter** (`src/main/java/com/example/mongoexport/PreJoinExporter.java`)
-   - Creates rich denormalized datasets by joining multiple collections
-   - Three main export views:
-     - **Complete Property Listings**: Joins listings + properties + agents + brokerages
-     - **Transaction History**: Joins transactions + properties + listings + agents
-     - **Agent Performance**: Aggregates agent metrics from listings and transactions
-   - Handles nested documents and array fields gracefully
-
-8. **TestPreJoinExporter** (`src/main/java/com/example/mongoexport/TestPreJoinExporter.java`)
-   - Generates sample pre-joined CSV files without MongoDB
-   - Shows the structure of joined exports with realistic test data
+4. **UltraAgentPerformanceExporter** (`src/main/java/com/example/mongoexport/UltraAgentPerformanceExporter.java`)
+   - Comprehensive agent performance metrics (~150 human-readable columns)
+   - Includes professional credentials, performance metrics, team affiliations
+   - Performance: ~20,000 agents/second
+   - Memory-optimized with in-memory lookups
 
 9. **EnhancedPreJoinExporter** (`src/main/java/com/example/mongoexport/EnhancedPreJoinExporter.java`)
    - Advanced version with denormalized indicators for multi-value fields
@@ -94,18 +72,13 @@ MongoDB to CSV export utility designed for flexible data extraction with special
 
 ## Export Strategy Details
 
-### DENORMALIZED Strategy
-- Creates multiple rows when documents contain multi-value fields
-- Generates all possible combinations for multiple multi-value fields
-- Example: Document with 3 interests → 3 rows in CSV
-- Use case: When you need separate rows for analysis/reporting
-
-### DELIMITED Strategy  
-- Creates one row per document
-- Multi-value fields are sorted alphabetically then joined with commas
-- **Sorting ensures**: Same values always produce identical output regardless of order in MongoDB
-- Example: ["sports", "music", "travel"] → "music,sports,travel"
-- Use case: When you need one row per entity with all values preserved
+All three exporters use a **comprehensive single-row strategy** where:
+- Each row represents one primary entity (listing, transaction, or agent)
+- Related data is joined and flattened into additional columns
+- Foreign keys are resolved to human-readable names
+- Boolean indicators show presence of tags, specializations, etc.
+- Multi-value fields are represented as comma-separated values
+- All column headers are human-readable for end users
 
 ## Configuration Details
 
@@ -117,13 +90,13 @@ mongodb.url.prod=...
 current.environment=dev
 database.name=realm
 output.directory=./output
-export.strategy=DENORMALIZED
 ```
 
 ### Important Configuration Notes
 - MongoDB URLs contain actual credentials (check application.properties)
-- Output files are timestamped: `{collection}_{strategy}_{yyyyMMdd_HHmmss}.csv`
+- Output files are timestamped: `{exporter}_ultra_comprehensive_{yyyyMMdd_HHmmss}.csv`
 - CSV files use UTF-8 encoding with proper quote handling
+- All column headers are human-readable for end users
 
 ## Known Issues and Considerations
 
@@ -134,32 +107,25 @@ export.strategy=DENORMALIZED
 
 ## Common Tasks
 
-### Adding a New Collection Export
-1. Open `Main.java`
-2. Create a new method following the pattern:
-```java
-private static void exportNewCollection(MongoToCSVExporter exporter) {
-    List<String> multiValueFields = Arrays.asList("field1", "field2");
-    List<String> fieldsToExport = Arrays.asList("_id", "name", "field1", "field2");
-    exporter.exportCollection("collectionName", multiValueFields, fieldsToExport);
-}
+### Running Production Exports
+```bash
+# Run all three comprehensive exports
+./gradlew runUltraListings
+./gradlew runUltraTransaction  
+./gradlew runUltraAgentPerformance
 ```
-3. Call the method from main()
 
-### Changing Export Strategy
-- Edit `application.properties`: `export.strategy=DELIMITED` or `export.strategy=DENORMALIZED`
-- Or create `application-local.properties` (gitignored) for local overrides
+### Modifying Exports
+To customize any exporter:
+1. Open the appropriate Ultra*Exporter.java file
+2. Modify the `buildComprehensiveHeaders()` method for column changes
+3. Modify the `buildComprehensiveRow()` method for data changes
+4. Ensure headers and data arrays match in length
 
-### Testing Without MongoDB
-Run `./gradlew runTest` to see example CSV output without requiring database connection
-
-### Using Cleaned Exporters
-Cleaned versions of the Ultra exporters are available that remove meaningless fields and resolve foreign keys:
-- `./gradlew runUltraListingsCleaned` - Listings with ~67 meaningless columns removed
-- `./gradlew runUltraTransactionCleaned` - Transactions with foreign keys resolved and empty fields removed  
-- `./gradlew runUltraAgentPerformanceCleaned` - Agent performance with cleaned fields
-
-See `CLEANED_EXPORTER_CHANGES.md` for details on what was removed and why.
+### Configuration
+- Edit `application.properties` or create `application-local.properties` (gitignored)
+- Key settings: MongoDB URL, database name, output directory
+- Memory: Increase JVM heap size in build.gradle if needed (currently 20GB)
 
 ## Database Structure Summary
 
@@ -193,4 +159,17 @@ See `CLEANED_EXPORTER_CHANGES.md` for details on what was removed and why.
 ## Git Information
 - Repository: https://github.com/scoopeng/Realm
 - Main branch: master
-- Initial commit: ac53ba3
+- Current version: 2.0-SNAPSHOT
+
+## Output Files
+All exports generate timestamped CSV files in the `output/` directory:
+- `all_listings_ultra_comprehensive_YYYYMMDD_HHMMSS.csv`
+- `transaction_history_ultra_comprehensive_YYYYMMDD_HHMMSS.csv`
+- `agent_performance_ultra_comprehensive_YYYYMMDD_HHMMSS.csv`
+
+## Documentation
+Detailed documentation available for each exporter:
+- `ULTRA_LISTINGS_DOCUMENTATION.md`
+- `ULTRA_TRANSACTION_DOCUMENTATION.md`
+- `ULTRA_AGENT_PERFORMANCE_DOCUMENTATION.md`
+- `CLEANED_EXPORTER_CHANGES.md` (summary of improvements)

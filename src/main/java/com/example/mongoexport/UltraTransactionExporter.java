@@ -14,33 +14,25 @@ import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
 
+/**
+ * Ultra-comprehensive transaction history exporter with complete deal details
+ */
 public class UltraTransactionExporter {
     private static final Logger logger = LoggerFactory.getLogger(UltraTransactionExporter.class);
-    private static final int BATCH_SIZE = 1000; // Process 1000 transactions at a time
+    private static final int BATCH_SIZE = 2000;
     
     private final ExportConfig config;
     private final MongoDatabase database;
     
-    // In-memory lookup maps for smaller collections
+    // In-memory lookup maps
     private Map<ObjectId, Document> agentsMap = new HashMap<>();
     private Map<ObjectId, Document> peopleMap = new HashMap<>();
     private Map<ObjectId, Document> brokeragesMap = new HashMap<>();
     
     // Additional collections for enhanced attributes
-    private Map<ObjectId, List<Document>> agentClientsByPersonMap = new HashMap<>(); // Key by person ID
-    private Map<ObjectId, List<Document>> residencesByPersonMap = new HashMap<>(); // Key by person ID
-    private Map<ObjectId, Document> transactionsDerivedMap = new HashMap<>(); // Key by transaction ID
-    
-    // Common transaction and financing types
-    private static final List<String> FINANCING_TYPES = Arrays.asList(
-        "conventional", "fha", "va", "cash", "usda", "jumbo", "portfolio", 
-        "hard_money", "seller_financing", "assumable", "other"
-    );
-    
-    private static final List<String> PROPERTY_TYPES = Arrays.asList(
-        "single_family", "condo", "townhouse", "multi_family", "land", 
-        "commercial", "mobile_home", "farm", "other"
-    );
+    private Map<ObjectId, List<Document>> agentClientsByPersonMap = new HashMap<>();
+    private Map<ObjectId, List<Document>> residencesByPersonMap = new HashMap<>();
+    private Map<ObjectId, Document> transactionsDerivedMap = new HashMap<>();
     
     public UltraTransactionExporter() {
         this.config = new ExportConfig();
@@ -51,21 +43,20 @@ public class UltraTransactionExporter {
     public static void main(String[] args) {
         UltraTransactionExporter exporter = new UltraTransactionExporter();
         
-        logger.info("Starting ultra-comprehensive transaction history export...");
+        logger.info("Starting ultra-comprehensive transaction export...");
         
-        // Count transactions first
         MongoCollection<Document> transactions = exporter.database.getCollection("transactions");
         long totalTransactions = transactions.countDocuments();
         logger.info("Total transactions in database: {}", totalTransactions);
         
         exporter.exportTransactionHistoryUltraComprehensive();
-        logger.info("Ultra comprehensive transaction export completed!");
+        logger.info("Ultra-comprehensive transaction export completed!");
     }
     
     private void loadCollectionsIntoMemory() {
-        logger.info("Loading collections into memory for transaction analysis...");
+        logger.info("Loading collections into memory for transaction history analysis...");
         
-        // Load agents (28K docs)
+        // Load agents
         logger.info("Loading agents collection...");
         MongoCollection<Document> agents = database.getCollection("agents");
         for (Document doc : agents.find()) {
@@ -87,7 +78,7 @@ public class UltraTransactionExporter {
         }
         logger.info("Loaded {} brokerages into memory", brokeragesMap.size());
         
-        // Load people (620K docs)
+        // Load people
         logger.info("Loading people collection...");
         MongoCollection<Document> people = database.getCollection("people");
         long peopleCount = 0;
@@ -103,24 +94,19 @@ public class UltraTransactionExporter {
         }
         logger.info("Loaded {} people into memory", peopleMap.size());
         
-        // Load agent clients (571K docs - group by person)
+        // Load agent clients grouped by person
         logger.info("Loading agent clients collection...");
         MongoCollection<Document> agentClients = database.getCollection("agentclients");
-        long agentClientCount = 0;
         for (Document doc : agentClients.find()) {
-            Object personRef = doc.get("client");
+            Object personRef = doc.get("person");
             if (personRef instanceof ObjectId) {
                 ObjectId personId = (ObjectId) personRef;
                 agentClientsByPersonMap.computeIfAbsent(personId, k -> new ArrayList<>()).add(doc);
-                agentClientCount++;
-                if (agentClientCount % 100000 == 0) {
-                    logger.info("  Loaded {} agent client records...", agentClientCount);
-                }
             }
         }
-        logger.info("Loaded {} agent client records into memory", agentClientCount);
+        logger.info("Loaded agent clients for {} people", agentClientsByPersonMap.size());
         
-        // Load residences (7K docs)
+        // Load residences grouped by person
         logger.info("Loading residences collection...");
         MongoCollection<Document> residences = database.getCollection("residences");
         for (Document doc : residences.find()) {
@@ -130,9 +116,9 @@ public class UltraTransactionExporter {
                 residencesByPersonMap.computeIfAbsent(personId, k -> new ArrayList<>()).add(doc);
             }
         }
-        logger.info("Loaded {} residences into memory", residencesByPersonMap.size());
+        logger.info("Loaded residences for {} people", residencesByPersonMap.size());
         
-        // Load transactions derived (24K docs)
+        // Load transactions derived
         logger.info("Loading transactions derived collection...");
         MongoCollection<Document> transactionsDerived = database.getCollection("transactionsderived");
         for (Document doc : transactionsDerived.find()) {
@@ -141,7 +127,7 @@ public class UltraTransactionExporter {
                 transactionsDerivedMap.put(id, doc);
             }
         }
-        logger.info("Loaded {} derived transactions into memory", transactionsDerivedMap.size());
+        logger.info("Loaded {} transactions derived into memory", transactionsDerivedMap.size());
         
         // Report memory usage
         Runtime runtime = Runtime.getRuntime();
@@ -156,7 +142,7 @@ public class UltraTransactionExporter {
         loadCollectionsIntoMemory();
         
         String timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss"));
-        String outputPath = config.getOutputDirectory() + "/transactions_ultra_comprehensive_" + timestamp + ".csv";
+        String outputPath = config.getOutputDirectory() + "/transaction_history_ultra_comprehensive_" + timestamp + ".csv";
         
         try (FileWriter fileWriter = new FileWriter(outputPath); 
              CSVWriter csvWriter = new CSVWriter(fileWriter)) {
@@ -178,7 +164,6 @@ public class UltraTransactionExporter {
                 while (cursor.hasNext()) {
                     batch.add(cursor.next());
                     
-                    // When batch is full, process it
                     if (batch.size() >= BATCH_SIZE || !cursor.hasNext()) {
                         // Collect all IDs needed for this batch
                         Set<ObjectId> listingIds = new HashSet<>();
@@ -189,82 +174,77 @@ public class UltraTransactionExporter {
                             if (listingRef instanceof ObjectId) {
                                 listingIds.add((ObjectId) listingRef);
                             }
-                            
                             Object propertyRef = transaction.get("property");
                             if (propertyRef instanceof ObjectId) {
                                 propertyIds.add((ObjectId) propertyRef);
                             }
                         }
                         
-                        // Batch load listings
+                        // Batch fetch listings
                         Map<ObjectId, Document> batchListings = new HashMap<>();
                         if (!listingIds.isEmpty()) {
                             listings.find(new Document("_id", new Document("$in", new ArrayList<>(listingIds))))
-                                .forEach(doc -> {
-                                    ObjectId id = doc.getObjectId("_id");
-                                    if (id != null) {
-                                        batchListings.put(id, doc);
-                                        
-                                        // Also get property ID from listing
-                                        Object propRef = doc.get("property");
-                                        if (propRef instanceof ObjectId) {
-                                            propertyIds.add((ObjectId) propRef);
-                                        }
-                                    }
-                                });
+                                    .forEach(doc -> {
+                                        ObjectId id = doc.getObjectId("_id");
+                                        if (id != null) batchListings.put(id, doc);
+                                    });
                         }
                         
-                        // Batch load properties
+                        // Collect property IDs from listings too
+                        for (Document listing : batchListings.values()) {
+                            Object propertyRef = listing.get("property");
+                            if (propertyRef instanceof ObjectId) {
+                                propertyIds.add((ObjectId) propertyRef);
+                            }
+                        }
+                        
+                        // Batch fetch properties
                         Map<ObjectId, Document> batchProperties = new HashMap<>();
                         if (!propertyIds.isEmpty()) {
                             properties.find(new Document("_id", new Document("$in", new ArrayList<>(propertyIds))))
-                                .forEach(doc -> {
-                                    ObjectId id = doc.getObjectId("_id");
-                                    if (id != null) {
-                                        batchProperties.put(id, doc);
-                                    }
-                                });
+                                    .forEach(doc -> {
+                                        ObjectId id = doc.getObjectId("_id");
+                                        if (id != null) batchProperties.put(id, doc);
+                                    });
                         }
                         
-                        // Process batch and write rows
+                        // Process batch
                         for (Document transaction : batch) {
-                            // Get listing
                             Document listing = null;
                             Object listingRef = transaction.get("listing");
                             if (listingRef instanceof ObjectId) {
                                 listing = batchListings.get((ObjectId) listingRef);
                             }
                             
-                            // Get property
                             Document property = null;
                             Object propertyRef = transaction.get("property");
                             if (propertyRef instanceof ObjectId) {
                                 property = batchProperties.get((ObjectId) propertyRef);
                             } else if (listing != null) {
-                                // Try to get property from listing
-                                Object propRef = listing.get("property");
-                                if (propRef instanceof ObjectId) {
-                                    property = batchProperties.get((ObjectId) propRef);
+                                propertyRef = listing.get("property");
+                                if (propertyRef instanceof ObjectId) {
+                                    property = batchProperties.get((ObjectId) propertyRef);
                                 }
                             }
                             
-                            // Build comprehensive row
+                            // Build row with all data
                             String[] row = buildComprehensiveRow(transaction, listing, property);
                             csvWriter.writeNext(row);
+                            
                             totalCount++;
                         }
                         
-                        // Report progress
-                        long currentTime = System.currentTimeMillis();
-                        double secondsElapsed = (currentTime - startTime) / 1000.0;
-                        double rate = totalCount / secondsElapsed;
-                        logger.info("Processed {} transactions... ({} transactions/sec, batch size: {})", 
-                            totalCount, String.format("%.1f", rate), batch.size());
+                        // Log progress
+                        if (totalCount % 5000 == 0) {
+                            long currentTime = System.currentTimeMillis();
+                            double secondsElapsed = (currentTime - startTime) / 1000.0;
+                            double rate = totalCount / secondsElapsed;
+                            logger.info("Processed {} transactions... ({} transactions/sec)", 
+                                totalCount, String.format("%.1f", rate));
+                        }
                         
-                        // Clear batch and maps
+                        // Clear batch
                         batch.clear();
-                        batchListings.clear();
-                        batchProperties.clear();
                     }
                 }
             }
@@ -284,76 +264,62 @@ public class UltraTransactionExporter {
         List<String> headers = new ArrayList<>();
         
         // Transaction core fields
-        headers.addAll(Arrays.asList("transaction_id", "closing_date", "sale_price", "list_price",
-            "price_difference", "price_ratio", "days_on_market", "financing_type", "loan_amount",
-            "loan_type", "down_payment", "down_payment_percent", "commission_amount"));
+        headers.addAll(Arrays.asList("Closing Date", "Sale Price", "List Price",
+            "Price Difference", "Price Ratio (%)", "Days on Market", "Financing Type", "Loan Amount",
+            "Loan Type", "Down Payment", "Down Payment (%)", "Commission Amount"));
             
         // Property details
-        headers.addAll(Arrays.asList("property_id", "property_type", "year_built", "bedrooms",
-            "bathrooms", "living_area", "lot_size", "price_per_sqft", "full_address", "street_number",
-            "street_name", "unit_number", "city", "state", "zipcode", "county", "neighborhood",
-            "subdivision", "latitude", "longitude"));
+        headers.addAll(Arrays.asList("Property Type", "Year Built", "Bedrooms",
+            "Bathrooms", "Living Area (sq ft)", "Lot Size (sq ft)", "Price per Sq Ft", "Full Address", "Street Number",
+            "Street Name", "Unit Number", "City", "State", "ZIP Code", "County", "Neighborhood",
+            "Subdivision", "Latitude", "Longitude"));
             
         // Property features
-        headers.addAll(Arrays.asList("has_pool", "has_spa", "has_fireplace", "has_basement",
-            "has_garage", "garage_spaces", "has_view", "has_waterfront", "stories", "construction_type",
-            "roof_type", "heating_type", "cooling_type", "flooring_type"));
+        headers.addAll(Arrays.asList("Garage Spaces", "Stories", "Construction Type",
+            "Roof Type", "Heating Type", "Cooling Type", "Flooring Type"));
             
         // Listing information
-        headers.addAll(Arrays.asList("listing_id", "mls_number", "listing_date", "original_list_price",
-            "final_list_price", "price_reductions", "listing_status", "listing_type", "listing_agreement"));
+        headers.addAll(Arrays.asList("MLS Number", "Listing Date", "Original List Price",
+            "Final List Price", "Price Reductions", "Listing Status", "Listing Type", "Listing Agreement"));
             
         // Buyer information
-        headers.addAll(Arrays.asList("buyer_count", "buyer1_id", "buyer1_name", "buyer1_email",
-            "buyer1_phone", "buyer1_address", "buyer2_id", "buyer2_name", "buyer_type"));
+        headers.addAll(Arrays.asList("Buyer Count", "Buyer 1 Name", "Buyer 1 Email",
+            "Buyer 1 Phone", "Buyer 1 Address", "Buyer 2 Name", "Buyer Type"));
             
         // Seller information
-        headers.addAll(Arrays.asList("seller_count", "seller1_id", "seller1_name", "seller1_email",
-            "seller1_phone", "seller1_address", "seller2_id", "seller2_name", "seller_type"));
+        headers.addAll(Arrays.asList("Seller Count", "Seller 1 Name", "Seller 1 Email",
+            "Seller 1 Phone", "Seller 1 Address", "Seller 2 Name", "Seller Type"));
             
         // Listing agent information
-        headers.addAll(Arrays.asList("listing_agent_id", "listing_agent_name", "listing_agent_email",
-            "listing_agent_phone", "listing_agent_license", "listing_agent_years_exp",
-            "listing_brokerage_id", "listing_brokerage_name", "listing_commission"));
+        headers.addAll(Arrays.asList("Listing Agent Name", "Listing Agent Email",
+            "Listing Agent Phone", "Listing Agent License #", "Listing Agent Years Experience",
+            "Listing Brokerage Name", "Listing Commission"));
             
         // Buyer agent information
-        headers.addAll(Arrays.asList("buyer_agent_id", "buyer_agent_name", "buyer_agent_email",
-            "buyer_agent_phone", "buyer_agent_license", "buyer_agent_years_exp",
-            "buyer_brokerage_id", "buyer_brokerage_name", "buyer_commission"));
-            
-        // Transaction parties and details
-        headers.addAll(Arrays.asList("escrow_company", "title_company", "closing_costs",
-            "seller_concessions", "home_warranty", "inspection_contingency", "financing_contingency",
-            "appraisal_contingency", "earnest_money", "possession_date"));
+        headers.addAll(Arrays.asList("Buyer Agent Name", "Buyer Agent Email",
+            "Buyer Agent Phone", "Buyer Agent License #", "Buyer Agent Years Experience",
+            "Buyer Brokerage Name", "Buyer Commission"));
             
         // Market conditions
-        headers.addAll(Arrays.asList("market_temperature", "inventory_level", "average_dom",
-            "list_to_sale_ratio", "competing_listings", "recent_sales_count"));
+        headers.addAll(Arrays.asList("Market Temperature", "Comparable Sales Avg", "Neighborhood Trend",
+            "School Ratings", "Walk Score", "Crime Index"));
             
-        // Financing type indicators
-        for (String financing : FINANCING_TYPES) {
-            headers.add("financing_" + financing);
-        }
+        // Derived fields
+        headers.addAll(Arrays.asList("Season", "Weekday", "Buyer Representation", "Dual Agency",
+            "First Time Buyer", "Cash Purchase", "Investment Property"));
+            
+        // Client relationship data
+        headers.addAll(Arrays.asList("Buyer Previous Purchases", "Buyer-Agent Relationship Length",
+            "Seller Previous Sales", "Seller-Agent Relationship Length"));
+            
+        // Residence history
+        headers.addAll(Arrays.asList("Buyer Residence Count", "Buyer Avg Residence Duration",
+            "Seller Residence Count", "Seller Next Residence"));
+            
+        // Transaction derived data
+        headers.addAll(Arrays.asList("Price Negotiation (%)", "Closing Speed Rating",
+            "Transaction Complexity Score", "Agent Effectiveness Score"));
         
-        // Property type indicators
-        for (String propType : PROPERTY_TYPES) {
-            headers.add("property_type_" + propType);
-        }
-        
-        // Transaction Derived Metrics
-        headers.addAll(Arrays.asList("transaction_performance_score", "price_negotiation_percentage",
-            "market_adjusted_sale_price", "transaction_complexity_score", "closing_speed_score"));
-            
-        // Client History
-        headers.addAll(Arrays.asList("buyer_previous_purchases_count", "buyer_client_since_date",
-            "buyer_total_spent", "seller_previous_sales_count", "seller_client_since_date",
-            "is_repeat_client_transaction", "client_loyalty_score"));
-            
-        // Residence Portfolio
-        headers.addAll(Arrays.asList("buyer_total_properties_owned", "buyer_portfolio_value",
-            "seller_remaining_properties", "seller_next_residence_type", "is_investment_property_sale",
-            "is_downsizing", "is_upsizing"));
-            
         return headers.toArray(new String[0]);
     }
     
@@ -361,40 +327,36 @@ public class UltraTransactionExporter {
         List<String> row = new ArrayList<>();
         
         // Transaction core fields
-        row.add(safeGetString(transaction, "_id"));
-        
         Date closingDate = (Date) transaction.get("closingDate");
-        if (closingDate != null) {
-            row.add(closingDate.toString());
-        } else {
-            row.add("");
-        }
+        row.add(closingDate != null ? closingDate.toString() : "");
         
-        Double salePrice = safeGetDouble(transaction, "salePrice");
+        Double salePrice = safeGetDouble(transaction, "price");
         row.add(salePrice != null ? String.format("%.2f", salePrice) : "");
         
-        // Get list price from listing
         Double listPrice = null;
         if (listing != null) {
-            listPrice = safeGetDouble(listing, "price");
+            Object priceObj = listing.get("price");
+            if (priceObj instanceof Document) {
+                listPrice = safeGetDouble((Document) priceObj, "amount");
+            } else if (priceObj instanceof Number) {
+                listPrice = ((Number) priceObj).doubleValue();
+            }
         }
         row.add(listPrice != null ? String.format("%.2f", listPrice) : "");
         
-        // Calculate price difference and ratio
+        // Price difference and ratio
         if (salePrice != null && listPrice != null && listPrice > 0) {
-            double difference = salePrice - listPrice;
-            double ratio = salePrice / listPrice;
-            row.add(String.format("%.2f", difference));
-            row.add(String.format("%.4f", ratio));
+            row.add(String.format("%.2f", salePrice - listPrice));
+            row.add(String.format("%.2f", (salePrice / listPrice) * 100));
         } else {
             row.add("");
             row.add("");
         }
         
         // Days on market
-        if (listing != null) {
-            Date listDate = (Date) listing.get("listDate");
-            if (listDate != null && closingDate != null) {
+        if (listing != null && closingDate != null) {
+            Date listDate = (Date) listing.get("dateListed");
+            if (listDate != null) {
                 long days = (closingDate.getTime() - listDate.getTime()) / (1000 * 60 * 60 * 24);
                 row.add(String.valueOf(days));
             } else {
@@ -404,46 +366,30 @@ public class UltraTransactionExporter {
             row.add("");
         }
         
-        // Financing information
         row.add(safeGetString(transaction, "financingType"));
-        
-        Double loanAmount = safeGetDouble(transaction, "loanAmount");
-        row.add(loanAmount != null ? String.format("%.2f", loanAmount) : "");
+        row.add(safeGetString(transaction, "loanAmount"));
         row.add(safeGetString(transaction, "loanType"));
-        
-        // Calculate down payment
-        if (salePrice != null && loanAmount != null) {
-            double downPayment = salePrice - loanAmount;
-            double downPaymentPercent = (downPayment / salePrice) * 100;
-            row.add(String.format("%.2f", downPayment));
-            row.add(String.format("%.1f", downPaymentPercent));
-        } else {
-            row.add("");
-            row.add("");
-        }
-        
+        row.add(safeGetString(transaction, "downPayment"));
+        row.add(safeGetString(transaction, "downPaymentPercent"));
         row.add(safeGetString(transaction, "commissionAmount"));
         
         // Property details
         if (property != null) {
-            row.add(safeGetString(property, "_id"));
             row.add(safeGetString(property, "propertyType"));
             row.add(safeGetString(property, "yearBuilt"));
             row.add(safeGetString(property, "bedrooms"));
             row.add(safeGetString(property, "bathrooms"));
-            
-            Double livingArea = safeGetDouble(property, "livingArea");
-            row.add(livingArea != null ? String.format("%.0f", livingArea) : "");
+            row.add(safeGetString(property, "livingArea"));
             row.add(safeGetString(property, "lotSize"));
             
-            // Price per sqft
-            if (salePrice != null && livingArea != null && livingArea > 0) {
+            Double livingArea = safeGetDouble(property, "livingArea");
+            if (livingArea != null && livingArea > 0 && salePrice != null) {
                 row.add(String.format("%.2f", salePrice / livingArea));
             } else {
                 row.add("");
             }
             
-            // Address information
+            // Address fields
             Document address = (Document) property.get("address");
             if (address != null) {
                 row.add(safeGetString(address, "fullAddress"));
@@ -452,15 +398,15 @@ public class UltraTransactionExporter {
                 row.add(safeGetString(address, "unitNumber"));
                 row.add(safeGetString(address, "city"));
                 row.add(safeGetString(address, "state"));
-                row.add(safeGetString(address, "zipcode"));
+                row.add(safeGetString(address, "zip"));
                 row.add(safeGetString(address, "county"));
                 row.add(safeGetString(address, "neighborhood"));
                 row.add(safeGetString(address, "subdivision"));
                 
                 Document location = (Document) address.get("location");
                 if (location != null) {
-                    row.add(safeGetString(location, "lat"));
-                    row.add(safeGetString(location, "lng"));
+                    row.add(safeGetString(location, "latitude"));
+                    row.add(safeGetString(location, "longitude"));
                 } else {
                     row.add("");
                     row.add("");
@@ -469,41 +415,27 @@ public class UltraTransactionExporter {
                 for (int i = 0; i < 12; i++) row.add("");
             }
             
-            // Property features
-            Document features = (Document) property.get("features");
-            if (features != null) {
-                row.add(features.getBoolean("hasPool", false) ? "true" : "false");
-                row.add(features.getBoolean("hasSpa", false) ? "true" : "false");
-                row.add(features.getBoolean("hasFireplace", false) ? "true" : "false");
-                row.add(features.getBoolean("hasBasement", false) ? "true" : "false");
-                row.add(features.getBoolean("hasGarage", false) ? "true" : "false");
-                row.add(safeGetString(features, "garageSpaces"));
-                row.add(features.getBoolean("hasView", false) ? "true" : "false");
-                row.add(features.getBoolean("hasWaterfront", false) ? "true" : "false");
-                row.add(safeGetString(property, "stories"));
-                row.add(safeGetString(property, "constructionType"));
-                row.add(safeGetString(property, "roofType"));
-                row.add(safeGetString(property, "heatingType"));
-                row.add(safeGetString(property, "coolingType"));
-                row.add(safeGetString(property, "flooringType"));
-            } else {
-                for (int i = 0; i < 14; i++) row.add("");
-            }
+            // Property features (only meaningful ones)
+            row.add(safeGetString(property, "garageSpaces"));
+            row.add(safeGetString(property, "stories"));
+            row.add(safeGetString(property, "constructionType"));
+            row.add(safeGetString(property, "roofType"));
+            row.add(safeGetString(property, "heatingType"));
+            row.add(safeGetString(property, "coolingType"));
+            row.add(safeGetString(property, "flooringType"));
         } else {
-            // Add empty fields for all property columns
-            for (int i = 0; i < 34; i++) row.add("");
+            for (int i = 0; i < 26; i++) row.add("");
         }
         
         // Listing information
         if (listing != null) {
-            row.add(safeGetString(listing, "_id"));
             row.add(safeGetString(listing, "mlsNumber"));
             
-            Date listingDate = (Date) listing.get("listDate");
-            row.add(listingDate != null ? listingDate.toString() : "");
+            Date listDate = (Date) listing.get("dateListed");
+            row.add(listDate != null ? listDate.toString() : "");
             
-            row.add(safeGetString(listing, "originalPrice"));
-            row.add(safeGetString(listing, "price"));
+            row.add(safeGetString(listing, "originalListPrice"));
+            row.add(String.valueOf(listPrice != null ? listPrice : ""));
             
             Object priceHistory = listing.get("priceHistory");
             if (priceHistory instanceof List) {
@@ -516,269 +448,109 @@ public class UltraTransactionExporter {
             row.add(safeGetString(listing, "listingType"));
             row.add(safeGetString(listing, "listingAgreement"));
         } else {
-            for (int i = 0; i < 9; i++) row.add("");
+            for (int i = 0; i < 8; i++) row.add("");
         }
         
         // Buyer information
-        List<?> buyers = (List<?>) transaction.get("buyers");
-        if (buyers != null && !buyers.isEmpty()) {
+        Object buyersObj = transaction.get("buyers");
+        if (buyersObj instanceof List) {
+            List<?> buyers = (List<?>) buyersObj;
             row.add(String.valueOf(buyers.size()));
             
-            // First buyer
-            if (buyers.get(0) instanceof ObjectId) {
-                ObjectId buyerId = (ObjectId) buyers.get(0);
-                Document buyer = peopleMap.get(buyerId);
-                if (buyer != null) {
-                    row.add(safeGetString(buyer, "_id"));
-                    row.add(safeGetString(buyer, "name"));
-                    row.add(safeGetString(buyer, "email"));
-                    row.add(safeGetString(buyer, "phoneNumber"));
-                    
-                    Document buyerAddress = (Document) buyer.get("address");
-                    if (buyerAddress != null) {
-                        row.add(safeGetString(buyerAddress, "fullAddress"));
+            if (!buyers.isEmpty()) {
+                Object firstBuyer = buyers.get(0);
+                if (firstBuyer instanceof ObjectId) {
+                    Document buyer = peopleMap.get((ObjectId) firstBuyer);
+                    if (buyer != null) {
+                        row.add(safeGetString(buyer, "fullName"));
+                        row.add(safeGetString(buyer, "email"));
+                        row.add(safeGetString(buyer, "phone"));
+                        Document buyerAddress = (Document) buyer.get("address");
+                        if (buyerAddress != null) {
+                            row.add(safeGetString(buyerAddress, "fullAddress"));
+                        } else {
+                            row.add("");
+                        }
+                    } else {
+                        for (int i = 0; i < 4; i++) row.add("");
+                    }
+                } else {
+                    for (int i = 0; i < 4; i++) row.add("");
+                }
+                
+                if (buyers.size() > 1) {
+                    Object secondBuyer = buyers.get(1);
+                    if (secondBuyer instanceof ObjectId) {
+                        Document buyer2 = peopleMap.get((ObjectId) secondBuyer);
+                        row.add(buyer2 != null ? safeGetString(buyer2, "fullName") : "");
                     } else {
                         row.add("");
                     }
                 } else {
-                    for (int i = 0; i < 5; i++) row.add("");
+                    row.add("");
                 }
             } else {
                 for (int i = 0; i < 5; i++) row.add("");
             }
             
-            // Second buyer
-            if (buyers.size() > 1 && buyers.get(1) instanceof ObjectId) {
-                ObjectId buyer2Id = (ObjectId) buyers.get(1);
-                Document buyer2 = peopleMap.get(buyer2Id);
-                if (buyer2 != null) {
-                    row.add(safeGetString(buyer2, "_id"));
-                    row.add(safeGetString(buyer2, "name"));
+            row.add(safeGetString(transaction, "buyerType"));
+        } else {
+            for (int i = 0; i < 7; i++) row.add("");
+        }
+        
+        // Seller information
+        Object sellersObj = transaction.get("sellers");
+        if (sellersObj instanceof List) {
+            List<?> sellers = (List<?>) sellersObj;
+            row.add(String.valueOf(sellers.size()));
+            
+            if (!sellers.isEmpty()) {
+                Object firstSeller = sellers.get(0);
+                if (firstSeller instanceof ObjectId) {
+                    Document seller = peopleMap.get((ObjectId) firstSeller);
+                    if (seller != null) {
+                        row.add(safeGetString(seller, "fullName"));
+                        row.add(safeGetString(seller, "email"));
+                        row.add(safeGetString(seller, "phone"));
+                        Document sellerAddress = (Document) seller.get("address");
+                        if (sellerAddress != null) {
+                            row.add(safeGetString(sellerAddress, "fullAddress"));
+                        } else {
+                            row.add("");
+                        }
+                    } else {
+                        for (int i = 0; i < 4; i++) row.add("");
+                    }
                 } else {
-                    row.add("");
+                    for (int i = 0; i < 4; i++) row.add("");
+                }
+                
+                if (sellers.size() > 1) {
+                    Object secondSeller = sellers.get(1);
+                    if (secondSeller instanceof ObjectId) {
+                        Document seller2 = peopleMap.get((ObjectId) secondSeller);
+                        row.add(seller2 != null ? safeGetString(seller2, "fullName") : "");
+                    } else {
+                        row.add("");
+                    }
+                } else {
                     row.add("");
                 }
             } else {
-                row.add("");
-                row.add("");
+                for (int i = 0; i < 5; i++) row.add("");
             }
             
-            row.add(""); // buyer type placeholder
+            row.add(safeGetString(transaction, "sellerType"));
         } else {
-            for (int i = 0; i < 9; i++) row.add("");
+            for (int i = 0; i < 7; i++) row.add("");
         }
         
-        // Seller information - similar structure to buyers
-        List<?> sellers = (List<?>) transaction.get("sellers");
-        if (sellers != null && !sellers.isEmpty()) {
-            row.add(String.valueOf(sellers.size()));
-            
-            // Process sellers similar to buyers...
-            // For brevity, adding placeholders
-            for (int i = 0; i < 8; i++) row.add("");
-        } else {
-            for (int i = 0; i < 9; i++) row.add("");
-        }
-        
-        // Agent information
-        processAgentInformation(row, transaction, listing);
-        
-        // Transaction details - placeholders for now
-        for (int i = 0; i < 10; i++) row.add("");
-        
-        // Market conditions - placeholders
-        for (int i = 0; i < 6; i++) row.add("");
-        
-        // Financing type indicators
-        String financingType = safeGetString(transaction, "financingType").toLowerCase();
-        for (String financing : FINANCING_TYPES) {
-            row.add(financingType.contains(financing) ? "true" : "false");
-        }
-        
-        // Property type indicators
-        String propertyType = property != null ? safeGetString(property, "propertyType").toLowerCase() : "";
-        for (String propType : PROPERTY_TYPES) {
-            row.add(propertyType.contains(propType.replace("_", " ")) ? "true" : "false");
-        }
-        
-        // Transaction Derived Metrics
-        ObjectId transactionId = transaction.getObjectId("_id");
-        Document derivedData = transactionsDerivedMap.get(transactionId);
-        if (derivedData != null) {
-            row.add(safeGetString(derivedData, "performanceScore"));
-            row.add(safeGetString(derivedData, "priceNegotiationPercentage"));
-            row.add(safeGetString(derivedData, "marketAdjustedSalePrice"));
-            row.add(safeGetString(derivedData, "complexityScore"));
-            row.add(safeGetString(derivedData, "closingSpeedScore"));
-        } else {
-            for (int i = 0; i < 5; i++) row.add("");
-        }
-        
-        // Client History - Buyer
-        // buyers already defined above
-        List<Document> buyerClients = null;
-        if (buyers != null && !buyers.isEmpty() && buyers.get(0) instanceof ObjectId) {
-            ObjectId buyerId = (ObjectId) buyers.get(0);
-            buyerClients = agentClientsByPersonMap.get(buyerId);
-            if (buyerClients != null && !buyerClients.isEmpty()) {
-                // Count previous purchases
-                long previousPurchases = buyerClients.stream()
-                    .filter(c -> "purchase".equals(c.getString("transactionType")))
-                    .count();
-                row.add(String.valueOf(previousPurchases));
-                
-                // Get earliest client date
-                Date earliestDate = buyerClients.stream()
-                    .map(c -> (Date) c.get("createdDate"))
-                    .filter(Objects::nonNull)
-                    .min(Date::compareTo)
-                    .orElse(null);
-                row.add(earliestDate != null ? earliestDate.toString() : "");
-                
-                // Calculate total spent
-                double totalSpent = buyerClients.stream()
-                    .mapToDouble(c -> {
-                        Object amount = c.get("transactionAmount");
-                        return amount instanceof Number ? ((Number) amount).doubleValue() : 0.0;
-                    })
-                    .sum();
-                row.add(String.format("%.2f", totalSpent));
-            } else {
-                row.add("0"); // previous purchases
-                row.add(""); // client since
-                row.add("0.00"); // total spent
-            }
-        } else {
-            for (int i = 0; i < 3; i++) row.add("");
-        }
-        
-        // Client History - Seller
-        // sellers already defined above
-        List<Document> sellerClients = null;
-        if (sellers != null && !sellers.isEmpty() && sellers.get(0) instanceof ObjectId) {
-            ObjectId sellerId = (ObjectId) sellers.get(0);
-            sellerClients = agentClientsByPersonMap.get(sellerId);
-            if (sellerClients != null && !sellerClients.isEmpty()) {
-                // Count previous sales
-                long previousSales = sellerClients.stream()
-                    .filter(c -> "sale".equals(c.getString("transactionType")))
-                    .count();
-                row.add(String.valueOf(previousSales));
-                
-                // Get earliest client date
-                Date earliestDate = sellerClients.stream()
-                    .map(c -> (Date) c.get("createdDate"))
-                    .filter(Objects::nonNull)
-                    .min(Date::compareTo)
-                    .orElse(null);
-                row.add(earliestDate != null ? earliestDate.toString() : "");
-            } else {
-                row.add("0"); // previous sales
-                row.add(""); // client since
-            }
-            
-            // Is repeat client transaction
-            boolean isRepeat = (buyerClients != null && !buyerClients.isEmpty()) || 
-                               (sellerClients != null && !sellerClients.isEmpty());
-            row.add(isRepeat ? "true" : "false");
-            
-            // Client loyalty score (simple calculation based on history)
-            int loyaltyScore = 0;
-            if (buyerClients != null) loyaltyScore += buyerClients.size();
-            if (sellerClients != null) loyaltyScore += sellerClients.size();
-            row.add(String.valueOf(loyaltyScore));
-        } else {
-            for (int i = 0; i < 4; i++) row.add("");
-        }
-        
-        // Residence Portfolio
-        if (buyers != null && !buyers.isEmpty() && buyers.get(0) instanceof ObjectId) {
-            ObjectId buyerId = (ObjectId) buyers.get(0);
-            List<Document> buyerResidences = residencesByPersonMap.get(buyerId);
-            if (buyerResidences != null) {
-                row.add(String.valueOf(buyerResidences.size())); // total properties owned
-                
-                // Calculate portfolio value
-                double portfolioValue = buyerResidences.stream()
-                    .mapToDouble(r -> {
-                        Object value = r.get("estimatedValue");
-                        return value instanceof Number ? ((Number) value).doubleValue() : 0.0;
-                    })
-                    .sum();
-                row.add(String.format("%.2f", portfolioValue));
-            } else {
-                row.add("0"); // properties owned
-                row.add("0.00"); // portfolio value
-            }
-        } else {
-            row.add("");
-            row.add("");
-        }
-        
-        // Seller remaining properties and analysis
-        if (sellers != null && !sellers.isEmpty() && sellers.get(0) instanceof ObjectId) {
-            ObjectId sellerId = (ObjectId) sellers.get(0);
-            List<Document> sellerResidences = residencesByPersonMap.get(sellerId);
-            if (sellerResidences != null) {
-                // Subtract 1 for the property being sold
-                int remaining = Math.max(0, sellerResidences.size() - 1);
-                row.add(String.valueOf(remaining));
-                
-                // Get next residence type if any
-                Document nextResidence = sellerResidences.stream()
-                    .filter(r -> !r.getObjectId("_id").equals(property != null ? property.getObjectId("_id") : null))
-                    .findFirst()
-                    .orElse(null);
-                row.add(nextResidence != null ? safeGetString(nextResidence, "propertyType") : "");
-                
-                // Is investment property (seller has multiple properties)
-                row.add(sellerResidences.size() > 1 ? "true" : "false");
-            } else {
-                row.add("0"); // remaining properties
-                row.add(""); // next residence type
-                row.add("false"); // is investment
-            }
-        } else {
-            row.add("");
-            row.add("");
-            row.add("");
-        }
-        
-        // Downsizing/Upsizing analysis
-        if (property != null && listing != null) {
-            Double currentSize = safeGetDouble(property, "livingArea");
-            // salePrice already defined above
-            
-            // Simple heuristic: if they're buying, compare sale price to determine up/down sizing
-            boolean isDownsizing = false;
-            boolean isUpsizing = false;
-            
-            if (currentSize != null && salePrice != null) {
-                // This is simplified - in reality would need buyer's next property
-                Double avgPricePerSqft = salePrice / currentSize;
-                // Placeholder logic
-                isDownsizing = false;
-                isUpsizing = false;
-            }
-            
-            row.add(isDownsizing ? "true" : "false");
-            row.add(isUpsizing ? "true" : "false");
-        } else {
-            row.add("false"); // downsizing
-            row.add("false"); // upsizing
-        }
-        
-        return row.toArray(new String[0]);
-    }
-    
-    private void processAgentInformation(List<String> row, Document transaction, Document listing) {
-        // Listing agent from listing document
+        // Listing agent information
         if (listing != null) {
             Object listingAgentRef = listing.get("listingAgentId");
             if (listingAgentRef instanceof ObjectId) {
                 Document listingAgent = agentsMap.get((ObjectId) listingAgentRef);
                 if (listingAgent != null) {
-                    row.add(safeGetString(listingAgent, "_id"));
                     row.add(safeGetString(listingAgent, "fullName"));
                     
                     Document realmData = (Document) listingAgent.get("realmData");
@@ -794,96 +566,205 @@ public class UltraTransactionExporter {
                         } else {
                             row.add("");
                         }
-                    } else {
-                        for (int i = 0; i < 4; i++) row.add("");
-                    }
-                    
-                    // Listing brokerage
-                    addBrokerageInfo(row, listingAgent);
-                    row.add(""); // commission placeholder
-                } else {
-                    for (int i = 0; i < 9; i++) row.add("");
-                }
-            } else {
-                for (int i = 0; i < 9; i++) row.add("");
-            }
-        } else {
-            for (int i = 0; i < 9; i++) row.add("");
-        }
-        
-        // Buyer agent from transaction
-        List<?> sellingAgents = (List<?>) transaction.get("sellingAgents");
-        if (sellingAgents != null && !sellingAgents.isEmpty()) {
-            Object buyerAgentRef = sellingAgents.get(0);
-            if (buyerAgentRef instanceof ObjectId) {
-                Document buyerAgent = agentsMap.get((ObjectId) buyerAgentRef);
-                if (buyerAgent != null) {
-                    row.add(safeGetString(buyerAgent, "_id"));
-                    row.add(safeGetString(buyerAgent, "fullName"));
-                    
-                    Document realmData = (Document) buyerAgent.get("realmData");
-                    if (realmData != null) {
-                        row.add(safeGetString(realmData, "email"));
-                        row.add(safeGetString(realmData, "phone"));
-                        row.add(safeGetString(realmData, "licenseNumber"));
                         
-                        Date startDate = (Date) realmData.get("professionalStartDate");
-                        if (startDate != null) {
-                            long years = (System.currentTimeMillis() - startDate.getTime()) / (1000L * 60 * 60 * 24 * 365);
-                            row.add(String.valueOf(years));
+                        // Get brokerage name
+                        Object brokeragesObj = realmData.get("brokerages");
+                        if (brokeragesObj instanceof List && !((List<?>) brokeragesObj).isEmpty()) {
+                            Object firstBrokerage = ((List<?>) brokeragesObj).get(0);
+                            ObjectId brokerageId = null;
+                            if (firstBrokerage instanceof Document) {
+                                brokerageId = ((Document) firstBrokerage).getObjectId("_id");
+                            } else if (firstBrokerage instanceof ObjectId) {
+                                brokerageId = (ObjectId) firstBrokerage;
+                            }
+                            
+                            if (brokerageId != null) {
+                                Document brokerage = brokeragesMap.get(brokerageId);
+                                row.add(brokerage != null ? safeGetString(brokerage, "name") : "");
+                            } else {
+                                row.add("");
+                            }
                         } else {
                             row.add("");
                         }
                     } else {
-                        for (int i = 0; i < 4; i++) row.add("");
+                        for (int i = 0; i < 5; i++) row.add("");
                     }
                     
-                    // Buyer brokerage
-                    addBrokerageInfo(row, buyerAgent);
-                    row.add(""); // commission placeholder
+                    row.add(safeGetString(transaction, "listingCommission"));
                 } else {
-                    for (int i = 0; i < 9; i++) row.add("");
+                    for (int i = 0; i < 7; i++) row.add("");
                 }
             } else {
-                for (int i = 0; i < 9; i++) row.add("");
+                for (int i = 0; i < 7; i++) row.add("");
             }
         } else {
-            for (int i = 0; i < 9; i++) row.add("");
+            for (int i = 0; i < 7; i++) row.add("");
         }
-    }
-    
-    private void addBrokerageInfo(List<String> row, Document agent) {
-        Document realmData = (Document) agent.get("realmData");
-        if (realmData != null) {
-            Object brokeragesObj = realmData.get("brokerages");
-            if (brokeragesObj instanceof List) {
-                List<?> brokerageList = (List<?>) brokeragesObj;
-                if (!brokerageList.isEmpty()) {
-                    Object firstBrokerage = brokerageList.get(0);
-                    if (firstBrokerage instanceof Document) {
-                        Document brokerageInfo = (Document) firstBrokerage;
-                        Object brokerageRef = brokerageInfo.get("_id");
-                        if (brokerageRef instanceof ObjectId) {
-                            Document brokerage = brokeragesMap.get((ObjectId) brokerageRef);
-                            if (brokerage != null) {
-                                row.add(safeGetString(brokerage, "_id"));
-                                row.add(safeGetString(brokerage, "name"));
-                                return;
-                            }
-                        }
-                    } else if (firstBrokerage instanceof ObjectId) {
-                        Document brokerage = brokeragesMap.get((ObjectId) firstBrokerage);
-                        if (brokerage != null) {
-                            row.add(safeGetString(brokerage, "_id"));
-                            row.add(safeGetString(brokerage, "name"));
-                            return;
-                        }
+        
+        // Buyer agent information
+        Object buyerAgentRef = transaction.get("buyerAgent");
+        if (buyerAgentRef instanceof ObjectId) {
+            Document buyerAgent = agentsMap.get((ObjectId) buyerAgentRef);
+            if (buyerAgent != null) {
+                row.add(safeGetString(buyerAgent, "fullName"));
+                
+                Document realmData = (Document) buyerAgent.get("realmData");
+                if (realmData != null) {
+                    row.add(safeGetString(realmData, "email"));
+                    row.add(safeGetString(realmData, "phone"));
+                    row.add(safeGetString(realmData, "licenseNumber"));
+                    
+                    Date startDate = (Date) realmData.get("professionalStartDate");
+                    if (startDate != null) {
+                        long years = (System.currentTimeMillis() - startDate.getTime()) / (1000L * 60 * 60 * 24 * 365);
+                        row.add(String.valueOf(years));
+                    } else {
+                        row.add("");
                     }
+                    
+                    // Get brokerage name
+                    Object brokeragesObj = realmData.get("brokerages");
+                    if (brokeragesObj instanceof List && !((List<?>) brokeragesObj).isEmpty()) {
+                        Object firstBrokerage = ((List<?>) brokeragesObj).get(0);
+                        ObjectId brokerageId = null;
+                        if (firstBrokerage instanceof Document) {
+                            brokerageId = ((Document) firstBrokerage).getObjectId("_id");
+                        } else if (firstBrokerage instanceof ObjectId) {
+                            brokerageId = (ObjectId) firstBrokerage;
+                        }
+                        
+                        if (brokerageId != null) {
+                            Document brokerage = brokeragesMap.get(brokerageId);
+                            row.add(brokerage != null ? safeGetString(brokerage, "name") : "");
+                        } else {
+                            row.add("");
+                        }
+                    } else {
+                        row.add("");
+                    }
+                } else {
+                    for (int i = 0; i < 5; i++) row.add("");
                 }
+                
+                row.add(safeGetString(transaction, "buyerCommission"));
+            } else {
+                for (int i = 0; i < 7; i++) row.add("");
             }
+        } else {
+            for (int i = 0; i < 7; i++) row.add("");
         }
-        row.add("");
-        row.add("");
+        
+        // Market conditions (placeholder - would need additional data sources)
+        for (int i = 0; i < 6; i++) row.add("");
+        
+        // Derived fields
+        if (closingDate != null) {
+            Calendar cal = Calendar.getInstance();
+            cal.setTime(closingDate);
+            int month = cal.get(Calendar.MONTH);
+            String season = month >= 2 && month <= 4 ? "Spring" :
+                           month >= 5 && month <= 7 ? "Summer" :
+                           month >= 8 && month <= 10 ? "Fall" : "Winter";
+            row.add(season);
+            
+            String[] weekdays = {"Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"};
+            row.add(weekdays[cal.get(Calendar.DAY_OF_WEEK) - 1]);
+        } else {
+            row.add("");
+            row.add("");
+        }
+        
+        // Buyer representation and other flags
+        row.add(buyerAgentRef != null ? "true" : "false");
+        
+        // Dual agency check
+        boolean dualAgency = false;
+        if (listing != null && buyerAgentRef != null) {
+            Object listingAgentRef = listing.get("listingAgentId");
+            dualAgency = buyerAgentRef.equals(listingAgentRef);
+        }
+        row.add(String.valueOf(dualAgency));
+        
+        row.add(""); // first_time_buyer - would need additional data
+        row.add(safeGetString(transaction, "financingType").equalsIgnoreCase("cash") ? "true" : "false");
+        row.add(""); // investment_property - would need additional data
+        
+        // Client relationship data
+        if (buyersObj instanceof List && !((List<?>) buyersObj).isEmpty()) {
+            Object firstBuyer = ((List<?>) buyersObj).get(0);
+            if (firstBuyer instanceof ObjectId) {
+                List<Document> buyerClients = agentClientsByPersonMap.get((ObjectId) firstBuyer);
+                row.add(buyerClients != null ? String.valueOf(buyerClients.size()) : "0");
+                row.add(""); // relationship length - would need date calculations
+            } else {
+                row.add("0");
+                row.add("");
+            }
+        } else {
+            row.add("0");
+            row.add("");
+        }
+        
+        if (sellersObj instanceof List && !((List<?>) sellersObj).isEmpty()) {
+            Object firstSeller = ((List<?>) sellersObj).get(0);
+            if (firstSeller instanceof ObjectId) {
+                List<Document> sellerClients = agentClientsByPersonMap.get((ObjectId) firstSeller);
+                row.add(sellerClients != null ? String.valueOf(sellerClients.size()) : "0");
+                row.add(""); // relationship length
+            } else {
+                row.add("0");
+                row.add("");
+            }
+        } else {
+            row.add("0");
+            row.add("");
+        }
+        
+        // Residence history
+        if (buyersObj instanceof List && !((List<?>) buyersObj).isEmpty()) {
+            Object firstBuyer = ((List<?>) buyersObj).get(0);
+            if (firstBuyer instanceof ObjectId) {
+                List<Document> buyerResidences = residencesByPersonMap.get((ObjectId) firstBuyer);
+                row.add(buyerResidences != null ? String.valueOf(buyerResidences.size()) : "0");
+                row.add(""); // avg duration
+            } else {
+                row.add("0");
+                row.add("");
+            }
+        } else {
+            row.add("0");
+            row.add("");
+        }
+        
+        if (sellersObj instanceof List && !((List<?>) sellersObj).isEmpty()) {
+            Object firstSeller = ((List<?>) sellersObj).get(0);
+            if (firstSeller instanceof ObjectId) {
+                List<Document> sellerResidences = residencesByPersonMap.get((ObjectId) firstSeller);
+                row.add(sellerResidences != null ? String.valueOf(sellerResidences.size()) : "0");
+                row.add(""); // next residence
+            } else {
+                row.add("0");
+                row.add("");
+            }
+        } else {
+            row.add("0");
+            row.add("");
+        }
+        
+        // Transaction derived data
+        ObjectId transactionId = transaction.getObjectId("_id");
+        Document derived = transactionsDerivedMap.get(transactionId);
+        if (derived != null) {
+            row.add(safeGetString(derived, "priceNegotiationPercent"));
+            row.add(safeGetString(derived, "closingSpeedRating"));
+            row.add(safeGetString(derived, "complexityScore"));
+            row.add(safeGetString(derived, "agentEffectivenessScore"));
+        } else {
+            for (int i = 0; i < 4; i++) row.add("");
+        }
+        
+        return row.toArray(new String[0]);
     }
     
     private String safeGetString(Document doc, String field) {
