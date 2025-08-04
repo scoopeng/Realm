@@ -9,6 +9,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.FileWriter;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
@@ -20,6 +21,7 @@ import java.util.stream.Collectors;
 public class UltraTransactionExporter {
     private static final Logger logger = LoggerFactory.getLogger(UltraTransactionExporter.class);
     private static final int BATCH_SIZE = 2000;
+    private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
     
     private final ExportConfig config;
     private final MongoDatabase database;
@@ -32,6 +34,11 @@ public class UltraTransactionExporter {
     // Additional collections for enhanced attributes
     private Map<ObjectId, List<Document>> agentClientsByPersonMap = new HashMap<>();
     private Map<ObjectId, List<Document>> residencesByPersonMap = new HashMap<>();
+    
+    // Column statistics tracking
+    private Map<Integer, Map<String, Integer>> columnStats = new HashMap<>();
+    private Map<Integer, Integer> nullCounts = new HashMap<>();
+    private int totalRows = 0;
     private Map<ObjectId, Document> transactionsDerivedMap = new HashMap<>();
     
     public UltraTransactionExporter() {
@@ -143,12 +150,20 @@ public class UltraTransactionExporter {
         
         String timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss"));
         String outputPath = config.getOutputDirectory() + "/transaction_history_ultra_comprehensive_" + timestamp + ".csv";
+        String statsPath = config.getOutputDirectory() + "/transaction_history_ultra_comprehensive_" + timestamp + "_stats.txt";
         
         try (FileWriter fileWriter = new FileWriter(outputPath); 
              CSVWriter csvWriter = new CSVWriter(fileWriter)) {
             
             // Write comprehensive headers
-            csvWriter.writeNext(buildComprehensiveHeaders());
+            String[] headers = buildComprehensiveHeaders();
+            csvWriter.writeNext(headers);
+            
+            // Initialize column statistics
+            for (int i = 0; i < headers.length; i++) {
+                columnStats.put(i, new HashMap<>());
+                nullCounts.put(i, 0);
+            }
             
             MongoCollection<Document> transactions = database.getCollection("transactions");
             MongoCollection<Document> listings = database.getCollection("listings");
@@ -231,7 +246,11 @@ public class UltraTransactionExporter {
                             String[] row = buildComprehensiveRow(transaction, listing, property);
                             csvWriter.writeNext(row);
                             
+                            // Collect statistics for this row
+                            collectRowStatistics(row);
+                            
                             totalCount++;
+                            totalRows++;
                         }
                         
                         // Log progress
@@ -254,6 +273,9 @@ public class UltraTransactionExporter {
             logger.info("Export completed: {} total transactions written to {}", totalCount, outputPath);
             logger.info("Total time: {} seconds ({} transactions/sec)", 
                 String.format("%.1f", totalSeconds), String.format("%.1f", totalCount / totalSeconds));
+            
+            // Write statistics file
+            writeStatisticsFile(statsPath, headers);
             
         } catch (IOException e) {
             logger.error("Failed to export transactions", e);
@@ -328,7 +350,7 @@ public class UltraTransactionExporter {
         
         // Transaction core fields
         Date closingDate = (Date) transaction.get("closingDate");
-        row.add(closingDate != null ? closingDate.toString() : "");
+        row.add(closingDate != null ? DATE_FORMAT.format(closingDate) : "");
         
         Double salePrice = safeGetDouble(transaction, "price");
         row.add(salePrice != null ? String.format("%.2f", salePrice) : "");
@@ -432,7 +454,7 @@ public class UltraTransactionExporter {
             row.add(safeGetString(listing, "mlsNumber"));
             
             Date listDate = (Date) listing.get("dateListed");
-            row.add(listDate != null ? listDate.toString() : "");
+            row.add(listDate != null ? DATE_FORMAT.format(listDate) : "");
             
             row.add(safeGetString(listing, "originalListPrice"));
             row.add(String.valueOf(listPrice != null ? listPrice : ""));
@@ -780,5 +802,92 @@ public class UltraTransactionExporter {
             return ((Number) value).doubleValue();
         }
         return null;
+    }
+    
+    private void collectRowStatistics(String[] row) {
+        for (int i = 0; i < row.length; i++) {
+            String value = row[i];
+            if (value == null || value.trim().isEmpty()) {
+                nullCounts.put(i, nullCounts.getOrDefault(i, 0) + 1);
+            } else {
+                Map<String, Integer> valueMap = columnStats.get(i);
+                if (valueMap == null) {
+                    valueMap = new HashMap<>();
+                    columnStats.put(i, valueMap);
+                }
+                valueMap.put(value, valueMap.getOrDefault(value, 0) + 1);
+            }
+        }
+    }
+    
+    private void writeStatisticsFile(String statsPath, String[] headers) {
+        try (FileWriter writer = new FileWriter(statsPath)) {
+            writer.write("COLUMN STATISTICS REPORT\n");
+            writer.write("========================\n");
+            writer.write("Total rows analyzed: " + totalRows + "\n\n");
+            
+            writer.write("EMPTY COLUMNS (100% null/empty):\n");
+            writer.write("---------------------------------\n");
+            
+            List<String> emptyColumns = new ArrayList<>();
+            List<String> singleValueColumns = new ArrayList<>();
+            
+            for (int i = 0; i < headers.length; i++) {
+                int nullCount = nullCounts.get(i);
+                Map<String, Integer> valueMap = columnStats.get(i);
+                
+                if (nullCount == totalRows) {
+                    emptyColumns.add(String.format("Column %d: %s", i, headers[i]));
+                } else if (valueMap.size() == 1 && nullCount == 0) {
+                    String singleValue = valueMap.keySet().iterator().next();
+                    singleValueColumns.add(String.format("Column %d: %s = '%s'", i, headers[i], singleValue));
+                }
+            }
+            
+            for (String col : emptyColumns) {
+                writer.write(col + "\n");
+            }
+            
+            writer.write("\nSINGLE VALUE COLUMNS (only one non-null distinct value):\n");
+            writer.write("--------------------------------------------------------\n");
+            
+            for (String col : singleValueColumns) {
+                writer.write(col + "\n");
+            }
+            
+            writer.write("\nDETAILED COLUMN STATISTICS:\n");
+            writer.write("---------------------------\n");
+            
+            for (int i = 0; i < headers.length; i++) {
+                writer.write(String.format("\nColumn %d: %s\n", i, headers[i]));
+                writer.write(String.format("  Null/Empty count: %d (%.2f%%)\n", 
+                    nullCounts.get(i), (nullCounts.get(i) * 100.0) / totalRows));
+                
+                Map<String, Integer> valueMap = columnStats.get(i);
+                writer.write(String.format("  Distinct values: %d\n", valueMap.size()));
+                
+                if (valueMap.size() > 0 && valueMap.size() <= 10) {
+                    writer.write("  Value distribution:\n");
+                    valueMap.entrySet().stream()
+                        .sorted(Map.Entry.<String, Integer>comparingByValue().reversed())
+                        .limit(10)
+                        .forEach(entry -> {
+                            try {
+                                writer.write(String.format("    '%s': %d (%.2f%%)\n", 
+                                    entry.getKey().length() > 50 ? entry.getKey().substring(0, 50) + "..." : entry.getKey(),
+                                    entry.getValue(), 
+                                    (entry.getValue() * 100.0) / totalRows));
+                            } catch (IOException e) {
+                                logger.error("Error writing statistics", e);
+                            }
+                        });
+                }
+            }
+            
+            logger.info("Statistics written to: {}", statsPath);
+            
+        } catch (IOException e) {
+            logger.error("Failed to write statistics file", e);
+        }
     }
 }
