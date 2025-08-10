@@ -329,6 +329,12 @@ public class AutoDiscoveryExporter extends AbstractUltraExporter {
     }
     
     private void processBatch(List<Document> batch, CSVWriter csvWriter) throws IOException {
+        // Build headers once for the entire batch
+        String[] headers = null;
+        if (enableFieldStatistics) {
+            headers = buildComprehensiveHeaders();
+        }
+        
         for (Document doc : batch) {
             try {
                 // Expand relations if needed
@@ -346,8 +352,8 @@ public class AutoDiscoveryExporter extends AbstractUltraExporter {
                 
                 csvWriter.writeNext(row);
                 
-                if (enableFieldStatistics) {
-                    collectRowStatistics(row, buildComprehensiveHeaders());
+                if (enableFieldStatistics && headers != null) {
+                    collectRowStatistics(row, headers);
                 }
             } catch (Exception e) {
                 logger.error("Error processing document {}: {}", doc.get("_id"), e.getMessage());
@@ -764,7 +770,7 @@ public class AutoDiscoveryExporter extends AbstractUltraExporter {
             headers.add(headerName);
         }
         
-        logger.info("Generated {} headers with business names", headers.size());
+        logger.debug("Generated {} headers with business names", headers.size());
         return headers.toArray(new String[0]);
     }
     
