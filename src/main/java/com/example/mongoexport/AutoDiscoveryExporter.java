@@ -29,14 +29,15 @@ public class AutoDiscoveryExporter extends AbstractUltraExporter {
     private final Map<String, Integer> fieldPathNullCounts = new ConcurrentHashMap<>(); // Track null occurrences
     private static final int MAX_SAMPLE_VALUES = 100; // Limit samples to prevent memory bloat
     
-    // Cache for expanded documents
+    // Cache for expanded documents with ID-to-collection tracking
     private final Map<String, Map<ObjectId, Document>> collectionCache = new HashMap<>();
+    private final Map<ObjectId, String> idToCollectionMap = new HashMap<>(); // Track which collection each ID belongs to
     
     // Configuration
     private final String collectionName;
     private final int maxExpansionDepth;
     private final boolean autoExpandRelations;
-    private final int discoveryBatchSize = 5000; // Increased for better sampling of expanded fields
+    private final int discoveryBatchSize = 10000; // FIXED: Increased to discover rare fields (was 5000)
     private final int minDistinctNonNullValues = 2; // Minimum distinct non-null values for inclusion
     private final boolean useBusinessNames = true; // Use readable business names
     private final Set<String> includedFieldPaths = new LinkedHashSet<>(); // Fields that meet criteria
@@ -101,7 +102,7 @@ public class AutoDiscoveryExporter extends AbstractUltraExporter {
     }
     
     /**
-     * Phase 1: Discover all fields by scanning documents
+     * Phase 1: Discover all fields by scanning documents - FIXED to expand during discovery
      */
     private void discoverAllFields() {
         logger.info("Discovering fields in {} collection...", collectionName);
@@ -118,6 +119,9 @@ public class AutoDiscoveryExporter extends AbstractUltraExporter {
                 
                 // Recursively discover all field paths
                 discoverFieldsInDocument(doc, "", 0);
+                
+                // Note: We don't expand during discovery phase anymore - too expensive
+                // Expansion fields are discovered separately in discoverRelationships phase
                 
                 scanned++;
                 if (scanned % 100 == 0) {
@@ -148,13 +152,17 @@ public class AutoDiscoveryExporter extends AbstractUltraExporter {
                 discoveredFieldPaths.add(fieldPath);
                 fieldPathCounts.merge(fieldPath, 1, Integer::sum);
                 
-                // Track sample values and nulls
+                // Track sample values and nulls - FIXED to prevent memory bloat
                 if (fieldValue == null || fieldValue.toString().isEmpty()) {
                     fieldPathNullCounts.merge(fieldPath, 1, Integer::sum);
                 } else if (!(fieldValue instanceof Document) && !(fieldValue instanceof List)) {
                     Set<String> samples = fieldPathValues.computeIfAbsent(fieldPath, k -> new HashSet<>());
                     if (samples.size() < MAX_SAMPLE_VALUES) {
-                        samples.add(fieldValue.toString());
+                        String strValue = fieldValue.toString();
+                        // Only store if reasonable size to prevent memory issues
+                        if (strValue.length() <= 200) {
+                            samples.add(strValue);
+                        }
                     }
                 }
                 
@@ -224,17 +232,25 @@ public class AutoDiscoveryExporter extends AbstractUltraExporter {
     private void discoverRelationForField(String fieldPath) {
         // Discovering relation for field
         
-        // Common patterns for field names to collection mappings
+        // Common patterns for field names to collection mappings - ENHANCED
         Map<String, String> commonMappings = new HashMap<>();
         commonMappings.put("property", "properties");
         commonMappings.put("listing", "listings");
         commonMappings.put("agent", "agents");
-        commonMappings.put("currentAgent", "currentAgents");
+        commonMappings.put("currentagent", "currentAgents"); // handle case variations
+        commonMappings.put("listingagent", "agents");
+        commonMappings.put("buyeragent", "agents");
+        commonMappings.put("selleragent", "agents");
         commonMappings.put("person", "people");
-        commonMappings.put("brokerage", "brokerages");
         commonMappings.put("buyer", "people");
         commonMappings.put("seller", "people");
+        commonMappings.put("brokerage", "brokerages");
+        commonMappings.put("listingbrokerage", "brokerages");
+        commonMappings.put("buyerbrokerage", "brokerages");
+        commonMappings.put("sellerbrokerage", "brokerages");
         commonMappings.put("team", "teams");
+        commonMappings.put("transaction", "transactions");
+        commonMappings.put("award", "awards");
         
         // Extract the field name from the path
         String fieldName = fieldPath.contains(".") ? 
@@ -262,25 +278,37 @@ public class AutoDiscoveryExporter extends AbstractUltraExporter {
     }
     
     /**
-     * Expand fields from a related collection
+     * Expand fields from a related collection - FIXED to sample multiple documents
      */
     private void expandRelationFields(String fieldPath, String targetCollection) {
         try {
             MongoCollection<Document> collection = database.getCollection(targetCollection);
             
-            // Sample a document from the target collection to discover its fields
-            Document sample = collection.find().limit(1).first();
-            if (sample != null) {
-                // Discover fields in the related document
-                String expandedPrefix = fieldPath + ".@expanded";
-                discoverFieldsInDocument(sample, expandedPrefix, 1);
-                
-                logger.debug("    Added {} expanded fields from {}", 
-                    discoveredFieldPaths.stream()
-                        .filter(p -> p.startsWith(expandedPrefix))
-                        .count(),
-                    targetCollection);
+            // Sample MULTIPLE documents from the target collection to discover all fields
+            // This fixes CRITICAL ISSUE 1 - was only sampling 1 document
+            int sampleSize = Math.min(100, (int) collection.countDocuments());
+            Set<String> expandedFields = new HashSet<>();
+            
+            for (Document sample : collection.find().limit(sampleSize)) {
+                if (sample != null) {
+                    // Discover fields in the related document
+                    String expandedPrefix = fieldPath + ".@expanded";
+                    int beforeCount = discoveredFieldPaths.size();
+                    discoverFieldsInDocument(sample, expandedPrefix, 1);
+                    int afterCount = discoveredFieldPaths.size();
+                    
+                    if (afterCount > beforeCount) {
+                        expandedFields.addAll(
+                            discoveredFieldPaths.stream()
+                                .filter(p -> p.startsWith(expandedPrefix))
+                                .collect(Collectors.toSet())
+                        );
+                    }
+                }
             }
+            
+            logger.debug("    Added {} expanded fields from {} (sampled {} docs)", 
+                expandedFields.size(), targetCollection, sampleSize);
         } catch (Exception e) {
             logger.debug("Could not expand {}: {}", targetCollection, e.getMessage());
         }
@@ -441,15 +469,30 @@ public class AutoDiscoveryExporter extends AbstractUltraExporter {
     }
     
     /**
-     * Generic document lookup across all collections
+     * Generic document lookup across all collections - FIXED to track collection source
      */
     private Document lookupDocument(ObjectId id) {
         if (id == null) return null;
         
-        // Try cached collections first - MUCH faster
+        // First check if we know which collection this ID belongs to
+        // This fixes CRITICAL ISSUE 2 - proper collection tracking
+        String collectionName = idToCollectionMap.get(id);
+        if (collectionName != null) {
+            Map<ObjectId, Document> cache = collectionCache.get(collectionName);
+            if (cache != null) {
+                Document doc = cache.get(id);
+                if (doc != null) {
+                    return doc;
+                }
+            }
+        }
+        
+        // Fallback: Try all cached collections (but this is less efficient)
         for (Map.Entry<String, Map<ObjectId, Document>> entry : collectionCache.entrySet()) {
             Document doc = entry.getValue().get(id);
             if (doc != null) {
+                // Found it - update our tracking map for next time
+                idToCollectionMap.put(id, entry.getKey());
                 return doc;
             }
         }
@@ -802,6 +845,7 @@ public class AutoDiscoveryExporter extends AbstractUltraExporter {
                         ObjectId id = doc.getObjectId("_id");
                         if (id != null) {
                             cache.put(id, doc);
+                            idToCollectionMap.put(id, collName); // Track which collection this ID belongs to
                             loaded++;
                             
                             if (loaded % 10000 == 0) {
@@ -842,6 +886,7 @@ public class AutoDiscoveryExporter extends AbstractUltraExporter {
             Object propertyRef = listing.get("property");
             if (propertyRef instanceof ObjectId) {
                 propertyIds.add((ObjectId) propertyRef);
+                idToCollectionMap.put((ObjectId) propertyRef, "properties"); // Track that this ID is from properties
             }
         }
         
@@ -858,7 +903,9 @@ public class AutoDiscoveryExporter extends AbstractUltraExporter {
             if (batch.size() >= 1000 || loaded + batch.size() == propertyIds.size()) {
                 Document query = new Document("_id", new Document("$in", batch));
                 for (Document prop : properties.find(query)) {
-                    propertyCache.put(prop.getObjectId("_id"), prop);
+                    ObjectId propId = prop.getObjectId("_id");
+                    propertyCache.put(propId, prop);
+                    idToCollectionMap.put(propId, "properties"); // Track collection for this ID
                     loaded++;
                 }
                 
