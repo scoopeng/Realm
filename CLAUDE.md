@@ -14,9 +14,9 @@ MongoDB to CSV export utility designed for flexible data extraction with special
 - **Expansion Depth**: Relations are expanded up to 3 levels deep to capture nested relationships
 - **Binary Fields Included**: Fields with 2 distinct non-null values (e.g., true/false) are included as they contain meaningful information
 - **Single-Value Fields Excluded**: Fields with only 1 distinct non-null value are excluded as they provide no analytical value
-- **Sample Size**: Discovery phase samples 5000 documents to determine field characteristics
+- **Sample Size**: Discovery phase samples 10000 documents to determine field characteristics (increased from 5000)
 
-### Current State (as of 2025-08-09)
+### Current State (as of 2025-08-10)
 - ✅ Core functionality implemented and tested
 - ✅ Three comprehensive exporters (Listings, Transactions, Agents)
 - ✅ Smart field filtering and scanning capabilities
@@ -28,6 +28,32 @@ MongoDB to CSV export utility designed for flexible data extraction with special
 - ✅ Performance optimizations (disabled expansion for filtered mode)
 - ✅ Initial commit pushed to GitHub: https://github.com/scoopeng/Realm
 - ⚠️ MongoDB connection requires valid credentials in application.properties
+
+## SINGLE IMPLEMENTATION ARCHITECTURE
+
+**CRITICAL**: There is ONE authoritative implementation for the export process:
+
+### AutoDiscoveryExporter - The Single Source of Truth
+- **Location**: `src/main/java/com/example/mongoexport/AutoDiscoveryExporter.java`
+- **Purpose**: Handles ALL export logic with automatic field discovery
+- **Used By**: All export commands (autoDiscover, filteredExport, comprehensiveExport)
+
+### How The Single Implementation Works:
+1. **Discovery Phase**: Samples 10,000 documents to discover all fields
+2. **Relationship Discovery**: Identifies and expands foreign key relationships  
+3. **Field Filtering**: Applies consistent rules to exclude meaningless fields
+4. **Export Phase**: Outputs clean CSV with business-readable names
+
+### Consistent Exclusion Rules (Applied Everywhere):
+- Exclude if field has 0 occurrences (always empty)
+- Exclude if field has only 1 distinct non-null value
+- Exclude if field is >95% null (sparse)
+- Exclude all ID fields (ending with Id, _id, containing ._id or .@reference)
+
+### Configuration Options:
+- **Batch Size**: Set via `-Dexport.batch.size=3000` or `EXPORT_BATCH_SIZE=3000`
+- **Expansion Depth**: Fixed at 3 levels for consistency
+- **Discovery Sample**: Fixed at 10,000 documents for accuracy
 
 ## Build and Run Commands
 
@@ -335,7 +361,24 @@ java -cp build/libs/Realm-1.0-SNAPSHOT.jar \
 - Main branch: master
 - Current version: 2.0-SNAPSHOT
 
-## Recent Updates (2025-08-09)
+## Recent Updates (2025-08-10)
+
+### Critical Fixes in AutoDiscoveryExporter
+- ✅ **Fixed Relationship Discovery**: Now samples 100 documents when discovering expanded fields (was only 1)
+- ✅ **Fixed Cache Lookup**: Added ID-to-collection tracking for accurate and fast lookups
+- ✅ **Increased Discovery Sample**: Now samples 10,000 documents for better field coverage
+- ✅ **Fixed Array Depth Tracking**: Arrays now properly increment depth to prevent infinite expansion
+- ✅ **Enhanced Relationship Mappings**: Added comprehensive field-to-collection mappings
+- ✅ **Fixed Memory Leak**: Limited stored value size to 200 characters
+- ✅ **Optimized Discovery**: Removed expensive expansion during discovery phase
+
+### Critical Fixes in AbstractUltraExporter
+- ✅ **Fixed CSV Writer**: Corrected escape character for proper OpenCSV handling
+- ✅ **Unified Field Exclusions**: Single consistent approach for all exclusion mechanisms
+- ✅ **Thread Safety**: Using ConcurrentHashMap for statistics tracking
+- ✅ **Configurable Batch Size**: Can be set via environment variable or system property
+
+## Previous Updates (2025-08-09)
 - ✅ Made AutoDiscoveryExporter the single source of truth for all exports
 - ✅ Implemented exclusion of all ID fields from output
 - ✅ Fixed binary field inclusion (2 distinct non-null values are meaningful)
