@@ -40,9 +40,15 @@ MongoDB to CSV export utility designed for flexible data extraction with special
 
 ### How The Single Implementation Works:
 1. **Discovery Phase**: Samples 10,000 documents to discover all fields
-2. **Relationship Discovery**: Identifies and expands foreign key relationships  
+2. **Relationship Discovery**: Uses RelationExpander to identify and expand foreign key relationships  
 3. **Field Filtering**: Applies consistent rules to exclude meaningless fields
 4. **Export Phase**: Outputs clean CSV with business-readable names
+
+### Key Components:
+- **AutoDiscoveryExporter**: Main export logic with field discovery
+- **RelationExpander**: Handles all relationship expansion with proper caching
+- **AbstractUltraExporter**: Base class providing common functionality
+- **FieldStatisticsCollector**: Tracks field usage statistics
 
 ### Consistent Exclusion Rules (Applied Everywhere):
 - Exclude if field has 0 occurrences (always empty)
@@ -362,6 +368,13 @@ java -cp build/libs/Realm-1.0-SNAPSHOT.jar \
 - Current version: 2.0-SNAPSHOT
 
 ## Recent Updates (2025-08-10)
+
+### Critical Integration: RelationExpander Now Properly Used
+- ✅ **Integrated RelationExpander**: AutoDiscoveryExporter now properly uses RelationExpander
+- ✅ **Fixed Relationship Types**: Changed MANY_TO_MANY to ONE_TO_MANY_ARRAY for arrays of ObjectIds
+- ✅ **Added Missing Relationships**: Enhanced with openHouses, showings, and brokerage relationships
+- ✅ **Implemented Lazy Loading**: Documents fetched from DB are now cached automatically
+- ✅ **Fixed Cache Strategy**: Confirmed properties (1.9M docs) not in small collections list
 
 ### Critical Fixes in AutoDiscoveryExporter
 - ✅ **Fixed Relationship Discovery**: Now samples 100 documents when discovering expanded fields (was only 1)

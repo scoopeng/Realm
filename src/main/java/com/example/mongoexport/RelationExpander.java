@@ -31,23 +31,28 @@ public class RelationExpander {
      * Define the relationship configurations for each collection
      */
     private void initializeRelationConfigs() {
-        // Listings relations
+        // Listings relations - ENHANCED with more relationships
         RelationConfig listingsConfig = new RelationConfig("listings");
         listingsConfig.addRelation("property", "properties", RelationType.MANY_TO_ONE);
         listingsConfig.addRelation("currentAgentId", "currentAgents", RelationType.MANY_TO_ONE);
         listingsConfig.addRelation("listingAgentId", "agents", RelationType.MANY_TO_ONE);
+        listingsConfig.addRelation("listingBrokerageId", "brokerages", RelationType.MANY_TO_ONE);
+        listingsConfig.addRelation("buyerAgentId", "agents", RelationType.MANY_TO_ONE);
+        listingsConfig.addRelation("buyerBrokerageId", "brokerages", RelationType.MANY_TO_ONE);
+        listingsConfig.addRelation("openHouses", "openHouses", RelationType.ONE_TO_MANY_ARRAY); // Array of ObjectIds
+        listingsConfig.addRelation("showings", "showings", RelationType.ONE_TO_MANY_ARRAY); // Array of ObjectIds
         listingsConfig.addRelation("_id", "transactions", RelationType.ONE_TO_MANY, "listing");
         listingsConfig.addRelation("_id", "listingSearch", RelationType.ONE_TO_ONE, "listingId");
         relationConfigs.put("listings", listingsConfig);
         
-        // Transactions relations
+        // Transactions relations - FIXED: buyers/sellers are arrays of ObjectIds, not MANY_TO_MANY
         RelationConfig transactionsConfig = new RelationConfig("transactions");
         transactionsConfig.addRelation("listing", "listings", RelationType.MANY_TO_ONE);
         transactionsConfig.addRelation("property", "properties", RelationType.MANY_TO_ONE);
         transactionsConfig.addRelation("buyerAgent", "agents", RelationType.MANY_TO_ONE);
         transactionsConfig.addRelation("sellingAgentId", "agents", RelationType.MANY_TO_ONE);
-        transactionsConfig.addRelation("buyers", "people", RelationType.MANY_TO_MANY);
-        transactionsConfig.addRelation("sellers", "people", RelationType.MANY_TO_MANY);
+        transactionsConfig.addRelation("buyers", "people", RelationType.ONE_TO_MANY_ARRAY); // Array of ObjectIds
+        transactionsConfig.addRelation("sellers", "people", RelationType.ONE_TO_MANY_ARRAY); // Array of ObjectIds
         transactionsConfig.addRelation("_id", "transactionsderived", RelationType.ONE_TO_ONE, "_id");
         relationConfigs.put("transactions", transactionsConfig);
         
@@ -204,6 +209,7 @@ public class RelationExpander {
                 break;
                 
             case MANY_TO_MANY:
+            case ONE_TO_MANY_ARRAY:  // Handle arrays of ObjectIds the same way
                 if (value instanceof List) {
                     List<Document> expandedList = new ArrayList<>();
                     for (Object item : (List<?>) value) {
@@ -226,12 +232,26 @@ public class RelationExpander {
         // Check cache first
         Map<ObjectId, Document> cache = cacheByCollection.get(collectionName);
         if (cache != null) {
-            return cache.get(id);
+            Document doc = cache.get(id);
+            if (doc != null) {
+                return doc;
+            }
         }
         
         // Fetch from database
         MongoCollection<Document> collection = database.getCollection(collectionName);
-        return collection.find(new Document("_id", id)).first();
+        Document doc = collection.find(new Document("_id", id)).first();
+        
+        // FIXED: Implement lazy loading - cache the fetched document
+        if (doc != null && cache != null) {
+            cache.put(id, doc);
+        } else if (doc != null && isSmallCollection(collectionName)) {
+            // Create cache for small collections on demand
+            cache = cacheByCollection.computeIfAbsent(collectionName, k -> new HashMap<>());
+            cache.put(id, doc);
+        }
+        
+        return doc;
     }
     
     private Document fetchDocumentByField(String collectionName, String fieldName, Object value) {
@@ -363,9 +383,10 @@ public class RelationExpander {
     }
     
     private enum RelationType {
-        MANY_TO_ONE,   // Foreign key in local document
-        ONE_TO_ONE,    // Unique foreign key
-        ONE_TO_MANY,   // Foreign key in foreign document pointing back
-        MANY_TO_MANY   // Array of foreign keys in local document
+        MANY_TO_ONE,      // Foreign key in local document
+        ONE_TO_ONE,       // Unique foreign key
+        ONE_TO_MANY,      // Foreign key in foreign document pointing back
+        MANY_TO_MANY,     // Array of foreign keys with join table (not used in this codebase)
+        ONE_TO_MANY_ARRAY // Array of foreign keys in local document (e.g., buyers[], sellers[])
     }
 }

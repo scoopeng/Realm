@@ -53,6 +53,9 @@ public class AutoDiscoveryExporter extends AbstractUltraExporter {
         this.maxExpansionDepth = 3;  // Expand up to 3 levels deep (restored from 2)
         this.autoExpandRelations = true;  // Enable automatic relation expansion
         this.enableFieldStatistics = true; // Enable field statistics collection
+        
+        // CRITICAL FIX: The parent class (AbstractUltraExporter) already initialized relationExpander
+        // in its constructor when enableRelationExpansion is true. We inherit and use it.
     }
     
     @Override
@@ -393,9 +396,20 @@ public class AutoDiscoveryExporter extends AbstractUltraExporter {
     
     /**
      * Expand all foreign key relationships in a document
-     * Ensures only one row per document - arrays are concatenated, not expanded into multiple rows
+     * FIXED: Now properly uses RelationExpander when available
      */
     private Document expandDocumentRelations(Document doc) {
+        // Use RelationExpander if available (initialized by parent class)
+        if (relationExpander != null && autoExpandRelations) {
+            try {
+                // Use RelationExpander's proper expansion logic
+                return relationExpander.expandDocument(doc, collectionName, maxExpansionDepth);
+            } catch (Exception e) {
+                logger.warn("RelationExpander failed, falling back to basic expansion: {}", e.getMessage());
+            }
+        }
+        
+        // Fallback to basic expansion
         Document expanded = new Document(doc);
         
         for (String fieldPath : discoveredFieldPaths) {
@@ -820,6 +834,17 @@ public class AutoDiscoveryExporter extends AbstractUltraExporter {
     @Override
     protected void loadCollectionsIntoMemory() {
         logger.info("Pre-caching collections for fast lookups...");
+        
+        // CRITICAL FIX: Use RelationExpander's preloading when available
+        if (relationExpander != null) {
+            Set<String> toPreload = relationExpander.getPreloadCollections(collectionName);
+            if (!toPreload.isEmpty()) {
+                logger.info("Using RelationExpander to preload related collections: {}", toPreload);
+                relationExpander.preloadCollections(toPreload);
+                // The RelationExpander now handles the caching, but we still do our own
+                // for fields it might not know about
+            }
+        }
         
         // Pre-cache the most common collections that are likely to be referenced
         String[] commonCollections = {
