@@ -4,73 +4,197 @@ plugins {
 }
 
 group = 'com.example'
-version = '1.0-SNAPSHOT'
-
-java {
-    sourceCompatibility = JavaVersion.VERSION_11
-    targetCompatibility = JavaVersion.VERSION_11
-}
+version = '2.0-SNAPSHOT'
 
 repositories {
     mavenCentral()
 }
 
 dependencies {
-    // MongoDB driver
     implementation 'org.mongodb:mongodb-driver-sync:5.2.1'
-    
-    // CSV processing
     implementation 'com.opencsv:opencsv:5.9'
-    
-    // Logging
+    implementation 'com.fasterxml.jackson.core:jackson-databind:2.15.3'
     implementation 'ch.qos.logback:logback-classic:1.4.14'
-    
-    // Configuration
+    implementation 'org.slf4j:slf4j-api:2.0.9'
     implementation 'com.typesafe:config:1.4.3'
     
-    // Testing
-    testImplementation platform('org.junit:junit-bom:5.10.0')
-    testImplementation 'org.junit.jupiter:junit-jupiter'
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.10.0'
 }
 
 application {
-    mainClass = 'com.example.mongoexport.UltraListingsExporter'
-}
-
-// Production Tasks
-task runUltraListings(type: JavaExec) {
-    classpath = sourceSets.main.runtimeClasspath
-    mainClass = 'com.example.mongoexport.UltraListingsExporter'
-    jvmArgs = ['-Xmx20g', '-Xms10g']
-    description = 'Export all listings with comprehensive fields (~192 columns, human-readable headers)'
-}
-
-
-task runUltraAgentPerformance(type: JavaExec) {
-    classpath = sourceSets.main.runtimeClasspath
-    mainClass = 'com.example.mongoexport.UltraAgentPerformanceExporter'
-    jvmArgs = ['-Xmx20g', '-Xms10g']
-    description = 'Export comprehensive agent performance metrics (~150 columns, human-readable headers)'
-}
-
-task runUltraTransaction(type: JavaExec) {
-    classpath = sourceSets.main.runtimeClasspath
-    mainClass = 'com.example.mongoexport.UltraTransactionExporter'
-    jvmArgs = ['-Xmx20g', '-Xms10g']
-    description = 'Export comprehensive transaction history (~120 columns, human-readable headers)'
-}
-
-
-
-
-tasks.withType(JavaCompile) {
-    options.encoding = 'UTF-8'
-}
-
-tasks.withType(JavaExec) {
-    systemProperty 'file.encoding', 'UTF-8'
+    mainClass = 'com.example.mongoexport.AutoDiscoveryExporter'
 }
 
 test {
     useJUnitPlatform()
 }
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(21)
+    }
+}
+
+// ============================================
+// PRIMARY EXPORT TASKS - USE THESE!
+// ============================================
+
+// Main task: Automatic Discovery Export (Recommended)
+task autoDiscover(type: JavaExec) {
+    classpath = sourceSets.main.runtimeClasspath
+    mainClass = 'com.example.mongoexport.AutoDiscoveryExporter'
+    jvmArgs = ['-Xmx16g', '-Xms8g']
+    doFirst {
+        def collection = project.hasProperty('collection') ? project.property('collection') : 'listings'
+        args = [collection]
+    }
+    description = '★ RECOMMENDED: Automatically discovers all fields, filters by distinct values (>2), uses business names'
+}
+
+// Filtered Export - Maximum filtering for clean data
+task filteredExport(type: JavaExec) {
+    classpath = sourceSets.main.runtimeClasspath
+    mainClass = 'com.example.mongoexport.ComprehensiveExporter'
+    jvmArgs = ['-Xmx16g', '-Xms8g']
+    doFirst {
+        def collection = project.hasProperty('collection') ? project.property('collection') : 'listings'
+        args = ['filtered', collection]
+    }
+    description = 'Export with maximum filtering - excludes empty, single-value, and sparse columns'
+}
+
+// Full Export - Everything including relationships
+task fullExport(type: JavaExec) {
+    classpath = sourceSets.main.runtimeClasspath
+    mainClass = 'com.example.mongoexport.ComprehensiveExporter'
+    jvmArgs = ['-Xmx20g', '-Xms10g']
+    doFirst {
+        def collection = project.hasProperty('collection') ? project.property('collection') : 'listings'
+        args = ['full', collection]
+    }
+    description = 'Full export with relationship expansion and all fields'
+}
+
+// Analysis Only - No export, just field analysis
+task analyzeFields(type: JavaExec) {
+    classpath = sourceSets.main.runtimeClasspath
+    mainClass = 'com.example.mongoexport.ComprehensiveExporter'
+    jvmArgs = ['-Xmx16g', '-Xms8g']
+    doFirst {
+        def collection = project.hasProperty('collection') ? project.property('collection') : 'listings'
+        args = ['analyze', collection]
+    }
+    description = 'Analyze fields without exporting data - generates statistics only'
+}
+
+// ============================================
+// UTILITY TASKS
+// ============================================
+
+// Smart Export with command-line options (Legacy)
+task smartExport(type: JavaExec) {
+    classpath = sourceSets.main.runtimeClasspath
+    mainClass = 'com.example.mongoexport.SmartExporter'
+    jvmArgs = ['-Xmx20g', '-Xms10g']
+    doFirst {
+        def exportArgs = project.hasProperty('exportArgs') ? 
+            project.property('exportArgs').toString().split(' ') : ['export', 'listings']
+        args = exportArgs
+    }
+    description = 'Legacy smart export with field filtering'
+}
+
+// Field Scanner
+task scanFields(type: JavaExec) {
+    classpath = sourceSets.main.runtimeClasspath
+    mainClass = 'com.example.mongoexport.FieldScanner'
+    jvmArgs = ['-Xmx8g', '-Xms4g']
+    doFirst {
+        def collection = project.hasProperty('collection') ? project.property('collection') : 'listings'
+        args = [collection]
+    }
+    description = 'Scan a collection to analyze field usage patterns'
+}
+
+// ============================================
+// CONVENIENCE ALIASES
+// ============================================
+
+task export(dependsOn: autoDiscover) {
+    description = 'Alias for autoDiscover - the recommended export method'
+}
+
+task discover(dependsOn: autoDiscover) {
+    description = 'Alias for autoDiscover'
+}
+
+// ============================================
+// HELP TASK
+// ============================================
+
+task showHelp {
+    doLast {
+        println """
+╔══════════════════════════════════════════════════════════════════════╗
+║                    REALM MONGODB EXPORTER v2.0                       ║
+╚══════════════════════════════════════════════════════════════════════╝
+
+PRIMARY COMMANDS (Use These!):
+─────────────────────────────
+  ./gradlew autoDiscover -Pcollection=listings
+    ★ RECOMMENDED: Automatically discovers fields, filters by distinct 
+    values (keeps only fields with >2 distinct values), and uses 
+    business-readable column names.
+
+  ./gradlew filteredExport -Pcollection=listings  
+    Maximum filtering - removes empty, single-value, and sparse columns.
+    Best for clean, analytics-ready data.
+
+  ./gradlew fullExport -Pcollection=listings
+    Complete export with relationship expansion. Includes all fields.
+
+  ./gradlew analyzeFields -Pcollection=listings
+    Analyze fields without exporting. Generates statistics only.
+
+COLLECTION OPTIONS:
+──────────────────
+  -Pcollection=listings     (default)
+  -Pcollection=transactions
+  -Pcollection=agents
+  -Pcollection=all          (exports all three)
+  -Pcollection=<any>        (any MongoDB collection name)
+
+EXAMPLES:
+─────────
+  # Best practice workflow:
+  ./gradlew autoDiscover -Pcollection=listings
+  
+  # Export transactions with filtering:
+  ./gradlew filteredExport -Pcollection=transactions
+  
+  # Analyze agents collection:
+  ./gradlew analyzeFields -Pcollection=agents
+  
+  # Export all collections:
+  ./gradlew autoDiscover -Pcollection=all
+
+KEY FEATURES:
+────────────
+  • Automatic field discovery - no hardcoded schemas
+  • Business-readable column names
+  • Intelligent filtering (>2 distinct values)
+  • Works with ANY MongoDB collection
+  • Future-proof - adapts to schema changes
+
+OUTPUT:
+──────
+  Files are saved to: ./output/
+  • CSV with data
+  • JSON discovery report
+  • Statistics summary
+"""
+    }
+}
+
+// Default task shows help
+defaultTasks 'showHelp'

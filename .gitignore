@@ -51,4 +51,4 @@ application-local.properties
 ### Temporary files ###
 *.tmp
 *.swp
-*~
+*~output/

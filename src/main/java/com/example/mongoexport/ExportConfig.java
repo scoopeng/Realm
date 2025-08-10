@@ -19,7 +19,6 @@ public class ExportConfig
     private final String mongoUrl;
     private final String databaseName;
     private final String outputDirectory;
-    private final ExportStrategy exportStrategy;
     private final String currentEnvironment;
 
     public ExportConfig()
@@ -29,15 +28,12 @@ public class ExportConfig
         this.mongoUrl = loadMongoUrl();
         this.databaseName = config.getString("database.name");
         this.outputDirectory = config.getString("output.directory");
-        this.exportStrategy = ExportStrategy.valueOf(config.getString("export.strategy"));
-
         createOutputDirectoryIfNeeded();
 
         logger.info("Configuration loaded successfully");
         logger.info("Environment: {}", currentEnvironment);
         logger.info("Database: {}", databaseName);
         logger.info("Output directory: {}", outputDirectory);
-        logger.info("Export strategy: {}", exportStrategy);
     }
 
     private String loadMongoUrl()
@@ -82,11 +78,6 @@ public class ExportConfig
     public String getOutputDirectory()
     {
         return outputDirectory;
-    }
-
-    public ExportStrategy getExportStrategy()
-    {
-        return exportStrategy;
     }
 
     public String getCurrentEnvironment()
