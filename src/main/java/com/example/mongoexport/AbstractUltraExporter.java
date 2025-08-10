@@ -16,6 +16,7 @@ import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
@@ -54,9 +55,9 @@ public abstract class AbstractUltraExporter {
     protected final MongoDatabase database;
     protected final ExportOptions options;
     
-    // Column statistics tracking
-    protected Map<Integer, Map<String, Integer>> columnStats = new HashMap<>();
-    protected Map<Integer, Integer> nullCounts = new HashMap<>();
+    // Column statistics tracking - FIXED: Using thread-safe collections
+    protected Map<Integer, Map<String, Integer>> columnStats = new ConcurrentHashMap<>();
+    protected Map<Integer, Integer> nullCounts = new ConcurrentHashMap<>();
     protected int totalRows = 0;
     
     // Export metadata
@@ -117,10 +118,23 @@ public abstract class AbstractUltraExporter {
     protected abstract String getCollectionName();
     
     /**
-     * Get the batch size for processing
+     * Get the batch size for processing - FIXED: Made configurable
      */
     protected int getBatchSize() {
-        return 2000; // Default, can be overridden
+        // Check for environment variable or system property
+        String batchSizeStr = System.getProperty("export.batch.size", 
+            System.getenv("EXPORT_BATCH_SIZE"));
+        if (batchSizeStr != null) {
+            try {
+                int size = Integer.parseInt(batchSizeStr);
+                if (size > 0 && size <= 10000) {
+                    return size;
+                }
+            } catch (NumberFormatException e) {
+                logger.warn("Invalid batch size '{}', using default", batchSizeStr);
+            }
+        }
+        return 2000; // Default
     }
     
     /**
@@ -129,75 +143,97 @@ public abstract class AbstractUltraExporter {
     protected abstract String[] processDocument(Document doc);
     
     /**
-     * Get fields to exclude based on saved summary or discovery report
+     * Get fields to exclude based on saved summary or discovery report - FIXED: Unified approach
      */
     protected Set<String> getFieldsToExclude() {
-        // First try the discovery report (from AutoDiscovery)
-        String discoveryPath = config.getOutputDirectory() + "/" + getCollectionName() + "_discovery_report.json";
-        File discoveryFile = new File(discoveryPath);
+        // Only process exclusions if explicitly requested
+        if (!options.isUseSavedSummary()) {
+            return new HashSet<>();
+        }
         
-        if (discoveryFile.exists() && options.isUseSavedSummary()) {
+        // Try both file types in priority order
+        String[] possiblePaths = {
+            config.getOutputDirectory() + "/" + getCollectionName() + "_discovery_report.json",
+            config.getOutputDirectory() + "/" + getCollectionName() + "_summary.json"
+        };
+        
+        for (String path : possiblePaths) {
+            File file = new File(path);
+            if (!file.exists()) continue;
+            
             try {
-                logger.info("Loading discovery report for field filtering...");
-                com.fasterxml.jackson.databind.ObjectMapper mapper = new com.fasterxml.jackson.databind.ObjectMapper();
-                Map<String, Object> report = mapper.readValue(discoveryFile, Map.class);
-                List<Map<String, Object>> fields = (List<Map<String, Object>>) report.get("fields");
-                
-                Set<String> toExclude = new HashSet<>();
-                int sampleSize = 1000; // Default sample size used by AutoDiscovery
-                
-                for (Map<String, Object> field : fields) {
-                    String fieldPath = (String) field.get("path");
-                    int occurrences = (Integer) field.get("occurrences");
-                    Integer uniqueValues = (Integer) field.get("uniqueValues");
-                    
-                    // Calculate null percentage
-                    double nullPercentage = ((sampleSize - occurrences) * 100.0) / sampleSize;
-                    
-                    // Exclude if:
-                    // 1. Always empty (0 occurrences)
-                    // 2. Single value (only 1 unique value)
-                    // 3. Sparse (>95% null)
-                    if (occurrences == 0 || 
-                        (uniqueValues != null && uniqueValues == 1) ||
-                        nullPercentage > 95) {
-                        toExclude.add(fieldPath);
-                    }
+                Set<String> toExclude;
+                if (path.contains("_discovery_report")) {
+                    toExclude = loadExclusionsFromDiscoveryReport(file);
+                } else {
+                    toExclude = loadExclusionsFromSummary(file);
                 }
                 
-                logger.info("Excluding {} fields based on discovery report", toExclude.size());
+                logger.info("Loaded {} field exclusions from {}", toExclude.size(), file.getName());
                 return toExclude;
                 
             } catch (Exception e) {
-                logger.warn("Could not load discovery report, trying standard summary", e);
+                logger.warn("Could not load exclusions from {}: {}", file.getName(), e.getMessage());
             }
         }
         
-        // Fall back to standard summary (if it exists)
-        String summaryPath = config.getOutputDirectory() + "/" + getCollectionName() + "_summary.json";
-        File summaryFile = new File(summaryPath);
-        
-        if (summaryFile.exists() && (enableFieldStatistics || options.isUseSavedSummary())) {
-            try {
-                FieldStatisticsCollector.ExportSummary summary = FieldStatisticsCollector.loadSummary(summaryPath);
-                Set<String> toExclude = new HashSet<>();
-                
-                for (FieldStatisticsCollector.FieldSummary field : summary.getFieldSummaries()) {
-                    if (field.getCategory() == FieldStatisticsCollector.FieldCategory.ALWAYS_EMPTY ||
-                        field.getCategory() == FieldStatisticsCollector.FieldCategory.SINGLE_VALUE ||
-                        (field.getCategory() == FieldStatisticsCollector.FieldCategory.SPARSE && field.getNullPercentage() > 95)) {
-                        toExclude.add(field.getFieldName());
-                    }
-                }
-                
-                logger.info("Excluding {} fields based on field statistics summary", toExclude.size());
-                return toExclude;
-            } catch (IOException e) {
-                logger.warn("Could not load field summary, including all fields", e);
-            }
-        }
-        
+        logger.info("No exclusion files found, including all fields");
         return new HashSet<>();
+    }
+    
+    private Set<String> loadExclusionsFromDiscoveryReport(File file) throws IOException {
+        com.fasterxml.jackson.databind.ObjectMapper mapper = new com.fasterxml.jackson.databind.ObjectMapper();
+        Map<String, Object> report = mapper.readValue(file, Map.class);
+        List<Map<String, Object>> fields = (List<Map<String, Object>>) report.get("fields");
+        
+        Set<String> toExclude = new HashSet<>();
+        
+        // Get actual sample size from report
+        Integer sampleSize = (Integer) report.get("sampleSize");
+        if (sampleSize == null) sampleSize = 1000; // fallback
+        
+        for (Map<String, Object> field : fields) {
+            String fieldPath = (String) field.get("path");
+            int occurrences = (Integer) field.get("occurrences");
+            Integer uniqueValues = (Integer) field.get("uniqueValues");
+            
+            // Calculate null percentage
+            double nullPercentage = ((sampleSize - occurrences) * 100.0) / sampleSize;
+            
+            // Apply consistent exclusion rules
+            if (shouldExcludeField(occurrences, uniqueValues, nullPercentage)) {
+                toExclude.add(fieldPath);
+            }
+        }
+        
+        return toExclude;
+    }
+    
+    private Set<String> loadExclusionsFromSummary(File file) throws IOException {
+        FieldStatisticsCollector.ExportSummary summary = FieldStatisticsCollector.loadSummary(file.getPath());
+        Set<String> toExclude = new HashSet<>();
+        
+        for (FieldStatisticsCollector.FieldSummary field : summary.getFieldSummaries()) {
+            // Use consistent exclusion logic
+            if (field.getCategory() == FieldStatisticsCollector.FieldCategory.ALWAYS_EMPTY ||
+                field.getCategory() == FieldStatisticsCollector.FieldCategory.SINGLE_VALUE ||
+                (field.getCategory() == FieldStatisticsCollector.FieldCategory.SPARSE && 
+                 field.getNullPercentage() > 95)) {
+                toExclude.add(field.getFieldName());
+            }
+        }
+        
+        return toExclude;
+    }
+    
+    private boolean shouldExcludeField(int occurrences, Integer uniqueValues, double nullPercentage) {
+        // Consistent exclusion rules:
+        // 1. Always empty (0 occurrences)
+        // 2. Single value (only 1 unique value)
+        // 3. Sparse (>95% null)
+        return occurrences == 0 || 
+               (uniqueValues != null && uniqueValues == 1) ||
+               nullPercentage > 95;
     }
     
     /**
@@ -217,7 +253,7 @@ public abstract class AbstractUltraExporter {
              CSVWriter csvWriter = (CSVWriter) new CSVWriterBuilder(fileWriter)
                  .withSeparator(',')
                  .withQuoteChar('"')
-                 .withEscapeChar('"')  // RFC 4180: use quote doubling for escaping
+                 .withEscapeChar('\\')  // FIXED: OpenCSV uses backslash, quotes are auto-doubled
                  .withLineEnd("\r\n")  // RFC 4180: CR+LF line endings
                  .build()) {
             
