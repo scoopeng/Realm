@@ -2,9 +2,9 @@
 FIELD EXPANSION AUDIT TREE
 =================================================================
 Collection: listings
-Generated: Mon Aug 11 07:52:13 UTC 2025
+Generated: Mon Aug 11 08:05:08 UTC 2025
 Total Fields: 139
-Included Fields: 46
+Included Fields: 53
 Expansion Depth: 3
 =================================================================
 
@@ -52,7 +52,7 @@ listingBrokerage [objectId] - 2 distinct values -> brokerages
     listingBrokerage_expanded [object] (EXCLUDED) - 0 distinct values
     listingBrokerage_expanded.__v [integer] (EXCLUDED) - 1 distinct values
     listingBrokerage_expanded._id [objectId] (EXCLUDED) - 1 distinct values -> s
-    listingBrokerage_expanded.agents [array] (EXCLUDED) - 100 distinct values -> agents.fullName
+    listingBrokerage_expanded.agents [array] - 100 distinct values -> agents.fullName
     listingBrokerage_expanded.archived [null] (EXCLUDED) - 0 distinct values
     listingBrokerage_expanded.brokers [null] (EXCLUDED) - 0 distinct values
     listingBrokerage_expanded.contacts [null] (EXCLUDED) - 0 distinct values
@@ -66,7 +66,7 @@ listingBrokerage [objectId] - 2 distinct values -> brokerages
     listingBrokerage_expanded.mlsInfo.mlsId [string] (EXCLUDED) - 1 distinct values
     listingBrokerage_expanded.mlsInfo.mlsName [string] (EXCLUDED) - 1 distinct values
     listingBrokerage_expanded.name [string] (EXCLUDED) - 1 distinct values
-    listingBrokerage_expanded.offices [array] (EXCLUDED) - 10 distinct values
+    listingBrokerage_expanded.offices [array] - 10 distinct values
     listingBrokerage_expanded.realmData [object] (EXCLUDED) - 0 distinct values
     listingBrokerage_expanded.realmData.listingsFeedType [string] (EXCLUDED) - 1 distinct values
     listingBrokerage_expanded.realmData.listingsFeedUrl [null] (EXCLUDED) - 0 distinct values
@@ -97,11 +97,11 @@ property [objectId] - 100 distinct values -> properties
     property_expanded [object] (EXCLUDED) - 0 distinct values
     property_expanded.__v [integer] (EXCLUDED) - 2 distinct values
     property_expanded._id [objectId] (EXCLUDED) - 92 distinct values -> s
-    property_expanded.city [string] (EXCLUDED) - 24 distinct values
+    property_expanded.city [string] - 24 distinct values
     property_expanded.deleted [boolean] (EXCLUDED) - 1 distinct values
-    property_expanded.fullAddress [string] (EXCLUDED) - 92 distinct values
+    property_expanded.fullAddress [string] - 92 distinct values
     property_expanded.realmData [object] (EXCLUDED) - 0 distinct values
-    property_expanded.realmData.externalData [array] (EXCLUDED) - 28 distinct values
+    property_expanded.realmData.externalData [array] - 28 distinct values
     property_expanded.realmData.matchResults [object] (EXCLUDED) - 0 distinct values
     property_expanded.realmData.matchResults.high [integer] (EXCLUDED) - 6 distinct values
     property_expanded.realmData.matchResults.low [integer] (EXCLUDED) - 7 distinct values
@@ -110,10 +110,10 @@ property [objectId] - 100 distinct values -> properties
     property_expanded.realmData.matchResults.totalAgents [integer] (EXCLUDED) - 2 distinct values
     property_expanded.realmData.profiles [null] (EXCLUDED) - 0 distinct values
     property_expanded.schools [null] (EXCLUDED) - 0 distinct values
-    property_expanded.streetAddress [string] (EXCLUDED) - 82 distinct values
+    property_expanded.streetAddress [string] - 82 distinct values
     property_expanded.taxes [null] (EXCLUDED) - 0 distinct values
     property_expanded.updatedAt [date] (EXCLUDED) - 2 distinct values
-    property_expanded.zipcode [string] (EXCLUDED) - 24 distinct values
+    property_expanded.zipcode [string] - 24 distinct values
 propertyAdjacentTo [string] (EXCLUDED) - 28 distinct values
 propertyName [string] (EXCLUDED) - 100 distinct values
 propertyType [string] - 74 distinct values

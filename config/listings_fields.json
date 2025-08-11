@@ -298,6 +298,51 @@
     },
     "relationshipTarget" : "brokerages"
   }, {
+    "fieldPath" : "listingBrokerage_expanded.agents",
+    "businessName" : "Listing Brokerage Agents",
+    "sourceCollection" : "listings",
+    "dataType" : "array",
+    "include" : true,
+    "statistics" : {
+      "distinctNonNullValues" : 100,
+      "nullCount" : 0,
+      "totalOccurrences" : 100,
+      "sampleValues" : [ "5b6c6b3f9e89b41f53e0e069", "5c4ba9e8e3e54a1813c00065", "5ca52685f924ad76917f33e3", "5eea772accce19003aeeb0d8", "5ef11dacbfa1e7002497b31c" ],
+      "avgArrayLength" : 4689.0,
+      "maxArrayLength" : 4689
+    },
+    "arrayConfig" : {
+      "extractField" : "fullName",
+      "displayMode" : "comma_separated",
+      "sortOrder" : "alphanumeric",
+      "delimiter" : ", ",
+      "objectType" : "objectId",
+      "referenceCollection" : "agents",
+      "availableFields" : [ "createdAt", "deleted", "fullName", "lastUpdated", "privateURL", "updatedAt" ]
+    }
+  }, {
+    "fieldPath" : "listingBrokerage_expanded.offices",
+    "businessName" : "Listing Brokerage Offices",
+    "sourceCollection" : "listings",
+    "dataType" : "array",
+    "include" : true,
+    "statistics" : {
+      "distinctNonNullValues" : 10,
+      "nullCount" : 0,
+      "totalOccurrences" : 100,
+      "sampleValues" : [ "Document{{city=Alpine, email=info@jhrea.com, streetAddress=46 Iron Horse Drive, phone=3076547575, state=WY, zipcode=83128}}", "Document{{city=Coeur d'Alene, email=info@jhrea.com, streetAddress=421 East Lakeside, Suite 201, phone=2086603189, state=ID, zipcode=83814}}", "Document{{city=Driggs, email=info@jhrea.com, streetAddress=65 South Main Street, phone=2083547325, state=ID, zipcode=83422}}", "Document{{city=Jackson, email=info@jhrea.com, streetAddress=14885 SPORTING CLUB ROAD, phone=3077333444, state=WY, zipcode=83001}}", "Document{{city=Jackson, email=info@jhrea.com, streetAddress=270 West Pearl Avenue, phone=3077341007, state=WY, zipcode=83001}}" ],
+      "avgArrayLength" : 10.0,
+      "maxArrayLength" : 10
+    },
+    "arrayConfig" : {
+      "extractField" : "zipcode",
+      "displayMode" : "comma_separated",
+      "sortOrder" : "alphanumeric",
+      "delimiter" : ", ",
+      "objectType" : "object",
+      "availableFields" : [ "city", "country", "email", "officeName", "phone", "state", "streetAddress", "unitNumber", "zipcode" ]
+    }
+  }, {
     "fieldPath" : "listingEmail",
     "businessName" : "Listing Email",
     "sourceCollection" : "listings",
@@ -487,6 +532,76 @@
       "sampleValues" : [ "2 Units", "2 unit", "2-4 Units", "3 Units", "Affordable Housing" ]
     }
   }, {
+    "fieldPath" : "property_expanded.city",
+    "businessName" : "Property City",
+    "sourceCollection" : "listings",
+    "dataType" : "string",
+    "include" : true,
+    "statistics" : {
+      "distinctNonNullValues" : 24,
+      "nullCount" : 0,
+      "totalOccurrences" : 100,
+      "sampleValues" : [ "Afton", "Alpine", "Alta", "Bedford", "Bondurant" ]
+    }
+  }, {
+    "fieldPath" : "property_expanded.fullAddress",
+    "businessName" : "Property Full Address",
+    "sourceCollection" : "listings",
+    "dataType" : "string",
+    "include" : true,
+    "statistics" : {
+      "distinctNonNullValues" : 92,
+      "nullCount" : 0,
+      "totalOccurrences" : 100,
+      "sampleValues" : [ "  31 JADE COURT ,Star Valley Ranch,83127", "  AMERINE RANCH MERNA 23-112 ,Daniel,83115", "  COTTONWOOD RYEGRASS ,Daniel,83115", "  E 1000 S ,Driggs,83422", "  ELKHORN DRIVE ,Alpine,83128" ]
+    }
+  }, {
+    "fieldPath" : "property_expanded.realmData.externalData",
+    "businessName" : "Property Realm Data External Data",
+    "sourceCollection" : "listings",
+    "dataType" : "array",
+    "include" : true,
+    "statistics" : {
+      "distinctNonNullValues" : 28,
+      "nullCount" : 0,
+      "totalOccurrences" : 100,
+      "sampleValues" : [ "Document{{tagNames=[], lifestyleNames=[], ingestionDate=Thu Jan 17 23:46:06 UTC 2019, source=iBehavior}}", "Document{{tagNames=[has_a_pond], lifestyleNames=[waterfront_living], ingestionDate=Thu Jan 17 23:46:06 UTC 2019, source=iBehavior}}", "Document{{tagNames=[has_a_wine_cellar], lifestyleNames=[], ingestionDate=Thu Jan 17 23:46:06 UTC 2019, source=iBehavior}}", "Document{{tagNames=[has_livestock], lifestyleNames=[country_living, farm_ranch_living], ingestionDate=Thu Jan 17 23:46:06 UTC 2019, source=iBehavior}}", "Document{{tagNames=[in_the_mountains, is_in_the_woods], lifestyleNames=[country_living, farm_ranch_living, eco_friendly_living], ingestionDate=Thu Jan 17 23:46:06 UTC 2019, source=iBehavior}}" ],
+      "avgArrayLength" : 1.02,
+      "maxArrayLength" : 2
+    },
+    "arrayConfig" : {
+      "extractField" : "lifestyleNames",
+      "displayMode" : "comma_separated",
+      "sortOrder" : "alphanumeric",
+      "delimiter" : ", ",
+      "objectType" : "object",
+      "availableFields" : [ "ingestionDate", "lifestyleNames", "source", "tagNames" ]
+    }
+  }, {
+    "fieldPath" : "property_expanded.streetAddress",
+    "businessName" : "Property Street Address",
+    "sourceCollection" : "listings",
+    "dataType" : "string",
+    "include" : true,
+    "statistics" : {
+      "distinctNonNullValues" : 82,
+      "nullCount" : 0,
+      "totalOccurrences" : 85,
+      "sampleValues" : [ "  31 JADE COURT ", "  AMERINE RANCH MERNA 23-112 ", "  COTTONWOOD RYEGRASS ", "  E 1000 S ", "  ELKHORN DRIVE " ]
+    }
+  }, {
+    "fieldPath" : "property_expanded.zipcode",
+    "businessName" : "Property Zipcode",
+    "sourceCollection" : "listings",
+    "dataType" : "string",
+    "include" : true,
+    "statistics" : {
+      "distinctNonNullValues" : 24,
+      "nullCount" : 0,
+      "totalOccurrences" : 100,
+      "sampleValues" : [ "82070", "82513", "82922", "82941", "83001" ]
+    }
+  }, {
     "fieldPath" : "realmData.lifestyleNames",
     "businessName" : "Realm Data Lifestyle Names",
     "sourceCollection" : "listings",
@@ -634,7 +749,7 @@
     }
   } ],
   "collection" : "listings",
-  "discoveredAt" : 1754898703454,
+  "discoveredAt" : 1754899478554,
   "discoveryParameters" : {
     "sampleSize" : 10000,
     "expansionDepth" : 3,
@@ -1176,7 +1291,7 @@
     "businessName" : "Listing Brokerage Agents",
     "sourceCollection" : "listings",
     "dataType" : "array",
-    "include" : false,
+    "include" : true,
     "statistics" : {
       "distinctNonNullValues" : 100,
       "nullCount" : 0,
@@ -1343,7 +1458,7 @@
     "businessName" : "Listing Brokerage Offices",
     "sourceCollection" : "listings",
     "dataType" : "array",
-    "include" : false,
+    "include" : true,
     "statistics" : {
       "distinctNonNullValues" : 10,
       "nullCount" : 0,
@@ -1770,7 +1885,7 @@
     "businessName" : "Property City",
     "sourceCollection" : "listings",
     "dataType" : "string",
-    "include" : false,
+    "include" : true,
     "statistics" : {
       "distinctNonNullValues" : 24,
       "nullCount" : 0,
@@ -1794,7 +1909,7 @@
     "businessName" : "Property Full Address",
     "sourceCollection" : "listings",
     "dataType" : "string",
-    "include" : false,
+    "include" : true,
     "statistics" : {
       "distinctNonNullValues" : 92,
       "nullCount" : 0,
@@ -1817,7 +1932,7 @@
     "businessName" : "Property Realm Data External Data",
     "sourceCollection" : "listings",
     "dataType" : "array",
-    "include" : false,
+    "include" : true,
     "statistics" : {
       "distinctNonNullValues" : 28,
       "nullCount" : 0,
@@ -1930,7 +2045,7 @@
     "businessName" : "Property Street Address",
     "sourceCollection" : "listings",
     "dataType" : "string",
-    "include" : false,
+    "include" : true,
     "statistics" : {
       "distinctNonNullValues" : 82,
       "nullCount" : 0,
@@ -1964,7 +2079,7 @@
     "businessName" : "Property Zipcode",
     "sourceCollection" : "listings",
     "dataType" : "string",
-    "include" : false,
+    "include" : true,
     "statistics" : {
       "distinctNonNullValues" : 24,
       "nullCount" : 0,

@@ -41,7 +41,7 @@ public class FieldDiscoveryService
 
     // Track array internals separately - we'll consolidate them later
     private final Map<String, ArrayInternals> arrayInternalsMap = new HashMap<>();
-    
+
     // Track actual documents scanned for sparse field calculation
     private int actualDocumentsScanned = 0;
 
@@ -63,6 +63,10 @@ public class FieldDiscoveryService
         String relationshipTarget;
         Map<String, FieldMetadata> nestedFields = new HashMap<>();
         String arrayObjectType;
+
+        // Compound sparsity for expanded fields
+        Double compoundSparsity;
+        Integer adjustedOccurrences;
 
         double getAvgArrayLength()
         {
@@ -178,7 +182,7 @@ public class FieldDiscoveryService
                 }
             }
         }
-        
+
         // Store the actual number of documents scanned
         actualDocumentsScanned = scanned;
 
@@ -655,7 +659,206 @@ public class FieldDiscoveryService
             }
         }
 
+        // Calculate compound sparsity for expanded fields
+        calculateCompoundSparsityForExpandedFields();
+
         logger.info("Expanded field discovery complete");
+    }
+
+    /**
+     * Calculate compound sparsity for expanded fields
+     * This samples referenced collections to understand how often fields exist
+     */
+    private void calculateCompoundSparsityForExpandedFields()
+    {
+        logger.info("Calculating compound sparsity for expanded fields");
+
+        // Track parent field statistics
+        Map<String, ParentFieldStats> parentFieldStats = new HashMap<>();
+
+        // First, collect statistics about parent fields
+        for (Map.Entry<String, FieldMetadata> entry : fieldMetadataMap.entrySet())
+        {
+            String fieldPath = entry.getKey();
+            FieldMetadata metadata = entry.getValue();
+
+            // Check if this is an expanded field
+            if (fieldPath.contains("_expanded"))
+            {
+                // Extract parent field name (e.g., "property" from "property_expanded.city")
+                String parentField = fieldPath.substring(0, fieldPath.indexOf("_expanded"));
+
+                // Get or create parent stats
+                ParentFieldStats parentStats = parentFieldStats.computeIfAbsent(parentField, k ->
+                {
+                    ParentFieldStats stats = new ParentFieldStats();
+                    stats.parentField = k;
+
+                    // Get parent field metadata to understand its presence
+                    FieldMetadata parentMeta = fieldMetadataMap.get(k);
+                    if (parentMeta != null)
+                    {
+                        stats.parentOccurrences = parentMeta.totalOccurrences;
+                        stats.targetCollection = parentMeta.relationshipTarget;
+                    }
+                    return stats;
+                });
+
+                // Add this expanded field to the parent's list
+                parentStats.expandedFields.add(fieldPath);
+            }
+        }
+
+        // Now sample referenced collections to understand field sparsity
+        for (ParentFieldStats parentStats : parentFieldStats.values())
+        {
+            if (parentStats.targetCollection == null || parentStats.targetCollection.isEmpty())
+            {
+                // Try to guess the collection
+                parentStats.targetCollection = guessCollectionFromFieldName(parentStats.parentField);
+            }
+
+            if (parentStats.targetCollection != null)
+            {
+                sampleReferencedCollection(parentStats);
+            }
+        }
+
+        // Apply compound sparsity to expanded field metadata
+        for (ParentFieldStats parentStats : parentFieldStats.values())
+        {
+            double parentPresence = (double) parentStats.parentOccurrences / actualDocumentsScanned;
+
+            for (String expandedField : parentStats.expandedFields)
+            {
+                FieldMetadata expandedMeta = fieldMetadataMap.get(expandedField);
+                if (expandedMeta != null)
+                {
+                    // Extract the nested field path (e.g., "city" from "property_expanded.city")
+                    String nestedPath = expandedField.substring(expandedField.indexOf("_expanded.") + "_expanded.".length());
+
+                    // Get field presence in referenced collection
+                    Double fieldPresence = parentStats.fieldPresenceMap.get(nestedPath);
+                    if (fieldPresence == null)
+                    {
+                        fieldPresence = 0.0;  // Field not found in sample
+                    }
+
+                    // Calculate compound sparsity
+                    double compoundSparsity = parentPresence * fieldPresence;
+
+                    // Update the metadata with compound statistics
+                    // We'll adjust totalOccurrences to reflect actual expected presence
+                    expandedMeta.compoundSparsity = compoundSparsity;
+                    expandedMeta.adjustedOccurrences = (int) (actualDocumentsScanned * compoundSparsity);
+
+                    if (compoundSparsity < sparseFieldThreshold)
+                    {
+                        logger.debug("Expanded field '{}' has compound sparsity {}% (parent: {}%, field: {}%)",
+                                expandedField, String.format("%.2f", compoundSparsity * 100),
+                                String.format("%.2f", parentPresence * 100),
+                                String.format("%.2f", fieldPresence * 100));
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * Sample a referenced collection to understand field sparsity
+     */
+    private void sampleReferencedCollection(ParentFieldStats parentStats)
+    {
+        try
+        {
+            MongoCollection<Document> refCollection = database.getCollection(parentStats.targetCollection);
+
+            // Sample a subset of documents
+            int sampleSize = 1000;
+            long totalDocs = refCollection.estimatedDocumentCount();
+
+            if (totalDocs == 0)
+            {
+                logger.warn("Referenced collection '{}' is empty", parentStats.targetCollection);
+                return;
+            }
+
+            logger.debug("Sampling {} documents from {} (total: {})",
+                    Math.min(sampleSize, totalDocs), parentStats.targetCollection, totalDocs);
+
+            Map<String, Integer> fieldCounts = new HashMap<>();
+            int docsScanned = 0;
+
+            try (MongoCursor<Document> cursor = refCollection.find().limit(sampleSize).iterator())
+            {
+                while (cursor.hasNext())
+                {
+                    Document doc = cursor.next();
+                    docsScanned++;
+
+                    // Count field presence
+                    countFieldsInDocument(doc, "", fieldCounts);
+                }
+            }
+
+            // Calculate field presence percentages
+            for (Map.Entry<String, Integer> entry : fieldCounts.entrySet())
+            {
+                String fieldPath = entry.getKey();
+                int count = entry.getValue();
+                double presence = (double) count / docsScanned;
+                parentStats.fieldPresenceMap.put(fieldPath, presence);
+            }
+
+            logger.debug("Sampled {} documents from {}, found {} unique fields",
+                    docsScanned, parentStats.targetCollection, fieldCounts.size());
+        } catch (Exception e)
+        {
+            logger.warn("Failed to sample collection '{}': {}", parentStats.targetCollection, e.getMessage());
+        }
+    }
+
+    /**
+     * Recursively count field presence in a document
+     */
+    private void countFieldsInDocument(Document doc, String prefix, Map<String, Integer> fieldCounts)
+    {
+        for (Map.Entry<String, Object> entry : doc.entrySet())
+        {
+            String fieldName = entry.getKey();
+            Object value = entry.getValue();
+
+            // Skip technical fields
+            if (fieldName.equals("_id") || fieldName.equals("__v"))
+            {
+                continue;
+            }
+
+            String fieldPath = prefix.isEmpty() ? fieldName : prefix + "." + fieldName;
+
+            if (value != null && !isEmptyValue(value))
+            {
+                fieldCounts.merge(fieldPath, 1, Integer::sum);
+
+                // Recurse into nested documents
+                if (value instanceof Document)
+                {
+                    countFieldsInDocument((Document) value, fieldPath, fieldCounts);
+                }
+            }
+        }
+    }
+
+    /**
+     * Helper class to track parent field statistics
+     */
+    private static class ParentFieldStats
+    {
+        String parentField;
+        String targetCollection;
+        int parentOccurrences;
+        List<String> expandedFields = new ArrayList<>();
+        Map<String, Double> fieldPresenceMap = new HashMap<>();  // field path -> presence percentage
     }
 
     /**
@@ -861,41 +1064,43 @@ public class FieldDiscoveryService
                 if (stats != null)
                 {
                     int distinctValues = stats.getDistinctNonNullValues() != null ? stats.getDistinctNonNullValues() : 0;
-                    
+
                     // First check minimum distinct values
                     if (distinctValues < minDistinctNonNullValues)
                     {
                         shouldInclude = false;
-                    }
-                    else
+                    } else
                     {
                         // Check sparse field threshold based on actual documents scanned
                         Integer totalOccurrences = stats.getTotalOccurrences();
-                        
-                        // Use actual documents scanned as the base for percentage calculation
-                        // This handles fields that don't exist in all documents (sparse fields)
-                        if (actualDocumentsScanned > 0)
+
+                        // For expanded fields, check if we have compound sparsity calculated
+                        if (fieldPath.contains("_expanded"))
                         {
-                            // For sparse fields, totalOccurrences represents how many documents have the field
-                            // We want to exclude fields that appear in less than threshold% of all documents
-                            double fieldPresencePercentage = (double) (totalOccurrences != null ? totalOccurrences : 0) / actualDocumentsScanned;
-                            
-                            if (fieldPresencePercentage < sparseFieldThreshold)
+                            FieldMetadata metadata = fieldMetadataMap.get(fieldPath);
+                            if (metadata != null && metadata.compoundSparsity != null)
                             {
-                                shouldInclude = false;
-                                sparseFieldsExcluded++;
-                                logger.debug("Excluding sparse field '{}': present in {}% of documents (threshold: {}%)", 
-                                    fieldPath, String.format("%.2f", fieldPresencePercentage * 100), 
-                                    String.format("%.0f", sparseFieldThreshold * 100));
-                            }
-                            else
+                                // Use compound sparsity for expanded fields
+                                if (metadata.compoundSparsity < sparseFieldThreshold)
+                                {
+                                    shouldInclude = false;
+                                    sparseFieldsExcluded++;
+                                    logger.debug("Excluding sparse expanded field '{}': compound sparsity {}% (threshold: {}%)",
+                                            fieldPath, String.format("%.2f", metadata.compoundSparsity * 100),
+                                            String.format("%.0f", sparseFieldThreshold * 100));
+                                } else
+                                {
+                                    shouldInclude = true;
+                                }
+                            } else
                             {
-                                shouldInclude = true;
+                                // Fall back to regular sparsity check
+                                shouldInclude = checkRegularSparsity(totalOccurrences);
                             }
-                        }
-                        else
+                        } else
                         {
-                            shouldInclude = true;  // Include if we don't have document count
+                            // Regular fields use normal sparsity check
+                            shouldInclude = checkRegularSparsity(totalOccurrences);
                         }
                     }
                 }
@@ -908,8 +1113,28 @@ public class FieldDiscoveryService
             }
         }
 
-        logger.info("Filtering complete: {} fields excluded ({} sparse), {} business IDs kept", 
-            excluded, sparseFieldsExcluded, businessIdsKept);
+        logger.info("Filtering complete: {} fields excluded ({} sparse), {} business IDs kept",
+                excluded, sparseFieldsExcluded, businessIdsKept);
+    }
+
+    /**
+     * Check regular sparsity for non-expanded fields
+     */
+    private boolean checkRegularSparsity(Integer totalOccurrences)
+    {
+        // Use actual documents scanned as the base for percentage calculation
+        // This handles fields that don't exist in all documents (sparse fields)
+        if (actualDocumentsScanned > 0)
+        {
+            // For sparse fields, totalOccurrences represents how many documents have the field
+            // We want to exclude fields that appear in less than threshold% of all documents
+            double fieldPresencePercentage = (double) (totalOccurrences != null ? totalOccurrences : 0) / actualDocumentsScanned;
+
+            return fieldPresencePercentage >= sparseFieldThreshold;
+        } else
+        {
+            return true;  // Include if we don't have document count
+        }
     }
 
     /**
