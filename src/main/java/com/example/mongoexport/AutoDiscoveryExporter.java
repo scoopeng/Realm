@@ -47,6 +47,10 @@ public class AutoDiscoveryExporter extends AbstractUltraExporter {
     // Track discovered foreign key fields and their target collections
     private final Map<String, String> discoveredRelationships = new ConcurrentHashMap<>();
     
+    // Dynamic collection caching
+    private final Set<String> cachedCollectionNames = new HashSet<>();
+    private final Object cacheLock = new Object(); // Thread safety for caching
+    
     public AutoDiscoveryExporter(String collectionName, ExportOptions options) {
         super(options != null ? options : ExportOptions.builder()
             .enableFieldStatistics(true)
@@ -84,20 +88,25 @@ public class AutoDiscoveryExporter extends AbstractUltraExporter {
         logger.info("  - Expand relationships: {}", autoExpandRelations);
         logger.info("This will automatically discover fields and export only those with meaningful data");
         
-        // Phase 1: Discovery
+        // Phase 1: Discovery (with incremental caching)
         logger.info("\n=== PHASE 1: FIELD DISCOVERY ===");
         discoverAllFields();
         
-        // Phase 2: Relationship Discovery
+        // Phase 2: Relationship Discovery (uses cached collections)
         logger.info("\n=== PHASE 2: RELATIONSHIP DISCOVERY ===");
         discoverRelationships();
         
-        // Phase 2.5: Filter fields AND cache discovered relationships
-        logger.info("\n=== PHASE 2.5: FIELD FILTERING AND SMART CACHING ===");
+        // Phase 2.5: Filter fields based on distinct values
+        logger.info("\n=== PHASE 2.5: FIELD FILTERING ===");
         filterFieldsByDistinctValues();
-        loadCollectionsBasedOnDiscovery(); // Smart caching based on discovered relationships
         
-        // Phase 3: Export with filtered fields
+        // Log cache status
+        logger.info("\n=== CACHE STATUS ===");
+        logger.info("Collections cached during discovery: {}", cachedCollectionNames);
+        logger.info("Total cached documents: {}", 
+            collectionCache.values().stream().mapToInt(Map::size).sum());
+        
+        // Phase 3: Export with filtered fields (uses cached collections)
         logger.info("\n=== PHASE 3: EXPORT WITH FILTERED FIELDS ===");
         exportWithAllFields();
         
@@ -285,13 +294,63 @@ public class AutoDiscoveryExporter extends AbstractUltraExporter {
             }
         }
         
-        // If we found a target collection, expand it
+        // If we found a target collection, cache it IMMEDIATELY
         if (targetCollection != null) {
-            logger.info("  {} -> {} (expanding)", fieldPath, targetCollection);
-            discoveredRelationships.put(fieldPath, targetCollection); // Track discovered relationship
+            logger.info("  {} -> {} (caching and expanding)", fieldPath, targetCollection);
+            
+            // Track the discovered relationship
+            discoveredRelationships.put(fieldPath, targetCollection);
+            
+            // Cache the collection if not already cached
+            cacheCollectionIfNeeded(targetCollection);
+            
+            // Now expand fields (will be fast since collection is cached)
             expandRelationFields(fieldPath, targetCollection);
         } else {
             logger.debug("  {} -> unknown collection (skipping)", fieldPath);
+        }
+    }
+    
+    /**
+     * Cache a collection immediately when discovered
+     */
+    private void cacheCollectionIfNeeded(String collectionName) {
+        synchronized (cacheLock) {
+            if (cachedCollectionNames.contains(collectionName)) {
+                return; // Already cached
+            }
+            
+            try {
+                MongoCollection<Document> collection = database.getCollection(collectionName);
+                long count = collection.estimatedDocumentCount();
+                
+                // Cache entire collection
+                logger.info("Caching entire {} collection (~{} documents)...", collectionName, count);
+                long startTime = System.currentTimeMillis();
+                
+                Map<ObjectId, Document> cache = new HashMap<>();
+                collection.find().forEach(doc -> {
+                    ObjectId id = doc.getObjectId("_id");
+                    if (id != null) {
+                        cache.put(id, doc);
+                        idToCollectionMap.put(id, collectionName);
+                    }
+                });
+                
+                collectionCache.put(collectionName, cache);
+                cachedCollectionNames.add(collectionName);
+                
+                long elapsed = System.currentTimeMillis() - startTime;
+                logger.info("Cached {} {} documents in {}s", cache.size(), collectionName, elapsed / 1000);
+                
+                // Also inform RelationExpander about the cache if available
+                if (relationExpander != null) {
+                    relationExpander.preloadCollections(Collections.singleton(collectionName));
+                }
+                
+            } catch (Exception e) {
+                logger.warn("Failed to cache collection {}: {}", collectionName, e.getMessage());
+            }
         }
     }
     
@@ -759,137 +818,8 @@ public class AutoDiscoveryExporter extends AbstractUltraExporter {
     
     @Override
     protected void loadCollectionsIntoMemory() {
-        // This method is now replaced by loadCollectionsBasedOnDiscovery()
-        // which is called AFTER discovery and relationship detection
+        // No longer used - collections are cached dynamically during discovery
         // Left empty to satisfy abstract class requirement
-        logger.debug("loadCollectionsIntoMemory() stub - smart caching happens after discovery");
-    }
-    
-    /**
-     * Smart caching based on discovered relationships - loads only what's needed
-     */
-    private void loadCollectionsBasedOnDiscovery() {
-        if (discoveredRelationships.isEmpty()) {
-            logger.info("No relationships discovered, skipping smart caching");
-            return;
-        }
-        
-        logger.info("Smart caching based on {} discovered relationships", discoveredRelationships.size());
-        
-        // Step 1: Scan collection to find all unique foreign key values
-        Map<String, Set<ObjectId>> uniqueRefsPerCollection = new HashMap<>();
-        MongoCollection<Document> collection = database.getCollection(collectionName);
-        
-        // Build projection for discovered relationship fields only
-        List<String> projectionFields = new ArrayList<>(discoveredRelationships.keySet());
-        projectionFields.add("_id");
-        
-        Document projection = new Document();
-        for (String field : projectionFields) {
-            projection.append(field, 1);
-        }
-        
-        logger.info("Scanning {} documents to identify unique foreign keys...", collectionName);
-        long startTime = System.currentTimeMillis();
-        int scanned = 0;
-        
-        for (Document doc : collection.find().projection(projection)) {
-            for (Map.Entry<String, String> rel : discoveredRelationships.entrySet()) {
-                String fieldPath = rel.getKey();
-                String targetCollection = rel.getValue();
-                
-                Object value = getValueByPath(doc, fieldPath);
-                if (value instanceof ObjectId) {
-                    uniqueRefsPerCollection
-                        .computeIfAbsent(targetCollection, k -> new HashSet<>())
-                        .add((ObjectId) value);
-                } else if (value instanceof List) {
-                    for (Object item : (List<?>) value) {
-                        if (item instanceof ObjectId) {
-                            uniqueRefsPerCollection
-                                .computeIfAbsent(targetCollection, k -> new HashSet<>())
-                                .add((ObjectId) item);
-                        }
-                    }
-                }
-            }
-            
-            scanned++;
-            if (scanned % 10000 == 0) {
-                logger.info("  Scanned {} documents...", scanned);
-            }
-        }
-        
-        long scanTime = System.currentTimeMillis() - startTime;
-        logger.info("Identified unique references in {} seconds:", scanTime / 1000);
-        uniqueRefsPerCollection.forEach((coll, ids) -> 
-            logger.info("  {} -> {} unique documents", coll, ids.size()));
-        
-        // Step 2: Use RelationExpander to cache these collections
-        if (relationExpander != null) {
-            // For small collections, cache everything
-            Set<String> smallCollections = uniqueRefsPerCollection.entrySet().stream()
-                .filter(e -> e.getValue().size() < 10000)
-                .map(Map.Entry::getKey)
-                .collect(Collectors.toSet());
-            
-            if (!smallCollections.isEmpty()) {
-                logger.info("Pre-loading small collections: {}", smallCollections);
-                relationExpander.preloadCollections(smallCollections);
-            }
-            
-            // For large collections, cache specific documents
-            uniqueRefsPerCollection.entrySet().stream()
-                .filter(e -> !smallCollections.contains(e.getKey()))
-                .forEach(e -> {
-                    String collName = e.getKey();
-                    Set<ObjectId> ids = e.getValue();
-                    logger.info("Caching {} specific documents from {}", ids.size(), collName);
-                    cacheSpecificDocuments(collName, ids);
-                });
-        } else {
-            // Fallback if no RelationExpander
-            uniqueRefsPerCollection.forEach((collName, ids) -> {
-                if (ids.size() < 100000) {
-                    logger.info("Caching {} specific documents from {}", ids.size(), collName);
-                    cacheSpecificDocuments(collName, ids);
-                }
-            });
-        }
-        
-        logger.info("Smart caching complete - ready for fast export");
-    }
-    
-    /**
-     * Cache specific documents by their IDs
-     */
-    private void cacheSpecificDocuments(String collectionName, Set<ObjectId> ids) {
-        Map<ObjectId, Document> cache = collectionCache.computeIfAbsent(collectionName, k -> new HashMap<>());
-        MongoCollection<Document> collection = database.getCollection(collectionName);
-        
-        List<ObjectId> idList = new ArrayList<>(ids);
-        int batchSize = 1000;
-        int cached = 0;
-        
-        for (int i = 0; i < idList.size(); i += batchSize) {
-            List<ObjectId> batch = idList.subList(i, Math.min(i + batchSize, idList.size()));
-            Document query = new Document("_id", new Document("$in", batch));
-            
-            for (Document doc : collection.find(query)) {
-                ObjectId id = doc.getObjectId("_id");
-                if (id != null) {
-                    cache.put(id, doc);
-                    idToCollectionMap.put(id, collectionName);
-                    cached++;
-                }
-            }
-            
-            if ((i + batchSize) % 10000 == 0 || i + batchSize >= idList.size()) {
-                logger.debug("  Cached {} / {} documents from {}", cached, ids.size(), collectionName);
-            }
-        }
-        
-        logger.info("Cached {} documents from {}", cache.size(), collectionName);
     }
     
     // Process a document for export
