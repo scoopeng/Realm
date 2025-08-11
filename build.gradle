@@ -43,7 +43,7 @@ java {
 task autoDiscover(type: JavaExec) {
     classpath = sourceSets.main.runtimeClasspath
     mainClass = 'com.example.mongoexport.AutoDiscoveryExporter'
-    jvmArgs = ['-Xmx16g', '-Xms8g']
+    jvmArgs = ['-Xmx26g', '-Xms16g']  // Increased to 26GB for 32GB machine
     doFirst {
         def collection = project.hasProperty('collection') ? project.property('collection') : 'listings'
         args = [collection]

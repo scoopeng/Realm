@@ -316,6 +316,13 @@ public class AutoDiscoveryExporter extends AbstractUltraExporter {
                 MongoCollection<Document> collection = database.getCollection(collectionName);
                 long count = collection.estimatedDocumentCount();
                 
+                // Skip caching collections that are too large
+                if (count > 1000000) {
+                    logger.warn("Skipping cache for {} - too large ({} documents > 1M limit)", collectionName, count);
+                    logger.info("Will use direct DB queries for {} lookups", collectionName);
+                    return;
+                }
+                
                 // Cache entire collection
                 logger.info("Caching entire {} collection (~{} documents)...", collectionName, count);
                 long startTime = System.currentTimeMillis();
@@ -351,10 +358,34 @@ public class AutoDiscoveryExporter extends AbstractUltraExporter {
      */
     private void expandRelationFields(String fieldPath, String targetCollection) {
         try {
-            // USE THE CACHE! Don't hit the database!
+            // Try to use cache first
             Map<ObjectId, Document> cache = collectionCache.get(targetCollection);
             if (cache == null || cache.isEmpty()) {
-                logger.warn("Collection {} not in cache for expansion!", targetCollection);
+                // Collection not cached (probably too large), sample from DB instead
+                logger.info("    Sampling {} from database (not cached)", targetCollection);
+                MongoCollection<Document> collection = database.getCollection(targetCollection);
+                int sampleSize = 100;
+                Set<String> expandedFields = new HashSet<>();
+                
+                for (Document sample : collection.find().limit(sampleSize)) {
+                    if (sample != null) {
+                        String expandedPrefix = fieldPath + ".@expanded";
+                        int beforeCount = discoveredFieldPaths.size();
+                        discoverFieldsInDocument(sample, expandedPrefix, 1);
+                        int afterCount = discoveredFieldPaths.size();
+                        
+                        if (afterCount > beforeCount) {
+                            expandedFields.addAll(
+                                discoveredFieldPaths.stream()
+                                    .filter(p -> p.startsWith(expandedPrefix))
+                                    .collect(Collectors.toSet())
+                            );
+                        }
+                    }
+                }
+                
+                logger.debug("    Added {} expanded fields from {} (sampled {} docs from DB)", 
+                    expandedFields.size(), targetCollection, sampleSize);
                 return;
             }
             
