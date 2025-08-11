@@ -131,21 +131,8 @@ public class AutoDiscoveryExporter extends AbstractUltraExporter {
             while (cursor.hasNext()) {
                 Document doc = cursor.next();
                 
-                // CRITICAL FIX: Use RelationExpander for proper discovery
-                if (relationExpander != null && autoExpandRelations && scanned < 1000) {
-                    // Expand a subset using RelationExpander to discover expanded fields
-                    try {
-                        Document expanded = relationExpander.expandDocument(doc, collectionName, maxExpansionDepth);
-                        discoverFieldsInDocument(expanded, "", 0);
-                    } catch (Exception e) {
-                        // If expansion fails, at least discover base fields
-                        discoverFieldsInDocument(doc, "", 0);
-                        logger.debug("Expansion failed during discovery: {}", e.getMessage());
-                    }
-                } else {
-                    // For remaining documents, just discover base fields
-                    discoverFieldsInDocument(doc, "", 0);
-                }
+                // Just discover base fields - expansion happens in Phase 2 with caching
+                discoverFieldsInDocument(doc, "", 0);
                 
                 scanned++;
                 if (scanned % 100 == 0) {
@@ -215,7 +202,7 @@ public class AutoDiscoveryExporter extends AbstractUltraExporter {
                 } else if (fieldValue instanceof ObjectId) {
                     // Single ObjectId - likely a foreign key
                     discoveredFieldPaths.add(fieldPath + ".@reference");
-                    // Single ObjectId - potential reference
+                    logger.debug("Found ObjectId reference at: {}", fieldPath);
                 }
             }
         } else if (value instanceof List) {
@@ -243,6 +230,11 @@ public class AutoDiscoveryExporter extends AbstractUltraExporter {
             .collect(Collectors.toSet());
         
         logger.info("Found {} potential foreign key fields", referenceFields.size());
+        
+        if (referenceFields.isEmpty()) {
+            logger.warn("No ObjectId references found! This seems wrong for listings collection.");
+            logger.info("All discovered field paths: {}", discoveredFieldPaths);
+        }
         
         for (String refField : referenceFields) {
             discoverRelationForField(refField);
