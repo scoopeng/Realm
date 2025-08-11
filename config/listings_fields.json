@@ -132,6 +132,28 @@
       "sampleValues" : [ "Back on Market", "Cancelled", "Expired", "New Listing", "Not Developable" ]
     }
   }, {
+    "fieldPath" : "fees",
+    "businessName" : "Fees",
+    "sourceCollection" : "listings",
+    "dataType" : "array",
+    "include" : true,
+    "statistics" : {
+      "distinctNonNullValues" : 100,
+      "nullCount" : 9239,
+      "totalOccurrences" : 10100,
+      "sampleValues" : [ "Document{{feeType=CommonCharges, feeAmount=18072.00}}", "Document{{feeType=CommonCharges, feeAmount=1994.00}}", "Document{{feeType=CommonCharges, feeAmount=2189.00}}", "Document{{feeType=CommonCharges, feeAmount=2250.00}}", "Document{{feeType=CommonCharges, feeAmount=2570.21}}" ],
+      "avgArrayLength" : 1.0,
+      "maxArrayLength" : 1
+    },
+    "arrayConfig" : {
+      "extractField" : "feeAmount",
+      "displayMode" : "comma_separated",
+      "sortOrder" : "alphanumeric",
+      "delimiter" : ", ",
+      "objectType" : "object",
+      "availableFields" : [ "feeAmount", "feeType" ]
+    }
+  }, {
     "fieldPath" : "fullAddress",
     "businessName" : "Full Address",
     "sourceCollection" : "listings",
@@ -276,6 +298,29 @@
       "sampleValues" : [ "false", "true" ]
     }
   }, {
+    "fieldPath" : "listingAgents",
+    "businessName" : "Listing Agents",
+    "sourceCollection" : "listings",
+    "dataType" : "array",
+    "include" : true,
+    "statistics" : {
+      "distinctNonNullValues" : 100,
+      "nullCount" : 6147,
+      "totalOccurrences" : 10100,
+      "sampleValues" : [ "5b6c6b3e9e89b41f53e0e012", "5b6c6b3e9e89b41f53e0e018", "5b6c6b3f9e89b41f53e0e01d", "5b6c6b3f9e89b41f53e0e022", "5b6c6b3f9e89b41f53e0e02b" ],
+      "avgArrayLength" : 1.0007589172780167,
+      "maxArrayLength" : 2
+    },
+    "arrayConfig" : {
+      "extractField" : "fullName",
+      "displayMode" : "comma_separated",
+      "sortOrder" : "alphanumeric",
+      "delimiter" : ", ",
+      "objectType" : "objectId",
+      "referenceCollection" : "agents",
+      "availableFields" : [ "createdAt", "deleted", "fullName", "lastUpdated", "privateURL", "updatedAt" ]
+    }
+  }, {
     "fieldPath" : "listingBrokerage",
     "businessName" : "Listing Brokerage ID",
     "sourceCollection" : "listings",
@@ -409,6 +454,50 @@
       "sampleValues" : [ " $100,000 allowance for custom driveway construction included in price.", " HOA $2,000 + $1,500 Streams and Trails fee, annually for a total of $3,500. 2016 Property taxes have yet to be accessed with home value (Land 2015 taxes $27,807)", " Lease in place until November of 2018 with Exclusive Resorts, call Bill for Details.", " Please call Barbara or Brandon to show. You cannot see the view or building areas of lots by driving by, and seller does not want unaccompanied brokers on the property", " Possession cannot occur before October 31, 2017. Seller will leaseback. Property not in a subdivision, so ''NO'' CC&Rs." ]
     }
   }, {
+    "fieldPath" : "parkingTypes",
+    "businessName" : "Parking Types",
+    "sourceCollection" : "listings",
+    "dataType" : "array",
+    "include" : true,
+    "statistics" : {
+      "distinctNonNullValues" : 96,
+      "nullCount" : 5643,
+      "totalOccurrences" : 10100,
+      "sampleValues" : [ "Document{{parkingType=\r\n}}", "Document{{parkingType=1 - Covered}}", "Document{{parkingType=1 - UG}}", "Document{{parkingType=1-A & 1-D shop}}", "Document{{parkingType=1-A - 216 sf.}}" ],
+      "avgArrayLength" : 1.0,
+      "maxArrayLength" : 1
+    },
+    "arrayConfig" : {
+      "extractField" : "parkingType",
+      "displayMode" : "comma_separated",
+      "sortOrder" : "alphanumeric",
+      "delimiter" : ", ",
+      "objectType" : "object",
+      "availableFields" : [ "parkingType" ]
+    }
+  }, {
+    "fieldPath" : "pictures",
+    "businessName" : "Pictures",
+    "sourceCollection" : "listings",
+    "dataType" : "array",
+    "include" : true,
+    "statistics" : {
+      "distinctNonNullValues" : 100,
+      "nullCount" : 6162,
+      "totalOccurrences" : 10100,
+      "sampleValues" : [ "Document{{pictureUrl=http://cdn.resize.sparkplatform.com/tet/1024x768/true/20090929213747154055000000-o.jpg}}", "Document{{pictureUrl=http://cdn.resize.sparkplatform.com/tet/1024x768/true/20090929213750354218000000-o.jpg}}", "Document{{pictureUrl=http://cdn.resize.sparkplatform.com/tet/1024x768/true/20090929213753604272000000-o.jpg}}", "Document{{pictureUrl=http://cdn.resize.sparkplatform.com/tet/1024x768/true/20090929213756771695000000-o.jpg}}", "Document{{pictureUrl=http://cdn.resize.sparkplatform.com/tet/1024x768/true/20101111222317780297000000-o.jpg}}" ],
+      "avgArrayLength" : 14.547486033519553,
+      "maxArrayLength" : 135
+    },
+    "arrayConfig" : {
+      "extractField" : "isPrimary",
+      "displayMode" : "comma_separated",
+      "sortOrder" : "alphanumeric",
+      "delimiter" : ", ",
+      "objectType" : "object",
+      "availableFields" : [ "caption", "isPrimary", "pictureUrl", "thumbnailUrl" ]
+    }
+  }, {
     "fieldPath" : "price.amount",
     "businessName" : "Price Amount",
     "sourceCollection" : "listings",
@@ -492,6 +581,28 @@
       "nullCount" : 0,
       "totalOccurrences" : 100,
       "sampleValues" : [ "  31 JADE COURT ,Star Valley Ranch,83127", "  AMERINE RANCH MERNA 23-112 ,Daniel,83115", "  COTTONWOOD RYEGRASS ,Daniel,83115", "  E 1000 S ,Driggs,83422", "  ELKHORN DRIVE ,Alpine,83128" ]
+    }
+  }, {
+    "fieldPath" : "property_expanded.realmData.externalData",
+    "businessName" : "Property_expanded Realm Data External Data",
+    "sourceCollection" : "listings",
+    "dataType" : "array",
+    "include" : true,
+    "statistics" : {
+      "distinctNonNullValues" : 28,
+      "nullCount" : 0,
+      "totalOccurrences" : 100,
+      "sampleValues" : [ "Document{{tagNames=[], lifestyleNames=[], ingestionDate=Thu Jan 17 23:46:06 UTC 2019, source=iBehavior}}", "Document{{tagNames=[has_a_pond], lifestyleNames=[waterfront_living], ingestionDate=Thu Jan 17 23:46:06 UTC 2019, source=iBehavior}}", "Document{{tagNames=[has_a_wine_cellar], lifestyleNames=[], ingestionDate=Thu Jan 17 23:46:06 UTC 2019, source=iBehavior}}", "Document{{tagNames=[has_livestock], lifestyleNames=[country_living, farm_ranch_living], ingestionDate=Thu Jan 17 23:46:06 UTC 2019, source=iBehavior}}", "Document{{tagNames=[in_the_mountains, is_in_the_woods], lifestyleNames=[country_living, farm_ranch_living, eco_friendly_living], ingestionDate=Thu Jan 17 23:46:06 UTC 2019, source=iBehavior}}" ],
+      "avgArrayLength" : 1.02,
+      "maxArrayLength" : 2
+    },
+    "arrayConfig" : {
+      "extractField" : "lifestyleNames",
+      "displayMode" : "comma_separated",
+      "sortOrder" : "alphanumeric",
+      "delimiter" : ", ",
+      "objectType" : "object",
+      "availableFields" : [ "ingestionDate", "lifestyleNames", "source", "tagNames" ]
     }
   }, {
     "fieldPath" : "property_expanded.realmData.matchResults.high",
@@ -588,6 +699,50 @@
       "nullCount" : 0,
       "totalOccurrences" : 100,
       "sampleValues" : [ "82070", "82513", "82922", "82941", "83001" ]
+    }
+  }, {
+    "fieldPath" : "realmData.lifestyleNames",
+    "businessName" : "Realm Data Lifestyle Names",
+    "sourceCollection" : "listings",
+    "dataType" : "array",
+    "include" : true,
+    "statistics" : {
+      "distinctNonNullValues" : 14,
+      "nullCount" : 818,
+      "totalOccurrences" : 1909,
+      "sampleValues" : [ "active_living", "country_living", "eco_friendly_living", "entertainment_living", "family_estate" ],
+      "avgArrayLength" : 3.1778185151237395,
+      "maxArrayLength" : 12
+    },
+    "arrayConfig" : {
+      "displayMode" : "comma_separated",
+      "sortOrder" : "alphanumeric",
+      "delimiter" : ", ",
+      "objectType" : "string"
+    }
+  }, {
+    "fieldPath" : "realmData.lifestyles",
+    "businessName" : "Realm Data Lifestyles",
+    "sourceCollection" : "listings",
+    "dataType" : "array",
+    "include" : true,
+    "statistics" : {
+      "distinctNonNullValues" : 2,
+      "nullCount" : 8,
+      "totalOccurrences" : 9,
+      "sampleValues" : [ "5db9b02ef723983b5c712cb8", "5db9b02ef723983b5c712cfb" ],
+      "avgArrayLength" : 2.0,
+      "maxArrayLength" : 2
+    },
+    "arrayConfig" : {
+      "extractField" : "lifestyleName",
+      "displayMode" : "comma_separated",
+      "sortOrder" : "alphanumeric",
+      "delimiter" : ", ",
+      "objectType" : "object",
+      "referenceField" : "lifestyle",
+      "referenceCollection" : "lifestyles",
+      "availableFields" : [ "lifestyleName" ]
     }
   }, {
     "fieldPath" : "realmData.matchResults.checksum",
@@ -698,6 +853,27 @@
       "sampleValues" : [ "0", "5", "50", "62", "8" ]
     }
   }, {
+    "fieldPath" : "realmData.matchResults.seen",
+    "businessName" : "Realm Data Match Results Seen",
+    "sourceCollection" : "listings",
+    "dataType" : "array",
+    "include" : true,
+    "statistics" : {
+      "distinctNonNullValues" : 4,
+      "nullCount" : 0,
+      "totalOccurrences" : 7,
+      "sampleValues" : [ "5b6c6b3f9e89b41f53e0e02b", "5b6c6b419e89b41f53e0e168", "5b6c6b419e89b41f53e0e16f", "5b6c6b419e89b41f53e0e1c2" ],
+      "avgArrayLength" : 6.285714285714286,
+      "maxArrayLength" : 14
+    },
+    "arrayConfig" : {
+      "displayMode" : "comma_separated",
+      "sortOrder" : "alphanumeric",
+      "delimiter" : ", ",
+      "objectType" : "string",
+      "referenceCollection" : "seens"
+    }
+  }, {
     "fieldPath" : "realmData.matchResults.total",
     "businessName" : "Realm Data Match Results Total",
     "sourceCollection" : "listings",
@@ -720,6 +896,50 @@
       "nullCount" : 0,
       "totalOccurrences" : 73,
       "sampleValues" : [ "0", "1", "2", "3", "4" ]
+    }
+  }, {
+    "fieldPath" : "realmData.tagNames",
+    "businessName" : "Realm Data Tag Names",
+    "sourceCollection" : "listings",
+    "dataType" : "array",
+    "include" : true,
+    "statistics" : {
+      "distinctNonNullValues" : 86,
+      "nullCount" : 0,
+      "totalOccurrences" : 1087,
+      "sampleValues" : [ "airstrip", "beachfront", "can_be_a_primary_residence", "can_be_a_rental_property", "can_be_a_vacation_home" ],
+      "avgArrayLength" : 1.6301747930082797,
+      "maxArrayLength" : 21
+    },
+    "arrayConfig" : {
+      "displayMode" : "comma_separated",
+      "sortOrder" : "alphanumeric",
+      "delimiter" : ", ",
+      "objectType" : "string"
+    }
+  }, {
+    "fieldPath" : "realmData.tags",
+    "businessName" : "Realm Data Tags",
+    "sourceCollection" : "listings",
+    "dataType" : "array",
+    "include" : true,
+    "statistics" : {
+      "distinctNonNullValues" : 82,
+      "nullCount" : 0,
+      "totalOccurrences" : 1087,
+      "sampleValues" : [ "5c1d32bc3fce883621e4f1c6", "5c1d32bc3fce883621e4f1c7", "5c1d32bc3fce883621e4f1c8", "5c1d32bc3fce883621e4f1ca", "5c1d32bc3fce883621e4f1cc" ],
+      "avgArrayLength" : 1.6329346826126956,
+      "maxArrayLength" : 26
+    },
+    "arrayConfig" : {
+      "extractField" : "subCategory",
+      "displayMode" : "comma_separated",
+      "sortOrder" : "alphanumeric",
+      "delimiter" : ", ",
+      "objectType" : "object",
+      "referenceField" : "tag",
+      "referenceCollection" : "tags",
+      "availableFields" : [ "category", "createdAt", "createdBy", "deleted", "subCategory", "tagName", "weight" ]
     }
   }, {
     "fieldPath" : "roomCount",
@@ -794,6 +1014,28 @@
       "sampleValues" : [ "Mon Aug 11 04:25:08 UTC 2025", "Mon Aug 11 04:25:09 UTC 2025", "Tue Aug 16 10:46:15 UTC 2022" ]
     }
   }, {
+    "fieldPath" : "viewTypes",
+    "businessName" : "View Types",
+    "sourceCollection" : "listings",
+    "dataType" : "array",
+    "include" : true,
+    "statistics" : {
+      "distinctNonNullValues" : 4,
+      "nullCount" : 9663,
+      "totalOccurrences" : 10100,
+      "sampleValues" : [ "Document{{viewType=City}}", "Document{{viewType=Park}}", "Document{{viewType=River}}", "Document{{}}" ],
+      "avgArrayLength" : 1.0,
+      "maxArrayLength" : 1
+    },
+    "arrayConfig" : {
+      "extractField" : "viewType",
+      "displayMode" : "comma_separated",
+      "sortOrder" : "alphanumeric",
+      "delimiter" : ", ",
+      "objectType" : "object",
+      "availableFields" : [ "viewType" ]
+    }
+  }, {
     "fieldPath" : "virtualTourURL",
     "businessName" : "Virtual Tour URL",
     "sourceCollection" : "listings",
@@ -843,7 +1085,7 @@
     }
   } ],
   "collection" : "listings",
-  "discoveredAt" : 1754890782469,
+  "discoveredAt" : 1754892111057,
   "discoveryParameters" : {
     "sampleSize" : 10000,
     "expansionDepth" : 3,
@@ -1054,11 +1296,12 @@
     "businessName" : "Fees",
     "sourceCollection" : "listings",
     "dataType" : "array",
-    "include" : false,
+    "include" : true,
     "statistics" : {
-      "distinctNonNullValues" : 0,
+      "distinctNonNullValues" : 100,
       "nullCount" : 9239,
       "totalOccurrences" : 10100,
+      "sampleValues" : [ "Document{{feeType=CommonCharges, feeAmount=18072.00}}", "Document{{feeType=CommonCharges, feeAmount=1994.00}}", "Document{{feeType=CommonCharges, feeAmount=2189.00}}", "Document{{feeType=CommonCharges, feeAmount=2250.00}}", "Document{{feeType=CommonCharges, feeAmount=2570.21}}" ],
       "avgArrayLength" : 1.0,
       "maxArrayLength" : 1
     },
@@ -1290,11 +1533,12 @@
     "businessName" : "Listing Agents",
     "sourceCollection" : "listings",
     "dataType" : "array",
-    "include" : false,
+    "include" : true,
     "statistics" : {
-      "distinctNonNullValues" : 0,
+      "distinctNonNullValues" : 100,
       "nullCount" : 6147,
       "totalOccurrences" : 10100,
+      "sampleValues" : [ "5b6c6b3e9e89b41f53e0e012", "5b6c6b3e9e89b41f53e0e018", "5b6c6b3f9e89b41f53e0e01d", "5b6c6b3f9e89b41f53e0e022", "5b6c6b3f9e89b41f53e0e02b" ],
       "avgArrayLength" : 1.0007589172780167,
       "maxArrayLength" : 2
     },
@@ -1480,11 +1724,12 @@
     "businessName" : "Parking Types",
     "sourceCollection" : "listings",
     "dataType" : "array",
-    "include" : false,
+    "include" : true,
     "statistics" : {
-      "distinctNonNullValues" : 0,
+      "distinctNonNullValues" : 96,
       "nullCount" : 5643,
       "totalOccurrences" : 10100,
+      "sampleValues" : [ "Document{{parkingType=\r\n}}", "Document{{parkingType=1 - Covered}}", "Document{{parkingType=1 - UG}}", "Document{{parkingType=1-A & 1-D shop}}", "Document{{parkingType=1-A - 216 sf.}}" ],
       "avgArrayLength" : 1.0,
       "maxArrayLength" : 1
     },
@@ -1501,11 +1746,12 @@
     "businessName" : "Pictures",
     "sourceCollection" : "listings",
     "dataType" : "array",
-    "include" : false,
+    "include" : true,
     "statistics" : {
-      "distinctNonNullValues" : 0,
+      "distinctNonNullValues" : 100,
       "nullCount" : 6162,
       "totalOccurrences" : 10100,
+      "sampleValues" : [ "Document{{pictureUrl=http://cdn.resize.sparkplatform.com/tet/1024x768/true/20090929213747154055000000-o.jpg}}", "Document{{pictureUrl=http://cdn.resize.sparkplatform.com/tet/1024x768/true/20090929213750354218000000-o.jpg}}", "Document{{pictureUrl=http://cdn.resize.sparkplatform.com/tet/1024x768/true/20090929213753604272000000-o.jpg}}", "Document{{pictureUrl=http://cdn.resize.sparkplatform.com/tet/1024x768/true/20090929213756771695000000-o.jpg}}", "Document{{pictureUrl=http://cdn.resize.sparkplatform.com/tet/1024x768/true/20101111222317780297000000-o.jpg}}" ],
       "avgArrayLength" : 14.547486033519553,
       "maxArrayLength" : 135
     },
@@ -1689,11 +1935,12 @@
     "businessName" : "Property_expanded Realm Data External Data",
     "sourceCollection" : "listings",
     "dataType" : "array",
-    "include" : false,
+    "include" : true,
     "statistics" : {
-      "distinctNonNullValues" : 0,
+      "distinctNonNullValues" : 28,
       "nullCount" : 0,
       "totalOccurrences" : 100,
+      "sampleValues" : [ "Document{{tagNames=[], lifestyleNames=[], ingestionDate=Thu Jan 17 23:46:06 UTC 2019, source=iBehavior}}", "Document{{tagNames=[has_a_pond], lifestyleNames=[waterfront_living], ingestionDate=Thu Jan 17 23:46:06 UTC 2019, source=iBehavior}}", "Document{{tagNames=[has_a_wine_cellar], lifestyleNames=[], ingestionDate=Thu Jan 17 23:46:06 UTC 2019, source=iBehavior}}", "Document{{tagNames=[has_livestock], lifestyleNames=[country_living, farm_ranch_living], ingestionDate=Thu Jan 17 23:46:06 UTC 2019, source=iBehavior}}", "Document{{tagNames=[in_the_mountains, is_in_the_woods], lifestyleNames=[country_living, farm_ranch_living, eco_friendly_living], ingestionDate=Thu Jan 17 23:46:06 UTC 2019, source=iBehavior}}" ],
       "avgArrayLength" : 1.02,
       "maxArrayLength" : 2
     },
@@ -1858,11 +2105,12 @@
     "businessName" : "Realm Data Lifestyle Names",
     "sourceCollection" : "listings",
     "dataType" : "array",
-    "include" : false,
+    "include" : true,
     "statistics" : {
-      "distinctNonNullValues" : 0,
+      "distinctNonNullValues" : 14,
       "nullCount" : 818,
       "totalOccurrences" : 1909,
+      "sampleValues" : [ "active_living", "country_living", "eco_friendly_living", "entertainment_living", "family_estate" ],
       "avgArrayLength" : 3.1778185151237395,
       "maxArrayLength" : 12
     },
@@ -1877,11 +2125,12 @@
     "businessName" : "Realm Data Lifestyles",
     "sourceCollection" : "listings",
     "dataType" : "array",
-    "include" : false,
+    "include" : true,
     "statistics" : {
-      "distinctNonNullValues" : 0,
+      "distinctNonNullValues" : 2,
       "nullCount" : 8,
       "totalOccurrences" : 9,
+      "sampleValues" : [ "5db9b02ef723983b5c712cb8", "5db9b02ef723983b5c712cfb" ],
       "avgArrayLength" : 2.0,
       "maxArrayLength" : 2
     },
@@ -2031,11 +2280,12 @@
     "businessName" : "Realm Data Match Results Seen",
     "sourceCollection" : "listings",
     "dataType" : "array",
-    "include" : false,
+    "include" : true,
     "statistics" : {
-      "distinctNonNullValues" : 0,
+      "distinctNonNullValues" : 4,
       "nullCount" : 0,
       "totalOccurrences" : 7,
+      "sampleValues" : [ "5b6c6b3f9e89b41f53e0e02b", "5b6c6b419e89b41f53e0e168", "5b6c6b419e89b41f53e0e16f", "5b6c6b419e89b41f53e0e1c2" ],
       "avgArrayLength" : 6.285714285714286,
       "maxArrayLength" : 14
     },
@@ -2085,11 +2335,12 @@
     "businessName" : "Realm Data Tag Names",
     "sourceCollection" : "listings",
     "dataType" : "array",
-    "include" : false,
+    "include" : true,
     "statistics" : {
-      "distinctNonNullValues" : 0,
+      "distinctNonNullValues" : 86,
       "nullCount" : 0,
       "totalOccurrences" : 1087,
+      "sampleValues" : [ "airstrip", "beachfront", "can_be_a_primary_residence", "can_be_a_rental_property", "can_be_a_vacation_home" ],
       "avgArrayLength" : 1.6301747930082797,
       "maxArrayLength" : 21
     },
@@ -2104,11 +2355,12 @@
     "businessName" : "Realm Data Tags",
     "sourceCollection" : "listings",
     "dataType" : "array",
-    "include" : false,
+    "include" : true,
     "statistics" : {
-      "distinctNonNullValues" : 0,
+      "distinctNonNullValues" : 82,
       "nullCount" : 0,
       "totalOccurrences" : 1087,
+      "sampleValues" : [ "5c1d32bc3fce883621e4f1c6", "5c1d32bc3fce883621e4f1c7", "5c1d32bc3fce883621e4f1c8", "5c1d32bc3fce883621e4f1ca", "5c1d32bc3fce883621e4f1cc" ],
       "avgArrayLength" : 1.6329346826126956,
       "maxArrayLength" : 26
     },
@@ -2220,11 +2472,12 @@
     "businessName" : "View Types",
     "sourceCollection" : "listings",
     "dataType" : "array",
-    "include" : false,
+    "include" : true,
     "statistics" : {
-      "distinctNonNullValues" : 0,
+      "distinctNonNullValues" : 4,
       "nullCount" : 9663,
       "totalOccurrences" : 10100,
+      "sampleValues" : [ "Document{{viewType=City}}", "Document{{viewType=Park}}", "Document{{viewType=River}}", "Document{{}}" ],
       "avgArrayLength" : 1.0,
       "maxArrayLength" : 1
     },

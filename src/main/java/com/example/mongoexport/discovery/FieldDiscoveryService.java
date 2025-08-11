@@ -260,9 +260,14 @@ public class FieldDiscoveryService
             // Collect sample IDs
             for (Object item : list)
             {
-                if (item instanceof ObjectId && internals.sampleIds.size() < 10)
+                if (item instanceof ObjectId)
                 {
-                    internals.sampleIds.add((ObjectId) item);
+                    if (internals.sampleIds.size() < 10)
+                    {
+                        internals.sampleIds.add((ObjectId) item);
+                    }
+                    // Track this ID as a sample value for statistics
+                    trackSampleValue(arrayMeta, item.toString());
                 }
             }
         } else if (firstItem instanceof Document)
@@ -272,6 +277,7 @@ public class FieldDiscoveryService
             Document sampleDoc = (Document) firstItem;
 
             // Analyze the structure of objects in the array
+            boolean hasTrackedValues = false;
             for (Map.Entry<String, Object> entry : sampleDoc.entrySet())
             {
                 String fieldName = entry.getKey();
@@ -296,12 +302,31 @@ public class FieldDiscoveryService
                             if (item instanceof Document)
                             {
                                 Object id = ((Document) item).get(fieldName);
-                                if (id instanceof ObjectId && internals.sampleIds.size() < 10)
+                                if (id instanceof ObjectId)
                                 {
-                                    internals.sampleIds.add((ObjectId) id);
+                                    if (internals.sampleIds.size() < 10)
+                                    {
+                                        internals.sampleIds.add((ObjectId) id);
+                                    }
+                                    // Track this ID as a sample value for statistics
+                                    trackSampleValue(arrayMeta, id.toString());
+                                    hasTrackedValues = true;
                                 }
                             }
                         }
+                    }
+                }
+            }
+
+            // If we haven't tracked any values yet (no ObjectId fields), track the documents themselves
+            if (!hasTrackedValues)
+            {
+                for (Object item : list)
+                {
+                    if (item instanceof Document)
+                    {
+                        // Track a hash or summary of the document
+                        trackSampleValue(arrayMeta, item.toString());
                     }
                 }
             }
@@ -309,6 +334,15 @@ public class FieldDiscoveryService
         {
             // Simple array of primitives
             arrayMeta.arrayObjectType = firstItem.getClass().getSimpleName().toLowerCase();
+
+            // Track sample values for simple arrays
+            for (Object item : list)
+            {
+                if (item != null)
+                {
+                    trackSampleValue(arrayMeta, item.toString());
+                }
+            }
         }
     }
 
