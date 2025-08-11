@@ -1,0 +1,142 @@
+=================================================================
+FIELD EXPANSION AUDIT TREE
+=================================================================
+Collection: listings
+Generated: Mon Aug 11 06:11:36 UTC 2025
+Total Fields: 113
+Included Fields: 81
+Expansion Depth: 3
+=================================================================
+
+__v [integer] (EXCLUDED) - 1 distinct values
+_id [objectId] (EXCLUDED) - 100 distinct values -> s
+alwaysEmailAgent [boolean] - 2 distinct values
+appliances [null] (EXCLUDED) - 0 distinct values
+archived [string] - 10 distinct values
+bathrooms [integer] - 48 distinct values
+bedrooms [integer] - 27 distinct values
+belowGradeAreaFinished [integer] - 100 distinct values
+belowGradeAreaUnfinished [integer] - 61 distinct values
+coolingSystems [null] (EXCLUDED) - 0 distinct values
+dateListed [date] - 100 distinct values
+deleted [boolean] (EXCLUDED) - 1 distinct values
+description [object] - 4 distinct values
+  description.en [string] - 100 distinct values
+displayAddress [boolean] - 2 distinct values
+exteriorType [null] (EXCLUDED) - 0 distinct values
+extraStatus [string] - 100 distinct values
+fees [array] - 100 distinct values
+fullAddress [string] - 100 distinct values
+fullBathrooms [integer] - 11 distinct values
+guestHouseBathrooms [integer] - 11 distinct values
+guestHouseBedrooms [integer] - 7 distinct values
+guestHouseLivingArea [integer] - 100 distinct values
+halfBathrooms [integer] - 5 distinct values
+hasBasement [boolean] - 2 distinct values
+hasDeck [boolean] (EXCLUDED) - 1 distinct values
+hasFencedYard [boolean] (EXCLUDED) - 1 distinct values
+hasFireplace [boolean] - 2 distinct values
+hasGatedEntry [boolean] (EXCLUDED) - 1 distinct values
+hasOnsiteLaundry [boolean] (EXCLUDED) - 1 distinct values
+hasPool [boolean] - 2 distinct values
+heatingSystems [null] (EXCLUDED) - 0 distinct values
+importDate [string] - 6 distinct values
+isFurnished [boolean] - 2 distinct values
+isPocketListing [boolean] - 2 distinct values
+listingAgentId [objectId] (EXCLUDED) - 8 distinct values -> agents
+listingAgents [array] - 100 distinct values -> agents.fullName
+listingBrokerage [objectId] - 2 distinct values -> brokerages
+listingEmail [string] - 100 distinct values
+listingType [string] - 5 distinct values
+listingUrl [string] - 100 distinct values
+livingArea [integer] - 100 distinct values
+livingAreaMain [integer] - 100 distinct values
+livingAreaUpper [integer] - 100 distinct values
+lotSize [string] - 100 distinct values
+mlsArea [string] - 10 distinct values
+mlsId [string] (EXCLUDED) - 100 distinct values
+mlsName [string] (EXCLUDED) - 1 distinct values
+neighborhood [object] (EXCLUDED) - 0 distinct values
+  neighborhood.name [string] - 100 distinct values
+notes [string] - 100 distinct values
+parkingTypes [array] - 96 distinct values
+pictures [array] - 100 distinct values
+price [object] (EXCLUDED) - 0 distinct values
+  price.amount [integer] - 100 distinct values
+  price.currency [string] (EXCLUDED) - 1 distinct values
+property [objectId] - 100 distinct values -> properties
+  └─ EXPANDED:
+    property_expanded [object] (EXCLUDED) - 0 distinct values
+    property_expanded.__v [integer] (EXCLUDED) - 2 distinct values
+    property_expanded._id [objectId] (EXCLUDED) - 92 distinct values -> s
+    property_expanded.city [string] - 24 distinct values
+    property_expanded.deleted [boolean] (EXCLUDED) - 1 distinct values
+    property_expanded.fullAddress [string] - 92 distinct values
+    property_expanded.realmData [object] (EXCLUDED) - 0 distinct values
+    property_expanded.realmData.externalData [array] - 28 distinct values
+    property_expanded.realmData.matchResults [object] (EXCLUDED) - 0 distinct values
+    property_expanded.realmData.matchResults.high [integer] - 6 distinct values
+    property_expanded.realmData.matchResults.low [integer] - 7 distinct values
+    property_expanded.realmData.matchResults.med [integer] - 6 distinct values
+    property_expanded.realmData.matchResults.total [integer] - 9 distinct values
+    property_expanded.realmData.matchResults.totalAgents [integer] - 2 distinct values
+    property_expanded.realmData.profiles [null] (EXCLUDED) - 0 distinct values
+    property_expanded.schools [null] (EXCLUDED) - 0 distinct values
+    property_expanded.streetAddress [string] - 82 distinct values
+    property_expanded.taxes [null] (EXCLUDED) - 0 distinct values
+    property_expanded.updatedAt [date] - 2 distinct values
+    property_expanded.zipcode [string] - 24 distinct values
+propertyAdjacentTo [string] - 28 distinct values
+propertyName [string] - 100 distinct values
+propertyType [string] - 74 distinct values
+realmData [object] (EXCLUDED) - 0 distinct values
+  realmData.lifestyleNames [array] - 14 distinct values
+  realmData.lifestyles [array] - 2 distinct values -> lifestyles.lifestyleName
+  realmData.matchResults [object] (EXCLUDED) - 0 distinct values
+    realmData.matchResults.checksum [integer] - 7 distinct values
+    realmData.matchResults.date [string] - 2 distinct values
+    realmData.matchResults.high [integer] - 5 distinct values
+    realmData.matchResults.highAffordable [integer] - 2 distinct values
+    realmData.matchResults.highestScore [integer] - 7 distinct values
+    realmData.matchResults.low [integer] - 15 distinct values
+    realmData.matchResults.lowestScore [double] - 7 distinct values
+    realmData.matchResults.med [integer] - 10 distinct values
+    realmData.matchResults.myHigh [integer] (EXCLUDED) - 1 distinct values
+    realmData.matchResults.oppScore [integer] - 6 distinct values
+    realmData.matchResults.seen [array] - 4 distinct values -> seens
+    realmData.matchResults.sent [null] (EXCLUDED) - 0 distinct values
+    realmData.matchResults.total [integer] - 15 distinct values
+    realmData.matchResults.totalAgents [integer] - 7 distinct values
+  realmData.tagNames [array] - 86 distinct values
+  realmData.tags [array] - 82 distinct values -> tags.subCategory
+roofTypes [null] (EXCLUDED) - 0 distinct values
+roomCount [integer] - 24 distinct values
+status [string] - 8 distinct values
+title [object] (EXCLUDED) - 0 distinct values
+  title.en [string] - 100 distinct values
+unitFloor [string] - 17 distinct values
+unitLocation [string] - 10 distinct values
+updatedAt [date] - 3 distinct values
+viewTypes [array] - 4 distinct values
+virtualTourURL [string] - 100 distinct values
+waterFeatures [string] - 71 distinct values
+yearBuilt [integer] - 100 distinct values
+zoning [string] - 63 distinct values
+
+=================================================================
+EXPANSION SUMMARY
+=================================================================
+
+Expanded Relationships:
+  - property -> listings
+
+Array References:
+  - listingAgents -> agents (extracting: fullName)
+  - realmData.lifestyles -> lifestyles (extracting: lifestyleName)
+  - realmData.matchResults.seen -> seens
+  - realmData.tags -> tags (extracting: subCategory)
+
+Unexpanded ObjectId Fields (potential relationships):
+  - listingAgentId (guessed target: agents)
+  - listingBrokerage (guessed target: brokerages)
+  - property (guessed target: properties)

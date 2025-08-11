@@ -136,6 +136,9 @@ public class FieldDiscoveryService
         applyFilteringRules(config);
 
         logger.info("Discovery complete: {} fields discovered, {} included for export", config.getFields().size(), config.getIncludedFields().size());
+        
+        // Generate audit tree file
+        generateAuditTree(config);
 
         return config;
     }
@@ -943,5 +946,204 @@ public class FieldDiscoveryService
         }
 
         return normalized;
+    }
+    
+    /**
+     * Generate an audit tree file showing the field expansion hierarchy
+     */
+    private void generateAuditTree(DiscoveryConfiguration config)
+    {
+        try
+        {
+            File auditFile = new File("config", collectionName + "_expansion_audit.txt");
+            auditFile.getParentFile().mkdirs();
+            
+            StringBuilder audit = new StringBuilder();
+            audit.append("=================================================================\n");
+            audit.append("FIELD EXPANSION AUDIT TREE\n");
+            audit.append("=================================================================\n");
+            audit.append("Collection: ").append(collectionName).append("\n");
+            audit.append("Generated: ").append(new Date()).append("\n");
+            audit.append("Total Fields: ").append(config.getFields().size()).append("\n");
+            audit.append("Included Fields: ").append(config.getIncludedFields().size()).append("\n");
+            audit.append("Expansion Depth: ").append(expansionDepth).append("\n");
+            audit.append("=================================================================\n\n");
+            
+            // Generate the tree output
+            Set<String> processedRoots = new HashSet<>();
+            for (FieldConfiguration field : config.getFields())
+            {
+                String rootPath = field.getFieldPath();
+                
+                // Only process root fields (no dots and not expanded)
+                if (!rootPath.contains(".") && !rootPath.contains("_expanded"))
+                {
+                    if (processedRoots.add(rootPath))
+                    {
+                        appendFieldToAudit(audit, field, config, 0, new HashSet<>());
+                    }
+                }
+            }
+            
+            // Add summary section
+            audit.append("\n=================================================================\n");
+            audit.append("EXPANSION SUMMARY\n");
+            audit.append("=================================================================\n");
+            
+            // List expanded relationships
+            audit.append("\nExpanded Relationships:\n");
+            Set<String> expandedRelationships = new HashSet<>();
+            for (FieldConfiguration field : config.getFields())
+            {
+                if (field.getFieldPath().contains("_expanded"))
+                {
+                    String originalField = field.getFieldPath().split("_expanded")[0];
+                    String relationship = originalField + " -> " + field.getSourceCollection();
+                    if (expandedRelationships.add(relationship))
+                    {
+                        audit.append("  - ").append(relationship).append("\n");
+                    }
+                }
+            }
+            
+            // List array references
+            audit.append("\nArray References:\n");
+            for (FieldConfiguration field : config.getFields())
+            {
+                if ("array".equals(field.getDataType()) && field.getArrayConfig() != null)
+                {
+                    FieldConfiguration.ArrayConfiguration arrayConfig = field.getArrayConfig();
+                    if (arrayConfig.getReferenceCollection() != null)
+                    {
+                        audit.append("  - ").append(field.getFieldPath()).append(" -> ")
+                             .append(arrayConfig.getReferenceCollection());
+                        if (arrayConfig.getExtractField() != null)
+                        {
+                            audit.append(" (extracting: ").append(arrayConfig.getExtractField()).append(")");
+                        }
+                        audit.append("\n");
+                    }
+                }
+            }
+            
+            // List fields that could be expanded but weren't
+            audit.append("\nUnexpanded ObjectId Fields (potential relationships):\n");
+            for (FieldConfiguration field : config.getFields())
+            {
+                if ("objectId".equals(field.getDataType()) && 
+                    !field.getFieldPath().contains("_expanded") &&
+                    !field.getFieldPath().equals("_id"))
+                {
+                    audit.append("  - ").append(field.getFieldPath());
+                    if (field.getRelationshipTarget() != null)
+                    {
+                        audit.append(" (guessed target: ").append(field.getRelationshipTarget()).append(")");
+                    }
+                    audit.append("\n");
+                }
+            }
+            
+            // Write to file
+            java.nio.file.Files.write(auditFile.toPath(), audit.toString().getBytes());
+            logger.info("Audit tree saved to: {}", auditFile.getAbsolutePath());
+        }
+        catch (IOException e)
+        {
+            logger.error("Failed to generate audit tree", e);
+        }
+    }
+    
+    /**
+     * Append a field and its children to the audit output
+     */
+    private void appendFieldToAudit(StringBuilder audit, FieldConfiguration field, 
+                                   DiscoveryConfiguration config, int depth, Set<String> visited)
+    {
+        // Prevent infinite recursion
+        if (visited.contains(field.getFieldPath()))
+        {
+            return;
+        }
+        visited.add(field.getFieldPath());
+        
+        // Indentation
+        String indent = "  ".repeat(depth);
+        
+        // Field name and type
+        audit.append(indent).append(field.getFieldPath());
+        audit.append(" [").append(field.getDataType()).append("]");
+        
+        // Include status
+        if (!field.isInclude())
+        {
+            audit.append(" (EXCLUDED)");
+        }
+        
+        // Statistics
+        if (field.getStatistics() != null)
+        {
+            Integer distinctValues = field.getStatistics().getDistinctNonNullValues();
+            if (distinctValues != null)
+            {
+                audit.append(" - ").append(distinctValues).append(" distinct values");
+            }
+        }
+        
+        // Array configuration
+        if ("array".equals(field.getDataType()) && field.getArrayConfig() != null)
+        {
+            FieldConfiguration.ArrayConfiguration arrayConfig = field.getArrayConfig();
+            if (arrayConfig.getReferenceCollection() != null)
+            {
+                audit.append(" -> ").append(arrayConfig.getReferenceCollection());
+                if (arrayConfig.getExtractField() != null)
+                {
+                    audit.append(".").append(arrayConfig.getExtractField());
+                }
+            }
+        }
+        
+        // ObjectId reference
+        if ("objectId".equals(field.getDataType()) && field.getRelationshipTarget() != null)
+        {
+            audit.append(" -> ").append(field.getRelationshipTarget());
+        }
+        
+        audit.append("\n");
+        
+        // Find child fields (fields that start with this path followed by a dot)
+        String pathPrefix = field.getFieldPath() + ".";
+        Set<String> processedChildren = new HashSet<>();
+        for (FieldConfiguration child : config.getFields())
+        {
+            if (child.getFieldPath().startsWith(pathPrefix) && !child.getFieldPath().contains("_expanded"))
+            {
+                // Only direct children (no additional dots after the prefix)
+                String remainder = child.getFieldPath().substring(pathPrefix.length());
+                if (!remainder.contains("."))
+                {
+                    if (processedChildren.add(child.getFieldPath()))
+                    {
+                        appendFieldToAudit(audit, child, config, depth + 1, visited);
+                    }
+                }
+            }
+        }
+        
+        // Also check for expanded versions
+        String expandedPath = field.getFieldPath() + "_expanded";
+        for (FieldConfiguration expanded : config.getFields())
+        {
+            if (expanded.getFieldPath().equals(expandedPath) || 
+                expanded.getFieldPath().startsWith(expandedPath + "."))
+            {
+                if (expanded.getFieldPath().equals(expandedPath))
+                {
+                    // This is the expanded root
+                    audit.append(indent).append("  └─ EXPANDED:\n");
+                }
+                appendFieldToAudit(audit, expanded, config, depth + 2, visited);
+            }
+        }
     }
 }
