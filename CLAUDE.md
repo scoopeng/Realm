@@ -7,14 +7,14 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 MongoDB to CSV export utility designed for flexible data extraction with special handling for multi-value fields. The project exports MongoDB collections to CSV format with intelligent field filtering and comprehensive metadata generation.
 
 ### Core Requirements and Design Decisions
-- **NO ID FIELDS IN OUTPUT**: All fields ending with "Id", "_id", or containing "._id" or ".@reference" are excluded from exports
-- **Business-Readable Names**: All column headers use human-readable business names instead of technical field paths
-- **Automatic Foreign Key Expansion**: All ObjectId references are automatically expanded to include related document data
-- **Consistent Behavior**: All three collections (listings, transactions, agents) must use identical processing logic
-- **Expansion Depth**: Relations are expanded up to 3 levels deep to capture nested relationships
-- **Binary Fields Included**: Fields with 2 distinct non-null values (e.g., true/false) are included as they contain meaningful information
-- **Single-Value Fields Excluded**: Fields with only 1 distinct non-null value are excluded as they provide no analytical value
-- **Sample Size**: Discovery phase samples 10000 documents to determine field characteristics (increased from 5000)
+- **PRESERVE BUSINESS IDS**: Business-critical IDs (mlsNumber, listingId, transactionId, etc.) are preserved while technical IDs (_id, __v) are excluded
+- **Business-Readable Names**: All column headers use human-readable business names with technical markers cleaned
+- **Automatic Foreign Key Expansion**: Uses RelationExpander for proper relationship expansion with caching
+- **Consistent Behavior**: All three collections use identical processing via AutoDiscoveryExporter
+- **Expansion Depth**: Relations are expanded up to 3 levels deep using RelationExpander
+- **Binary Fields Included**: Fields with 2 distinct non-null values are included as meaningful
+- **Single-Value Fields Excluded**: Fields with only 1 distinct non-null value are excluded
+- **Sample Size**: Discovery phase samples 10000 documents with subset expanded via RelationExpander
 
 ### Current State (as of 2025-08-10)
 - ✅ Core functionality implemented and tested
@@ -367,9 +367,15 @@ java -cp build/libs/Realm-1.0-SNAPSHOT.jar \
 - Main branch: master
 - Current version: 2.0-SNAPSHOT
 
-## Recent Updates (2025-08-10)
+## Recent Updates (2025-08-10 - Final Fixes)
 
-### Critical Integration: RelationExpander Now Properly Used
+### Critical Business Logic Fixes
+- ✅ **PRESERVED BUSINESS IDS**: Fixed critical bug that was excluding mlsNumber, listingId, transactionId
+- ✅ **Proper Discovery**: Discovery phase now uses RelationExpander for subset of documents
+- ✅ **Field Name Cleaning**: FieldNameMapper now removes technical markers before mapping
+- ✅ **Memory Optimization**: Properties (1.9M docs) only caches referenced documents
+
+### RelationExpander Integration Complete
 - ✅ **Integrated RelationExpander**: AutoDiscoveryExporter now properly uses RelationExpander
 - ✅ **Fixed Relationship Types**: Changed MANY_TO_MANY to ONE_TO_MANY_ARRAY for arrays of ObjectIds
 - ✅ **Added Missing Relationships**: Enhanced with openHouses, showings, and brokerage relationships

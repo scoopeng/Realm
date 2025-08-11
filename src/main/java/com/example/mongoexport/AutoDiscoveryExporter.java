@@ -105,7 +105,7 @@ public class AutoDiscoveryExporter extends AbstractUltraExporter {
     }
     
     /**
-     * Phase 1: Discover all fields by scanning documents - FIXED to expand during discovery
+     * Phase 1: Discover all fields by scanning documents - FIXED to use RelationExpander
      */
     private void discoverAllFields() {
         logger.info("Discovering fields in {} collection...", collectionName);
@@ -120,11 +120,21 @@ public class AutoDiscoveryExporter extends AbstractUltraExporter {
             while (cursor.hasNext()) {
                 Document doc = cursor.next();
                 
-                // Recursively discover all field paths
-                discoverFieldsInDocument(doc, "", 0);
-                
-                // Note: We don't expand during discovery phase anymore - too expensive
-                // Expansion fields are discovered separately in discoverRelationships phase
+                // CRITICAL FIX: Use RelationExpander for proper discovery
+                if (relationExpander != null && autoExpandRelations && scanned < 1000) {
+                    // Expand a subset using RelationExpander to discover expanded fields
+                    try {
+                        Document expanded = relationExpander.expandDocument(doc, collectionName, maxExpansionDepth);
+                        discoverFieldsInDocument(expanded, "", 0);
+                    } catch (Exception e) {
+                        // If expansion fails, at least discover base fields
+                        discoverFieldsInDocument(doc, "", 0);
+                        logger.debug("Expansion failed during discovery: {}", e.getMessage());
+                    }
+                } else {
+                    // For remaining documents, just discover base fields
+                    discoverFieldsInDocument(doc, "", 0);
+                }
                 
                 scanned++;
                 if (scanned % 100 == 0) {
@@ -518,14 +528,22 @@ public class AutoDiscoveryExporter extends AbstractUltraExporter {
     
     /**
      * Filter fields based on distinct non-null value criteria
-     * Binary fields (true/false) are kept, but single-value fields are excluded
+     * FIXED: Now preserves business-critical IDs while excluding technical IDs
      */
     private void filterFieldsByDistinctValues() {
+        // CRITICAL FIX: Define business IDs that MUST be kept
+        Set<String> BUSINESS_IDS = new HashSet<>(Arrays.asList(
+            "mlsNumber", "listingId", "transactionId", "orderId", 
+            "contractNumber", "referenceNumber", "confirmationNumber",
+            "invoiceNumber", "accountNumber", "caseNumber", "ticketId"
+        ));
+        
         includedFieldPaths.clear();
         int excluded = 0;
         int binary = 0;
         int multiValue = 0;
         int expandedIncluded = 0;
+        int businessIdsKept = 0;
         
         for (String fieldPath : discoveredFieldPaths) {
             Set<String> values = fieldPathValues.get(fieldPath);
@@ -533,18 +551,28 @@ public class AutoDiscoveryExporter extends AbstractUltraExporter {
             int nullCount = fieldPathNullCounts.getOrDefault(fieldPath, 0);
             int totalOccurrences = fieldPathCounts.getOrDefault(fieldPath, 0);
             
+            // Extract just the field name for business ID checking
+            String fieldName = fieldPath.contains(".") ? 
+                fieldPath.substring(fieldPath.lastIndexOf(".") + 1) : fieldPath;
+            
             // Determine if field should be included
             boolean include = false;
             String reason = "";
             
-            // EXCLUDE all ID fields - we don't want IDs in the output
-            if (fieldPath.equals("_id") || 
-                fieldPath.endsWith("Id") ||
-                fieldPath.endsWith("_id") ||
+            // FIRST: Check if this is a business ID that must be kept
+            if (BUSINESS_IDS.contains(fieldName) && distinctNonNullCount > 0) {
+                include = true;
+                reason = "business ID";
+                businessIdsKept++;
+            }
+            // EXCLUDE technical ID fields (but not business IDs)
+            else if (fieldPath.equals("_id") || 
+                fieldPath.equals("__v") ||
                 fieldPath.contains("._id") ||
-                fieldPath.contains(".@reference")) {
+                fieldPath.contains(".@reference") ||
+                (fieldPath.endsWith("Id") && !BUSINESS_IDS.contains(fieldName))) {
                 include = false;
-                reason = "ID field excluded";
+                reason = "technical ID excluded";
             }
             // Always include certain important fields (but not IDs)
             else if (fieldPath.contains("Date") ||
@@ -591,8 +619,8 @@ public class AutoDiscoveryExporter extends AbstractUltraExporter {
             }
         }
         
-        logger.info("Field filtering complete: {} included ({} binary, {} multi-value, {} expanded), {} excluded (from {} total)", 
-            includedFieldPaths.size(), binary, multiValue, expandedIncluded, excluded, discoveredFieldPaths.size());
+        logger.info("Field filtering complete: {} included ({} business IDs, {} binary, {} multi-value, {} expanded), {} excluded (from {} total)", 
+            includedFieldPaths.size(), businessIdsKept, binary, multiValue, expandedIncluded, excluded, discoveredFieldPaths.size());
     }
     
     /**
@@ -891,7 +919,9 @@ public class AutoDiscoveryExporter extends AbstractUltraExporter {
             }
         }
         
-        // Special handling for properties - only cache those referenced by listings
+        // MEMORY FIX: Special handling for properties collection (1.9M docs)
+        // Only cache the specific properties that are actually referenced by listings
+        // This prevents OutOfMemoryError while still enabling fast lookups
         if ("listings".equals(collectionName)) {
             cacheReferencedProperties();
         }

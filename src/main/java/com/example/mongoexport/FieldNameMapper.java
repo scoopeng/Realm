@@ -221,19 +221,27 @@ public class FieldNameMapper {
     
     /**
      * Get business-readable name for a MongoDB field path
+     * FIXED: Clean technical markers before mapping
      * @param fieldPath MongoDB dot-notation field path
      * @return Business-readable column name
      */
     public static String getBusinessName(String fieldPath) {
-        // Check for direct mapping
-        if (FIELD_MAPPINGS.containsKey(fieldPath)) {
-            return FIELD_MAPPINGS.get(fieldPath);
+        // CRITICAL FIX: Clean up technical markers FIRST
+        String cleanPath = fieldPath
+            .replace(".@expanded", "")
+            .replace("_expanded", "")
+            .replace(".@reference", "")
+            .replaceAll("\\[\\d+\\]", "[]"); // Also handle array indices
+        
+        // Check for direct mapping with clean path
+        if (FIELD_MAPPINGS.containsKey(cleanPath)) {
+            return FIELD_MAPPINGS.get(cleanPath);
         }
         
-        // Handle array indices (e.g., "fees[0].amount" -> "fees[].amount")
-        String normalizedPath = fieldPath.replaceAll("\\[\\d+\\]", "[]");
+        // Handle array notation for the cleaned path
+        String normalizedPath = cleanPath.replaceAll("\\[\\]", "");
         if (FIELD_MAPPINGS.containsKey(normalizedPath)) {
-            return FIELD_MAPPINGS.get(normalizedPath);
+            return FIELD_MAPPINGS.get(normalizedPath) + " (List)";
         }
         
         // Handle nested fields by checking parent paths
