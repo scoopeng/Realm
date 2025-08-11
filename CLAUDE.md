@@ -123,6 +123,9 @@ vi config/listings_fields.json
 
 # Step 3: Export using configuration
 ./gradlew configExport -Pcollection=listings
+
+# Optional: Export with row limit for testing
+./gradlew configExport -Pcollection=listings -ProwLimit=1000
 ```
 
 ### Available Collections
@@ -218,14 +221,22 @@ output.directory=./output
 - ✅ Integrated collection caching in export phase
 - ✅ Fixed array statistics collection (arrays now properly included)
 - ✅ Added visual audit tree for field expansion verification
-- ✅ Removed legacy implementation - single clean architecture
+- ✅ Added row limit parameter for testing exports
+- ✅ Fixed duplicate headers issue in CSV export
+- ✅ Optimized RelationExpander (only expands when needed, depth 1 for config export)
+- ✅ Fixed field statistics tracking in ConfigurationBasedExporter
+- ✅ Ensured RFC 4180 compliant CSV output with proper quote escaping
 
 ### Key Improvements
 - **Separation of Concerns**: Discovery and export are independent
 - **Human-Editable Config**: JSON can be manually adjusted
 - **Reusable Configurations**: Save and version configurations
-- **Better Performance**: Cache only required collections
+- **Better Performance**: Cache only required collections, selective expansion
 - **Flexible Array Handling**: Configure per-field display
+- **Export Testing**: Row limit parameter for quick validation
+- **Audit Trail**: Visual tree showing field expansion hierarchy
+- **Statistics Tracking**: Comprehensive field-level statistics in summary file
+- **CSV Compliance**: RFC 4180 compliant with proper quote escaping
 
 ## GIT INFORMATION
 - Repository: https://github.com/scoopeng/Realm

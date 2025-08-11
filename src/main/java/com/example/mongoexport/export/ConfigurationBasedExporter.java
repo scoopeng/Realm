@@ -26,14 +26,16 @@ import java.util.stream.Collectors;
 public class ConfigurationBasedExporter extends AbstractUltraExporter
 {
     private static final Logger logger = LoggerFactory.getLogger(ConfigurationBasedExporter.class);
-    private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+    private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd H1H:mm:ss");
 
     private final DiscoveryConfiguration configuration;
     private final List<FieldConfiguration> includedFields;
     private final Map<String, Map<ObjectId, Document>> collectionCache = new HashMap<>();
     private final Set<String> cachedCollectionNames = new HashSet<>();
     private RelationExpander relationExpander;
+    private boolean needsExpansion = false;
     private Integer rowLimit = null;
+    private String[] cachedHeaders = null;
 
     /**
      * Create exporter from configuration file
@@ -52,14 +54,21 @@ public class ConfigurationBasedExporter extends AbstractUltraExporter
         this.configuration = config;
         this.includedFields = config.getIncludedFields();
 
-        // Initialize relation expander if we have relationships
-        if (!config.getRequiredCollections().isEmpty())
+        // Check if we need expansion - only if we have included fields with "_expanded" in the path
+        for (FieldConfiguration field : includedFields)
         {
-            this.relationExpander = new RelationExpander(database);
+            if (field.getFieldPath().contains("_expanded"))
+            {
+                needsExpansion = true;
+                this.relationExpander = new RelationExpander(database);
+                logger.info("Expansion enabled - found expanded fields in configuration");
+                break;
+            }
         }
 
         logger.info("Loaded configuration for collection: {}", config.getCollection());
         logger.info("Total fields: {}, Included fields: {}", config.getFields().size(), includedFields.size());
+        logger.info("Expansion needed: {}", needsExpansion);
     }
 
     /**
@@ -94,7 +103,11 @@ public class ConfigurationBasedExporter extends AbstractUltraExporter
     @Override
     protected String[] buildComprehensiveHeaders()
     {
-        return includedFields.stream().map(field -> configuration.getExportSettings().isUseBusinessNames() ? field.getBusinessName() : field.getFieldPath()).toArray(String[]::new);
+        if (cachedHeaders == null)
+        {
+            cachedHeaders = includedFields.stream().map(field -> configuration.getExportSettings().isUseBusinessNames() ? field.getBusinessName() : field.getFieldPath()).toArray(String[]::new);
+        }
+        return cachedHeaders;
     }
 
     @Override
@@ -204,9 +217,6 @@ public class ConfigurationBasedExporter extends AbstractUltraExporter
     {
         exportWithStatistics(csvWriter ->
         {
-            // Write header
-            writeHeader(csvWriter);
-
             // Export data
             MongoCollection<Document> collection = database.getCollection(configuration.getCollection());
             long totalDocs = collection.countDocuments();
@@ -263,32 +273,27 @@ public class ConfigurationBasedExporter extends AbstractUltraExporter
     }
 
     /**
-     * Write CSV header
-     */
-    private void writeHeader(CSVWriter csvWriter)
-    {
-        String[] header = includedFields.stream().map(field -> configuration.getExportSettings().isUseBusinessNames() ? field.getBusinessName() : field.getFieldPath()).toArray(String[]::new);
-
-        csvWriter.writeNext(header);
-        csvWriter.flushQuietly();
-    }
-
-    /**
      * Process a batch of documents
      */
     private void processBatch(List<Document> batch, CSVWriter csvWriter)
     {
         for (Document doc : batch)
         {
-            // Expand relationships if needed
-            if (relationExpander != null)
+            // Only expand if we have expanded fields in our included fields
+            if (needsExpansion && relationExpander != null)
             {
-                doc = relationExpander.expandDocument(doc, configuration.getCollection(), configuration.getDiscoveryParameters().getExpansionDepth());
+                doc = relationExpander.expandDocument(doc, configuration.getCollection(), 1);
             }
-
+            
             // Extract values for included fields
             String[] row = extractRow(doc);
             csvWriter.writeNext(row);
+            
+            // Track statistics if enabled
+            if (fieldStatisticsCollector != null)
+            {
+                fieldStatisticsCollector.recordRow(row, buildComprehensiveHeaders());
+            }
         }
         csvWriter.flushQuietly();
     }
@@ -399,6 +404,18 @@ public class ConfigurationBasedExporter extends AbstractUltraExporter
         if (value instanceof Document)
         {
             return ((Document) value).toJson();
+        }
+        
+        // Handle booleans - return as unquoted true/false
+        if (value instanceof Boolean)
+        {
+            return value.toString();
+        }
+        
+        // Handle numbers - return as unquoted numbers
+        if (value instanceof Number)
+        {
+            return value.toString();
         }
 
         // Default string conversion
@@ -537,7 +554,11 @@ public class ConfigurationBasedExporter extends AbstractUltraExporter
         double rate = processed * 1000.0 / elapsed;
         long remaining = (long) ((total - processed) / rate);
 
-        logger.info("Progress: {}/{} documents ({:.1f}%), Rate: {:.0f} docs/sec, ETA: {} seconds", processed, total, (processed * 100.0 / total), rate, remaining);
+        logger.info("Progress: {}/{} documents ({}%), Rate: {} docs/sec, ETA: {} seconds",
+                processed, total,
+                String.format("%.1f", processed * 100.0 / total),
+                String.format("%.0f", rate),
+                remaining);
     }
 
     /**

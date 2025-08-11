@@ -2,7 +2,6 @@ package com.example.mongoexport;
 
 import com.mongodb.client.*;
 import com.opencsv.CSVWriter;
-import com.opencsv.CSVWriterBuilder;
 import com.opencsv.ICSVWriter;
 import org.bson.Document;
 import org.bson.types.ObjectId;
@@ -240,12 +239,11 @@ public abstract class AbstractUltraExporter {
         String outputPath = config.getOutputDirectory() + "/" + getCollectionName() + suffix + "_" + timestamp + ".csv";
         
         try (FileWriter fileWriter = new FileWriter(outputPath); 
-             CSVWriter csvWriter = (CSVWriter) new CSVWriterBuilder(fileWriter)
-                 .withSeparator(',')
-                 .withQuoteChar('"')
-                 .withEscapeChar('\\')  // FIXED: OpenCSV uses backslash, quotes are auto-doubled
-                 .withLineEnd("\r\n")  // RFC 4180: CR+LF line endings
-                 .build()) {
+             CSVWriter csvWriter = new CSVWriter(fileWriter, 
+                 ',',           // separator
+                 '"',           // quote char
+                 '"',           // escape char (same as quote for RFC 4180)
+                 "\r\n")) {     // line ending
             
             // Write headers
             String[] headers = buildComprehensiveHeaders();

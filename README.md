@@ -54,6 +54,9 @@ cat config/listings_expansion_audit.txt
 
 # Step 3: Export data
 ./gradlew configExport -Pcollection=listings
+
+# Optional: Export with row limit for testing
+./gradlew configExport -Pcollection=listings -ProwLimit=1000
 ```
 
 ### Working with Different Collections
@@ -221,9 +224,25 @@ jq '.fields[] | select(.include==false)' config/listings_fields.json
 ## ⚡ Performance
 
 - **Discovery Phase**: ~2-3 minutes for 10,000 document sample
-- **Export Phase**: 3,500-5,000 documents/second
+- **Export Phase**: 3,500-5,000 documents/second (varies with expansion)
 - **Memory Usage**: 16-24GB heap recommended
 - **Collection Caching**: Auto-caches collections <100K documents
+
+## 📄 Output Files
+
+### CSV Export Format
+- **Standard**: RFC 4180 compliant CSV format
+- **Quoting**: Fields containing commas, quotes, or newlines are quoted
+- **Escaping**: Quotes within fields are escaped by doubling (`""`)
+- **Line endings**: CRLF (`\r\n`) as per RFC 4180
+- **Encoding**: UTF-8
+
+### Export Summary File
+Each export generates a `{collection}_summary.json` file containing:
+- Field-level statistics (null counts, unique values, sample data)
+- Field categorization (ALWAYS_EMPTY, SINGLE_VALUE, MEANINGFUL)
+- Value distributions for meaningful fields
+- Export metadata (processing time, document count)
 
 ## 📁 Project Structure
 
