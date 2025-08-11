@@ -5,52 +5,50 @@ A powerful, intelligent MongoDB to CSV export utility that automatically discove
 ## ✨ Key Features
 
 - **Automatic Field Discovery** - No hardcoded schemas, discovers all fields dynamically
-- **Intelligent Filtering** - Exports only meaningful fields (>2 distinct values)
+- **Intelligent Filtering** - Exports only meaningful fields (≥2 distinct non-null values)
 - **Business-Readable Names** - Converts MongoDB field paths to friendly column names
+- **Relationship Expansion** - Automatically expands foreign keys up to 3 levels deep
+- **Business ID Preservation** - Keeps mlsNumber, listingId, transactionId, etc.
 - **Universal Compatibility** - Works with ANY MongoDB collection
 - **Future-Proof** - Automatically adapts to schema changes
-- **High Performance** - Processes 3,500-20,000 records/second
+- **High Performance** - Processes 3,500-5,000 records/second with expansion
 
 ## 🚀 Quick Start
 
 ```bash
-# The one command you need:
+# The ONE command you need:
 ./gradlew autoDiscover -Pcollection=listings
 ```
 
 This single command will:
-1. Connect to your MongoDB database
-2. Discover all fields in the collection
-3. Filter out empty/sparse fields (keeping only those with >2 distinct values)
-4. Convert field names to business-readable format
-5. Export clean, analytics-ready CSV
+1. Pre-cache frequently referenced collections
+2. Discover ALL fields by sampling 10,000 documents
+3. Expand foreign key relationships up to 3 levels deep
+4. Filter out fields with <2 distinct non-null values
+5. Preserve business-critical IDs (mlsNumber, listingId, etc.)
+6. Map field paths to business-readable column names
+7. Export clean, analytics-ready CSV
 
-## 📋 Primary Commands
+## 📋 Command Line Usage
 
-| Command | Description | Use Case |
-|---------|-------------|----------|
-| `autoDiscover` | **★ RECOMMENDED** - Auto-discovers fields, filters intelligently, uses business names | Best for most exports |
-| `filteredExport` | Maximum filtering - removes all sparse/empty columns | Cleanest data |
-| `fullExport` | Complete export with relationship expansion | When you need everything |
-| `analyzeFields` | Field analysis only, no export | Understanding your data |
-
-## 📚 Examples
+### Primary Command (Use This!)
 
 ```bash
-# Export listings with intelligent filtering (recommended)
+# Export any collection with automatic discovery:
 ./gradlew autoDiscover -Pcollection=listings
+./gradlew autoDiscover -Pcollection=transactions
+./gradlew autoDiscover -Pcollection=agents
+./gradlew autoDiscover -Pcollection=all        # Exports all three
+```
 
-# Export transactions with maximum filtering
-./gradlew filteredExport -Pcollection=transactions
+### Command Aliases (All map to autoDiscover)
 
-# Analyze agents collection without exporting
-./gradlew analyzeFields -Pcollection=agents
-
-# Export all major collections
-./gradlew autoDiscover -Pcollection=all
-
-# Export any MongoDB collection
-./gradlew autoDiscover -Pcollection=yourCollectionName
+```bash
+./gradlew export -Pcollection=listings         # Alias for autoDiscover
+./gradlew discover -Pcollection=listings       # Alias for autoDiscover
+./gradlew filteredExport -Pcollection=listings # Alias for autoDiscover
+./gradlew fullExport -Pcollection=listings     # Alias for autoDiscover
+./gradlew analyzeFields -Pcollection=listings  # Alias for autoDiscover
 ```
 
 ## 📂 Installation
@@ -62,7 +60,7 @@ cd Realm
 ```
 
 ### Prerequisites
-- Java 11 or higher
+- Java 21 or higher
 - MongoDB connection with credentials
 - 16-20GB RAM recommended for large exports
 
@@ -75,160 +73,188 @@ database.name=realm
 output.directory=./output
 ```
 
-## 🏗️ Architecture
+## 🏗️ Architecture (Post-Cleanup)
 
-### Clean, Modular Design
+### Single Clean Implementation
 
 ```
-AutoDiscoveryExporter (Main Engine)
-    ├── Automatic field discovery
-    ├── Intelligent filtering (>2 distinct values)
-    ├── Business name mapping
-    └── Generic for any collection
-
-Supporting Components:
-    ├── FieldNameMapper - MongoDB paths → business names
-    ├── AbstractUltraExporter - Base export functionality
-    ├── FieldStatisticsCollector - Field analysis
-    └── RelationExpander - Foreign key expansion
+AutoDiscoveryExporter (Single Source of Truth)
+├── AbstractUltraExporter (Base Infrastructure)
+├── RelationExpander (Relationship Handling)
+├── FieldStatisticsCollector (Statistics)
+├── FieldNameMapper (Business Names)
+└── ExportOptions (Configuration)
 ```
 
-### Why This Design?
+### What Was Cleaned Up
 
-1. **No Hardcoding** - Works with any collection without code changes
-2. **Smart Defaults** - Automatically filters out useless columns
-3. **Readable Output** - Business users understand the column names
-4. **Maintainable** - Single implementation for all collections
-5. **Extensible** - Easy to add new field mappings
+**Deleted Files** (690 lines removed):
+- SmartExporter.java
+- FieldScanner.java
+- ExportMetadata.java
 
-## 📊 Output Files
+**Simplified Files** (524 lines removed):
+- AbstractUltraExporter.java
+- AutoDiscoveryExporter.java
+- ComprehensiveExporter.java
+- ExportOptions.java
+- build.gradle
 
-Each export generates:
-- `{collection}_export_{timestamp}.csv` - The data with filtered, readable columns
-- `{collection}_discovery_report.json` - Complete field analysis
-- `{collection}_summary.json` - Export statistics
+**Result**: ~1,214 lines of code removed, ONE clear implementation path
 
-Example output structure:
-```
-output/
-├── listings_export_20250806_100000.csv         # 17MB, 50 columns (filtered)
-├── listings_discovery_report.json              # Field analysis details
-└── listings_summary.json                       # Export statistics
-```
+## 📊 How It Works
 
-## 🔍 How It Works
+### Phase 1: Pre-Caching
+- Loads small collections entirely into memory
+- Caches only referenced properties from large collections
+- Optimizes lookup performance
 
-### The AutoDiscovery Process
+### Phase 2: Field Discovery
+- Samples 10,000 documents from target collection
+- Discovers ALL fields including nested and arrays
+- Tracks occurrence counts and distinct values
 
-1. **Field Discovery Phase**
-   - Scans sample documents (1000 by default)
-   - Identifies all field paths including nested fields
-   - Tracks distinct values for each field
+### Phase 3: Relationship Discovery
+- Identifies ObjectId references
+- Uses RelationExpander to follow foreign keys
+- Discovers fields in related documents
 
-2. **Filtering Phase**
-   - Keeps fields with >2 distinct values
-   - Always includes important fields (IDs, dates, prices)
-   - Excludes empty, single-value, and sparse fields
+### Phase 4: Field Filtering
+- **Excludes**: Fields with 0 or 1 distinct non-null values
+- **Preserves**: Business IDs (mlsNumber, listingId, transactionId)
+- **Keeps**: Binary fields (true/false values)
+- **Removes**: Technical fields (_id, __v, @reference)
 
-3. **Export Phase**
-   - Maps field paths to business-readable names
-   - Exports only the filtered, meaningful columns
-   - Generates comprehensive reports
+### Phase 5: Export
+- Processes documents in batches of 1,000
+- Expands relationships using cached data
+- Writes CSV with business-readable headers
 
-### Business Name Mapping Examples
+## 📄 Output Files
 
-| MongoDB Path | Business Name |
-|-------------|---------------|
-| `_id` | Record ID |
-| `listPrice` | List Price |
-| `property.bedrooms` | Property Bedrooms |
-| `listingAgent.email` | Listing Agent Email |
-| `fees[].feeAmount` | Fee Amount |
-| `dateListed` | Date Listed |
+Each export generates three files in `./output/`:
 
-## 🛠️ Advanced Usage
+1. **CSV Data File**: `{collection}_full_{timestamp}.csv`
+   - Filtered, meaningful columns only
+   - Business-readable headers
+   - RFC 4180 compliant format
 
-### Custom Filtering Thresholds
+2. **Discovery Report**: `{collection}_discovery_report.json`
+   ```json
+   {
+     "collection": "listings",
+     "sampleSize": 10000,
+     "totalFieldsDiscovered": 487,
+     "fieldsIncluded": 192,
+     "fieldsExcluded": 295,
+     "fields": [
+       {
+         "path": "mlsNumber",
+         "businessName": "MLS Number",
+         "occurrences": 10000,
+         "uniqueValues": 9987,
+         "included": true,
+         "reason": "Business ID"
+       }
+     ]
+   }
+   ```
 
-Modify `AutoDiscoveryExporter.java`:
-```java
-private final int minDistinctValues = 3; // Change threshold
-```
+3. **Export Summary**: `{collection}_summary.json`
+   - Processing statistics
+   - Performance metrics
+   - Field categories
 
-### Adding Custom Field Mappings
+## 🎯 Business Rules
 
-Edit `FieldNameMapper.java`:
-```java
-FIELD_MAPPINGS.put("yourFieldPath", "Your Business Name");
-```
+### Fields Always Preserved (Business IDs)
+- mlsNumber
+- listingId
+- transactionId
+- orderId
+- contractNumber
+- referenceNumber
+- confirmationNumber
+- invoiceNumber
+- accountNumber
+- caseNumber
+- ticketId
 
-### Memory Settings
+### Fields Always Excluded
+- Fields ending with "_id" (except business IDs)
+- Fields containing "__v"
+- Fields containing "@reference"
+- Fields with only 1 distinct non-null value
+- Fields with >95% null values
 
-For large collections:
+### Expansion Depth
+- Default: 3 levels deep
+- Example: listing → property → address → coordinates
+
+## 📈 Performance Characteristics
+
+| Phase | Speed | Memory Usage |
+|-------|-------|--------------|
+| Discovery | ~10,000 docs/sec | Low |
+| Expansion | ~1,000 docs/sec | High (caching) |
+| Export | ~3,500-5,000 docs/sec | Moderate |
+
+### Collection Statistics
+- **Properties**: 1.9M documents (selectively cached)
+- **Listings**: 64K active documents
+- **Transactions**: 23K documents
+- **Agents**: 28K documents
+
+## 🛠️ Troubleshooting
+
+### Out of Memory Error
 ```bash
-JAVA_OPTS="-Xmx24g" ./gradlew autoDiscover -Pcollection=listings
+# Increase heap size in build.gradle:
+jvmArgs = ['-Xmx24g', '-Xms12g']
 ```
 
-## 📈 Performance Benchmarks
+### Slow Export
+- Check MongoDB network latency
+- Ensure indexes exist on referenced collections
+- Run during off-peak hours
 
-| Collection | Documents | Export Time | Rate | Output Size |
-|-----------|-----------|-------------|------|-------------|
-| Listings | 64K | ~9 seconds | 7,000/sec | 17MB (filtered) |
-| Agents | 28K | ~1.5 seconds | 20,000/sec | 8MB (filtered) |
-| Transactions | 23K | ~4 seconds | 5,600/sec | 12MB (filtered) |
+### Missing Expected Fields
+- Check discovery report for exclusion reasons
+- Field may have <2 distinct values
+- Verify field exists in sampled documents
 
-## 🔄 Migration from v1.0
+### Connection Issues
+- Verify MongoDB credentials
+- Check authSource parameter
+- Test connection with MongoDB client
 
-If you were using the old hardcoded exporters:
-
-| Old Command | New Command |
-|------------|-------------|
-| `exportListings` | `autoDiscover -Pcollection=listings` |
-| `exportTransactions` | `autoDiscover -Pcollection=transactions` |
-| `exportAgents` | `autoDiscover -Pcollection=agents` |
-| `exportUltraComprehensive` | `fullExport -Pcollection=all` |
-
-## 📝 Project Structure
+## 📝 Project Structure (Current)
 
 ```
 src/main/java/com/example/mongoexport/
-├── AutoDiscoveryExporter.java    # Main export engine
-├── FieldNameMapper.java          # Business name mappings
-├── ComprehensiveExporter.java    # CLI entry point
-├── AbstractUltraExporter.java    # Base functionality
-├── FieldStatisticsCollector.java # Field analysis
-├── RelationExpander.java         # Relationship handling
-├── ExportConfig.java             # Configuration
-├── ExportOptions.java            # Export settings
-└── SmartExporter.java            # Legacy CLI (retained)
+├── AutoDiscoveryExporter.java    # Main export engine (1,031 lines)
+├── AbstractUltraExporter.java    # Base functionality (332 lines)
+├── RelationExpander.java         # Relationship handling (392 lines)
+├── FieldStatisticsCollector.java # Field analysis (235 lines)
+├── FieldNameMapper.java          # Business names (326 lines)
+├── ComprehensiveExporter.java    # CLI entry point (106 lines)
+├── ExportConfig.java             # Configuration (62 lines)
+└── ExportOptions.java            # Export settings (75 lines)
 ```
 
-## 🐛 Troubleshooting
+## 🔄 Recent Changes (Master Cleanup)
 
-### Out of Memory Error
-Increase heap size:
-```bash
-JAVA_OPTS="-Xmx32g" ./gradlew autoDiscover -Pcollection=listings
-```
+### What Changed
+- **Removed**: 3 unused files (690 lines)
+- **Simplified**: 5 core files (524 lines removed)
+- **Result**: Single implementation path, no duplicate logic
 
-### Connection Issues
-Check MongoDB URL in `application.properties` and ensure network connectivity.
-
-### Empty Output
-Run `analyzeFields` first to understand the data structure.
-
-## 🤝 Contributing
-
-Contributions welcome! The codebase is now clean and modular:
-- Single exporter handles all collections
-- Easy to extend field mappings
-- Clear separation of concerns
-
-To contribute:
-1. Fork the repository
-2. Create a feature branch
-3. Add field mappings to `FieldNameMapper.java` if needed
-4. Submit a pull request
+### Key Improvements
+1. AutoDiscoveryExporter is the single source of truth
+2. All collections use identical processing logic
+3. Business IDs properly preserved
+4. RelationExpander properly integrated
+5. Consistent 3-level expansion depth
 
 ## 📜 License
 
@@ -236,16 +262,10 @@ MIT License - See LICENSE file for details
 
 ## 🎯 Philosophy
 
-This project embodies the principle: **"Smart defaults, zero configuration, maximum value"**
+**"One way to do everything, and that way works perfectly"**
 
-The AutoDiscoveryExporter eliminates the need for manual schema management while providing clean, business-ready data exports.
-
-## 📧 Support
-
-For issues or questions:
-- Create an issue on [GitHub](https://github.com/scoopeng/Realm/issues)
-- Check existing documentation in `/docs` folder
+The cleaned-up codebase eliminates confusion by providing a single, robust implementation that handles all export scenarios automatically.
 
 ---
 
-*Built with ❤️ for data engineers who value clean, maintainable code*
+*Clean code is not written by following a set of rules. You know you are working on clean code when each routine you read turns out to be pretty much what you expected.*
