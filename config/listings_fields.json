@@ -843,7 +843,7 @@
     }
   } ],
   "collection" : "listings",
-  "discoveredAt" : 1754890397563,
+  "discoveredAt" : 1754890782469,
   "discoveryParameters" : {
     "sampleSize" : 10000,
     "expansionDepth" : 3,
@@ -1067,7 +1067,8 @@
       "displayMode" : "comma_separated",
       "sortOrder" : "alphanumeric",
       "delimiter" : ", ",
-      "objectType" : "object"
+      "objectType" : "object",
+      "availableFields" : [ "feeAmount", "feeType" ]
     }
   }, {
     "fieldPath" : "fullAddress",
@@ -1298,12 +1299,13 @@
       "maxArrayLength" : 2
     },
     "arrayConfig" : {
-      "extractField" : "privateURL",
+      "extractField" : "fullName",
       "displayMode" : "comma_separated",
       "sortOrder" : "alphanumeric",
       "delimiter" : ", ",
       "objectType" : "objectId",
-      "referenceCollection" : "agents"
+      "referenceCollection" : "agents",
+      "availableFields" : [ "createdAt", "deleted", "fullName", "lastUpdated", "privateURL", "updatedAt" ]
     }
   }, {
     "fieldPath" : "listingBrokerage",
@@ -1491,7 +1493,8 @@
       "displayMode" : "comma_separated",
       "sortOrder" : "alphanumeric",
       "delimiter" : ", ",
-      "objectType" : "object"
+      "objectType" : "object",
+      "availableFields" : [ "parkingType" ]
     }
   }, {
     "fieldPath" : "pictures",
@@ -1511,7 +1514,8 @@
       "displayMode" : "comma_separated",
       "sortOrder" : "alphanumeric",
       "delimiter" : ", ",
-      "objectType" : "object"
+      "objectType" : "object",
+      "availableFields" : [ "caption", "isPrimary", "pictureUrl", "thumbnailUrl" ]
     }
   }, {
     "fieldPath" : "price",
@@ -1698,7 +1702,8 @@
       "displayMode" : "comma_separated",
       "sortOrder" : "alphanumeric",
       "delimiter" : ", ",
-      "objectType" : "object"
+      "objectType" : "object",
+      "availableFields" : [ "ingestionDate", "lifestyleNames", "source", "tagNames" ]
     }
   }, {
     "fieldPath" : "property_expanded.realmData.matchResults",
@@ -1887,7 +1892,8 @@
       "delimiter" : ", ",
       "objectType" : "object",
       "referenceField" : "lifestyle",
-      "referenceCollection" : "lifestyles"
+      "referenceCollection" : "lifestyles",
+      "availableFields" : [ "lifestyleName" ]
     }
   }, {
     "fieldPath" : "realmData.matchResults",
@@ -2113,7 +2119,8 @@
       "delimiter" : ", ",
       "objectType" : "object",
       "referenceField" : "tag",
-      "referenceCollection" : "tags"
+      "referenceCollection" : "tags",
+      "availableFields" : [ "category", "createdAt", "createdBy", "deleted", "subCategory", "tagName", "weight" ]
     }
   }, {
     "fieldPath" : "roofTypes",
@@ -2226,7 +2233,8 @@
       "displayMode" : "comma_separated",
       "sortOrder" : "alphanumeric",
       "delimiter" : ", ",
-      "objectType" : "object"
+      "objectType" : "object",
+      "availableFields" : [ "viewType" ]
     }
   }, {
     "fieldPath" : "virtualTourURL",

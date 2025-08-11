@@ -111,6 +111,9 @@ public class FieldConfiguration {
         @JsonProperty("referenceCollection")
         private String referenceCollection; // Collection that ObjectIds reference
         
+        @JsonProperty("availableFields")
+        private List<String> availableFields; // Available fields from the referenced collection that can be used as extractField
+        
         // Getters and setters
         public String getExtractField() { return extractField; }
         public void setExtractField(String field) { this.extractField = field; }
@@ -132,6 +135,9 @@ public class FieldConfiguration {
         
         public String getReferenceCollection() { return referenceCollection; }
         public void setReferenceCollection(String collection) { this.referenceCollection = collection; }
+        
+        public List<String> getAvailableFields() { return availableFields; }
+        public void setAvailableFields(List<String> fields) { this.availableFields = fields; }
     }
     
     // Main class getters and setters

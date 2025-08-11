@@ -470,8 +470,9 @@ public class FieldDiscoveryService {
             }
         }
         
-        // Prefer certain field names
-        List<String> preferredNames = Arrays.asList("name", "title", "description", "value", "label", "text");
+        // Prefer certain field names - UPDATED ORDER for better defaults
+        List<String> preferredNames = Arrays.asList("name", "fullName", "displayName", "title", 
+            "description", "value", "label", "text");
         
         for (String preferred : preferredNames) {
             if (fieldTypes.containsKey(preferred) && "string".equals(fieldTypes.get(preferred))) {
@@ -486,6 +487,39 @@ public class FieldDiscoveryService {
             .map(Map.Entry::getKey)
             .findFirst()
             .orElse(null);
+    }
+    
+    /**
+     * Get all available string fields from a referenced collection
+     */
+    private List<String> getAvailableFields(String collectionName, Map<ObjectId, Document> cache) {
+        if (cache == null || cache.isEmpty()) return new ArrayList<>();
+        
+        // Get sample documents to discover fields
+        List<Document> samples = cache.values().stream().limit(10).collect(Collectors.toList());
+        
+        Set<String> availableFields = new TreeSet<>(); // TreeSet for sorted results
+        
+        for (Document doc : samples) {
+            for (Map.Entry<String, Object> entry : doc.entrySet()) {
+                String field = entry.getKey();
+                Object value = entry.getValue();
+                
+                // Include string fields and some other types that can be displayed
+                if (value != null && !isEmptyValue(value)) {
+                    if (value instanceof String || value instanceof Number || 
+                        value instanceof Boolean || value instanceof Date) {
+                        // Exclude technical fields
+                        if (!field.equals("_id") && !field.equals("__v") && 
+                            !field.startsWith("_") && !field.endsWith("Id")) {
+                            availableFields.add(field);
+                        }
+                    }
+                }
+            }
+        }
+        
+        return new ArrayList<>(availableFields);
     }
     
     /**
@@ -598,27 +632,42 @@ public class FieldDiscoveryService {
                 // Pattern 1: Direct array of ObjectIds
                 arrayConfig.setReferenceCollection(internals.targetCollection);
                 
-                // Find best display field from cached collection
+                // Find best display field and available fields from cached collection
                 Map<ObjectId, Document> cache = collectionCache.get(internals.targetCollection);
                 if (cache != null) {
                     String displayField = findBestDisplayField(internals.targetCollection, cache, internals.sampleIds);
                     arrayConfig.setExtractField(displayField);
+                    
+                    // Set available fields so user knows what options are available
+                    List<String> availableFields = getAvailableFields(internals.targetCollection, cache);
+                    arrayConfig.setAvailableFields(availableFields);
                 }
             } else if (internals.objectIdField != null && internals.targetCollection != null) {
                 // Pattern 2: Array of objects with ObjectId field
                 arrayConfig.setReferenceField(internals.objectIdField);
                 arrayConfig.setReferenceCollection(internals.targetCollection);
                 
-                // Find best display field from cached collection
+                // Find best display field and available fields from cached collection
                 Map<ObjectId, Document> cache = collectionCache.get(internals.targetCollection);
                 if (cache != null) {
                     String displayField = findBestDisplayField(internals.targetCollection, cache, internals.sampleIds);
                     arrayConfig.setExtractField(displayField);
+                    
+                    // Set available fields so user knows what options are available
+                    List<String> availableFields = getAvailableFields(internals.targetCollection, cache);
+                    arrayConfig.setAvailableFields(availableFields);
                 }
             } else if ("object".equals(metadata.arrayObjectType)) {
                 // Array of objects without references - find best field to extract
                 String extractField = findBestExtractFieldFromInternals(internals);
                 arrayConfig.setExtractField(extractField);
+                
+                // For non-reference arrays, available fields are the internal fields
+                if (internals.internalFields != null && !internals.internalFields.isEmpty()) {
+                    List<String> availableFields = new ArrayList<>(internals.internalFields);
+                    availableFields.sort(String::compareTo);
+                    arrayConfig.setAvailableFields(availableFields);
+                }
             }
         } else if ("object".equals(metadata.arrayObjectType)) {
             // Fallback for arrays of objects
