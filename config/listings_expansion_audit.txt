@@ -2,9 +2,9 @@
 FIELD EXPANSION AUDIT TREE
 =================================================================
 Collection: listings
-Generated: Mon Aug 11 06:11:36 UTC 2025
-Total Fields: 113
-Included Fields: 81
+Generated: Mon Aug 11 07:18:00 UTC 2025
+Total Fields: 139
+Included Fields: 85
 Expansion Depth: 3
 =================================================================
 
@@ -45,7 +45,35 @@ isFurnished [boolean] - 2 distinct values
 isPocketListing [boolean] - 2 distinct values
 listingAgentId [objectId] (EXCLUDED) - 8 distinct values -> agents
 listingAgents [array] - 100 distinct values -> agents.fullName
+  └─ EXPANDED:
+    listingAgents_expanded [array] - 37 distinct values -> subscriptions
 listingBrokerage [objectId] - 2 distinct values -> brokerages
+  └─ EXPANDED:
+    listingBrokerage_expanded [object] (EXCLUDED) - 0 distinct values
+    listingBrokerage_expanded.__v [integer] (EXCLUDED) - 1 distinct values
+    listingBrokerage_expanded._id [objectId] (EXCLUDED) - 1 distinct values -> s
+    listingBrokerage_expanded.agents [array] - 100 distinct values -> agents.fullName
+    listingBrokerage_expanded.archived [null] (EXCLUDED) - 0 distinct values
+    listingBrokerage_expanded.brokers [null] (EXCLUDED) - 0 distinct values
+    listingBrokerage_expanded.contacts [null] (EXCLUDED) - 0 distinct values
+    listingBrokerage_expanded.deleted [boolean] (EXCLUDED) - 1 distinct values
+    listingBrokerage_expanded.description [object] (EXCLUDED) - 0 distinct values
+    listingBrokerage_expanded.description.en [null] (EXCLUDED) - 0 distinct values
+    listingBrokerage_expanded.isDeveloper [boolean] (EXCLUDED) - 1 distinct values
+    listingBrokerage_expanded.logoUrl [null] (EXCLUDED) - 0 distinct values
+    listingBrokerage_expanded.mlsInfo [object] (EXCLUDED) - 0 distinct values
+    listingBrokerage_expanded.mlsInfo.brokerageName [string] (EXCLUDED) - 1 distinct values
+    listingBrokerage_expanded.mlsInfo.mlsId [string] (EXCLUDED) - 1 distinct values
+    listingBrokerage_expanded.mlsInfo.mlsName [string] (EXCLUDED) - 1 distinct values
+    listingBrokerage_expanded.name [string] (EXCLUDED) - 1 distinct values
+    listingBrokerage_expanded.offices [array] - 10 distinct values
+    listingBrokerage_expanded.realmData [object] (EXCLUDED) - 0 distinct values
+    listingBrokerage_expanded.realmData.listingsFeedType [string] (EXCLUDED) - 1 distinct values
+    listingBrokerage_expanded.realmData.listingsFeedUrl [null] (EXCLUDED) - 0 distinct values
+    listingBrokerage_expanded.realmData.tagNames [null] (EXCLUDED) - 0 distinct values
+    listingBrokerage_expanded.realmData.tags [null] (EXCLUDED) - 0 distinct values
+    listingBrokerage_expanded.teams [array] - 13 distinct values -> teams
+    listingBrokerage_expanded.updatedAt [date] (EXCLUDED) - 1 distinct values
 listingEmail [string] - 100 distinct values
 listingType [string] - 5 distinct values
 listingUrl [string] - 100 distinct values
@@ -128,10 +156,15 @@ EXPANSION SUMMARY
 =================================================================
 
 Expanded Relationships:
+  - listingAgents -> listings
+  - listingBrokerage -> listings
   - property -> listings
 
 Array References:
   - listingAgents -> agents (extracting: fullName)
+  - listingAgents_expanded -> subscriptions
+  - listingBrokerage_expanded.agents -> agents (extracting: fullName)
+  - listingBrokerage_expanded.teams -> teams
   - realmData.lifestyles -> lifestyles (extracting: lifestyleName)
   - realmData.matchResults.seen -> seens
   - realmData.tags -> tags (extracting: subCategory)

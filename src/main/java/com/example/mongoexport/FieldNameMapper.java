@@ -247,9 +247,9 @@ public class FieldNameMapper
         }
 
         // Handle nested fields by checking parent paths
-        if (fieldPath.contains("."))
+        if (cleanPath.contains("."))  // Use cleanPath instead of fieldPath
         {
-            String[] parts = fieldPath.split("\\.");
+            String[] parts = cleanPath.split("\\.");  // Split cleanPath, not fieldPath
 
             // Try to build a readable name from parts
             StringBuilder readableName = new StringBuilder();
@@ -262,7 +262,7 @@ public class FieldNameMapper
                 part = part.replaceAll("\\[.*?\\]", "");
 
                 // Skip certain technical fields
-                if (part.equals("@reference") || part.equals("_id"))
+                if (part.equals("@reference") || part.equals("_id") || part.equals("expanded"))
                 {
                     continue;
                 }
@@ -282,7 +282,7 @@ public class FieldNameMapper
         }
 
         // Default: convert camelCase to readable format
-        return capitalizeFirst(camelToWords(fieldPath));
+        return capitalizeFirst(camelToWords(cleanPath));  // Use cleanPath here too
     }
 
     /**

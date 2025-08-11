@@ -31,12 +31,13 @@ public class RelationExpander {
      * Define the relationship configurations for each collection
      */
     private void initializeRelationConfigs() {
-        // Listings relations - ENHANCED with more relationships
+        // Listings relations - ENHANCED with more relationships (fixed field names to match actual collection)
         RelationConfig listingsConfig = new RelationConfig("listings");
         listingsConfig.addRelation("property", "properties", RelationType.MANY_TO_ONE);
-        listingsConfig.addRelation("currentAgentId", "currentAgents", RelationType.MANY_TO_ONE);
+        listingsConfig.addRelation("listingBrokerage", "brokerages", RelationType.MANY_TO_ONE);  // Fixed: was listingBrokerageId
         listingsConfig.addRelation("listingAgentId", "agents", RelationType.MANY_TO_ONE);
-        listingsConfig.addRelation("listingBrokerageId", "brokerages", RelationType.MANY_TO_ONE);
+        listingsConfig.addRelation("listingAgents", "agents", RelationType.ONE_TO_MANY_ARRAY); // Array of ObjectIds
+        listingsConfig.addRelation("currentAgentId", "currentAgents", RelationType.MANY_TO_ONE);
         listingsConfig.addRelation("buyerAgentId", "agents", RelationType.MANY_TO_ONE);
         listingsConfig.addRelation("buyerBrokerageId", "brokerages", RelationType.MANY_TO_ONE);
         listingsConfig.addRelation("openHouses", "openHouses", RelationType.ONE_TO_MANY_ARRAY); // Array of ObjectIds
