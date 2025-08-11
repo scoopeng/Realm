@@ -1,276 +1,271 @@
-# Realm MongoDB Exporter v2.0
+# Realm MongoDB Export Utility v2.0
 
-A powerful, intelligent MongoDB to CSV export utility that automatically discovers fields, applies smart filtering, and uses business-readable column names.
-
-## ✨ Key Features
-
-- **Automatic Field Discovery** - No hardcoded schemas, discovers all fields dynamically
-- **Intelligent Filtering** - Exports only meaningful fields (≥2 distinct non-null values)
-- **Business-Readable Names** - Converts MongoDB field paths to friendly column names
-- **Relationship Expansion** - Automatically expands foreign keys up to 3 levels deep
-- **Business ID Preservation** - Keeps mlsNumber, listingId, transactionId, etc.
-- **Universal Compatibility** - Works with ANY MongoDB collection
-- **Future-Proof** - Automatically adapts to schema changes
-- **High Performance** - Processes 3,500-5,000 records/second with expansion
+A sophisticated two-phase MongoDB to CSV export system with intelligent field discovery, relationship expansion, and human-editable configuration.
 
 ## 🚀 Quick Start
 
 ```bash
-# The ONE command you need:
+# Phase 1: Discover all fields and create configuration
+./gradlew discover -Pcollection=listings
+
+# Phase 2: Export data using the configuration
+./gradlew configExport -Pcollection=listings
+```
+
+The configuration file (`config/listings_fields.json`) can be edited between phases to customize the export.
+
+## ✨ Key Features
+
+### Two-Phase Workflow
+- **Discovery Phase**: Analyzes your MongoDB collection to discover all fields, relationships, and statistics
+- **Export Phase**: Uses the configuration to export exactly the fields you want
+
+### Intelligent Field Discovery
+- Automatically discovers all fields including nested documents and arrays
+- Expands foreign key relationships up to 3 levels deep
+- Collects statistics on field usage and distinct values
+- Filters out empty and single-value fields automatically
+
+### Human-Editable Configuration
+- JSON configuration can be manually edited between phases
+- Control which fields to include/exclude
+- Customize business names for columns
+- Configure array display (first value or comma-separated list)
+
+### Smart Array Handling
+- Automatically detects the best field to extract from array objects
+- Sorts array values alphanumerically
+- Configurable display modes per field
+
+## 📋 Usage Examples
+
+### Basic Two-Phase Export
+
+```bash
+# Step 1: Discover fields
+./gradlew discover -Pcollection=listings
+
+# Step 2: (Optional) Edit configuration
+vi config/listings_fields.json
+
+# Step 3: Export data
+./gradlew configExport -Pcollection=listings
+```
+
+### Working with Different Collections
+
+```bash
+# Transactions
+./gradlew discover -Pcollection=transactions
+./gradlew configExport -Pcollection=transactions
+
+# Agents
+./gradlew discover -Pcollection=agents
+./gradlew configExport -Pcollection=agents
+```
+
+### Legacy All-in-One Mode
+
+```bash
+# Original single-phase export (still available)
 ./gradlew autoDiscover -Pcollection=listings
 ```
 
-This single command will:
-1. Pre-cache frequently referenced collections
-2. Discover ALL fields by sampling 10,000 documents
-3. Expand foreign key relationships up to 3 levels deep
-4. Filter out fields with <2 distinct non-null values
-5. Preserve business-critical IDs (mlsNumber, listingId, etc.)
-6. Map field paths to business-readable column names
-7. Export clean, analytics-ready CSV
+## 📄 Configuration File
 
-## 📋 Command Line Usage
+The discovery phase creates a JSON configuration file with this structure:
 
-### Primary Command (Use This!)
-
-```bash
-# Export any collection with automatic discovery:
-./gradlew autoDiscover -Pcollection=listings
-./gradlew autoDiscover -Pcollection=transactions
-./gradlew autoDiscover -Pcollection=agents
-./gradlew autoDiscover -Pcollection=all        # Exports all three
+```json
+{
+  "collection": "listings",
+  "discoveredAt": "2025-08-11T10:00:00Z",
+  "discoveryParameters": {
+    "sampleSize": 10000,
+    "expansionDepth": 3,
+    "minDistinctNonNullValues": 2
+  },
+  "fields": [
+    {
+      "fieldPath": "mlsNumber",
+      "businessName": "MLS Number",
+      "dataType": "string",
+      "include": true,
+      "statistics": {
+        "distinctNonNullValues": 9875,
+        "nullCount": 125
+      }
+    },
+    {
+      "fieldPath": "openHouses[]",
+      "businessName": "Open Houses",
+      "dataType": "array",
+      "include": true,
+      "arrayConfig": {
+        "extractField": "dateTime",
+        "displayMode": "comma_separated",
+        "sortOrder": "alphanumeric"
+      }
+    }
+  ],
+  "requiredCollections": ["properties", "agents"],
+  "exportSettings": {
+    "batchSize": 5000,
+    "useBusinessNames": true
+  }
+}
 ```
 
-### Command Aliases (All map to autoDiscover)
+### Customizing the Configuration
 
-```bash
-./gradlew export -Pcollection=listings         # Alias for autoDiscover
-./gradlew discover -Pcollection=listings       # Alias for autoDiscover
-./gradlew filteredExport -Pcollection=listings # Alias for autoDiscover
-./gradlew fullExport -Pcollection=listings     # Alias for autoDiscover
-./gradlew analyzeFields -Pcollection=listings  # Alias for autoDiscover
-```
+- **Exclude a field**: Set `"include": false`
+- **Change column name**: Edit `"businessName"`
+- **Array display**: Change `"displayMode"` to `"first"` or `"comma_separated"`
+- **Array field extraction**: Modify `"extractField"` to extract different field from objects
 
-## 📂 Installation
-
-```bash
-git clone https://github.com/scoopeng/Realm.git
-cd Realm
-./gradlew build
-```
+## 🔧 Installation
 
 ### Prerequisites
-- Java 21 or higher
-- MongoDB connection with credentials
-- 16-20GB RAM recommended for large exports
+- Java 11 or higher
+- MongoDB connection
+- 16GB+ RAM recommended
 
-### Configuration
-Edit `src/main/resources/application.properties`:
-```properties
-mongodb.url.dev=mongodb://username:password@host:port/?authSource=admin
-current.environment=dev
-database.name=realm
-output.directory=./output
-```
-
-## 🏗️ Architecture (Post-Cleanup)
-
-### Single Clean Implementation
-
-```
-AutoDiscoveryExporter (Single Source of Truth)
-├── AbstractUltraExporter (Base Infrastructure)
-├── RelationExpander (Relationship Handling)
-├── FieldStatisticsCollector (Statistics)
-├── FieldNameMapper (Business Names)
-└── ExportOptions (Configuration)
-```
-
-### What Was Cleaned Up
-
-**Deleted Files** (690 lines removed):
-- SmartExporter.java
-- FieldScanner.java
-- ExportMetadata.java
-
-**Simplified Files** (524 lines removed):
-- AbstractUltraExporter.java
-- AutoDiscoveryExporter.java
-- ComprehensiveExporter.java
-- ExportOptions.java
-- build.gradle
-
-**Result**: ~1,214 lines of code removed, ONE clear implementation path
-
-## 📊 How It Works
-
-### Phase 1: Pre-Caching
-- Loads small collections entirely into memory
-- Caches only referenced properties from large collections
-- Optimizes lookup performance
-
-### Phase 2: Field Discovery
-- Samples 10,000 documents from target collection
-- Discovers ALL fields including nested and arrays
-- Tracks occurrence counts and distinct values
-
-### Phase 3: Relationship Discovery
-- Identifies ObjectId references
-- Uses RelationExpander to follow foreign keys
-- Discovers fields in related documents
-
-### Phase 4: Field Filtering
-- **Excludes**: Fields with 0 or 1 distinct non-null values
-- **Preserves**: Business IDs (mlsNumber, listingId, transactionId)
-- **Keeps**: Binary fields (true/false values)
-- **Removes**: Technical fields (_id, __v, @reference)
-
-### Phase 5: Export
-- Processes documents in batches of 1,000
-- Expands relationships using cached data
-- Writes CSV with business-readable headers
-
-## 📄 Output Files
-
-Each export generates three files in `./output/`:
-
-1. **CSV Data File**: `{collection}_full_{timestamp}.csv`
-   - Filtered, meaningful columns only
-   - Business-readable headers
-   - RFC 4180 compliant format
-
-2. **Discovery Report**: `{collection}_discovery_report.json`
-   ```json
-   {
-     "collection": "listings",
-     "sampleSize": 10000,
-     "totalFieldsDiscovered": 487,
-     "fieldsIncluded": 192,
-     "fieldsExcluded": 295,
-     "fields": [
-       {
-         "path": "mlsNumber",
-         "businessName": "MLS Number",
-         "occurrences": 10000,
-         "uniqueValues": 9987,
-         "included": true,
-         "reason": "Business ID"
-       }
-     ]
-   }
+### Setup
+1. Clone the repository
+2. Configure MongoDB connection in `application.properties`:
+   ```properties
+   mongodb.url.dev=mongodb://username:password@host:port/?authSource=admin
+   current.environment=dev
+   database.name=realm
    ```
+3. Build the project: `./gradlew build`
 
-3. **Export Summary**: `{collection}_summary.json`
-   - Processing statistics
-   - Performance metrics
-   - Field categories
+## 📊 Field Filtering Rules
 
-## 🎯 Business Rules
+The discovery phase automatically applies these intelligent rules:
 
-### Fields Always Preserved (Business IDs)
-- mlsNumber
-- listingId
-- transactionId
-- orderId
-- contractNumber
-- referenceNumber
-- confirmationNumber
-- invoiceNumber
-- accountNumber
-- caseNumber
-- ticketId
+| Rule | Description | Example |
+|------|-------------|---------|
+| **Include Business IDs** | Always included if they have data | mlsNumber, listingId, transactionId |
+| **Exclude Technical IDs** | Always excluded | _id, __v, fields ending with Id |
+| **Exclude Empty Fields** | 0 distinct non-null values | Fields that are always null |
+| **Exclude Single-Value** | Only 1 distinct value | Fields like status="active" everywhere |
+| **Include Multi-Value** | 2+ distinct values | Normal data fields |
 
-### Fields Always Excluded
-- Fields ending with "_id" (except business IDs)
-- Fields containing "__v"
-- Fields containing "@reference"
-- Fields with only 1 distinct non-null value
-- Fields with >95% null values
+## ✅ Testing Checklist
 
-### Expansion Depth
-- Default: 3 levels deep
-- Example: listing → property → address → coordinates
-
-## 📈 Performance Characteristics
-
-| Phase | Speed | Memory Usage |
-|-------|-------|--------------|
-| Discovery | ~10,000 docs/sec | Low |
-| Expansion | ~1,000 docs/sec | High (caching) |
-| Export | ~3,500-5,000 docs/sec | Moderate |
-
-### Collection Statistics
-- **Properties**: 1.9M documents (selectively cached)
-- **Listings**: 64K active documents
-- **Transactions**: 23K documents
-- **Agents**: 28K documents
-
-## 🛠️ Troubleshooting
-
-### Out of Memory Error
+### Basic Workflow Testing
 ```bash
-# Increase heap size in build.gradle:
-jvmArgs = ['-Xmx24g', '-Xms12g']
+# 1. Compile the project
+./gradlew build
+
+# 2. Run discovery
+./gradlew discover -Pcollection=listings
+
+# 3. Check configuration file
+cat config/listings_fields.json | jq . | head -50
+
+# 4. Run export
+./gradlew configExport -Pcollection=listings
+
+# 5. Verify output
+ls -lh output/*.csv
 ```
 
-### Slow Export
-- Check MongoDB network latency
-- Ensure indexes exist on referenced collections
-- Run during off-peak hours
+### Configuration Editing Test
+```bash
+# 1. Edit configuration
+vi config/listings_fields.json
+# - Set some fields to "include": false
+# - Change some businessName values
+# - Modify array displayMode settings
 
-### Missing Expected Fields
-- Check discovery report for exclusion reasons
-- Field may have <2 distinct values
-- Verify field exists in sampled documents
+# 2. Re-run export
+./gradlew configExport -Pcollection=listings
 
-### Connection Issues
-- Verify MongoDB credentials
-- Check authSource parameter
-- Test connection with MongoDB client
+# 3. Verify changes in output
+```
 
-## 📝 Project Structure (Current)
+### Advanced Testing
+- [ ] Test with all collections (listings, transactions, agents)
+- [ ] Compare with legacy autoDiscover output
+- [ ] Test with sparse collections
+- [ ] Verify relationship expansion
+- [ ] Check array field handling
+
+## 🚨 Troubleshooting
+
+### Common Issues and Solutions
+
+| Issue | Solution |
+|-------|----------|
+| **Discovery fails** | Check MongoDB URL in `application.properties` |
+| **No config file** | Ensure discovery completed successfully |
+| **Missing fields** | Check `include` flag in JSON configuration |
+| **Memory errors** | Increase heap in build.gradle: `-Xmx24g` |
+| **Empty arrays** | Verify `extractField` in array configuration |
+
+### Debug Commands
+
+```bash
+# Check logs
+tail -f logs/application.log
+
+# Verify MongoDB connection
+mongo $MONGO_URL --eval "db.listings.count()"
+
+# Check configuration
+jq '.fields[] | select(.include==false)' config/listings_fields.json
+```
+
+## ⚡ Performance
+
+- **Discovery Phase**: ~2-3 minutes for 10,000 document sample
+- **Export Phase**: 3,500-5,000 documents/second
+- **Memory Usage**: 16-24GB heap recommended
+- **Collection Caching**: Auto-caches collections <100K documents
+
+## 📁 Project Structure
 
 ```
 src/main/java/com/example/mongoexport/
-├── AutoDiscoveryExporter.java    # Main export engine (1,031 lines)
-├── AbstractUltraExporter.java    # Base functionality (332 lines)
-├── RelationExpander.java         # Relationship handling (392 lines)
-├── FieldStatisticsCollector.java # Field analysis (235 lines)
-├── FieldNameMapper.java          # Business names (326 lines)
-├── ComprehensiveExporter.java    # CLI entry point (106 lines)
-├── ExportConfig.java             # Configuration (62 lines)
-└── ExportOptions.java            # Export settings (75 lines)
+├── config/                        # Configuration classes
+│   ├── FieldConfiguration.java    # Individual field metadata
+│   └── DiscoveryConfiguration.java # Root configuration
+├── discovery/
+│   └── FieldDiscoveryService.java # Field discovery logic
+├── export/
+│   └── ConfigurationBasedExporter.java # Config-based export
+├── DiscoveryRunner.java          # Discovery entry point
+├── ConfigExportRunner.java        # Export entry point
+└── AutoDiscoveryExporter.java     # Legacy all-in-one
+
+config/                            # JSON configurations
+└── {collection}_fields.json      # Per-collection config
+
+output/                            # Export results
+└── {collection}_ultra_comprehensive_{timestamp}.csv
 ```
 
-## 🔄 Recent Changes (Dynamic Discovery - 2025-08-11)
+## 🔄 Version History
 
-### Dynamic Caching Implementation
-- **Incremental Caching**: Collections cached immediately when discovered
-- **No Hardcoded Lists**: Completely dynamic and adaptive
-- **Full Collection Caching**: Entire collections in memory for O(1) lookups
-- **Thread-Safe**: Synchronized caching prevents duplicate loads
-- **Performance**: ~3-4 minutes total (2-3 min discovery + <1 min export)
+### v2.0 (Current) - Two-Phase Workflow
+- Separated discovery and export phases
+- Human-editable JSON configuration
+- Enhanced array field handling
+- Improved collection caching
 
-### Consistent Filtering
-- **Fixed**: All fields now require 2+ distinct values
-- **No Special Cases**: Expanded fields follow same rules
-- **Result**: Clean CSV with zero empty columns
+### v1.0 - Auto-Discovery
+- Single-phase automatic discovery and export
+- Intelligent field filtering
+- Relationship expansion
 
-### Previous Cleanup (Master Cleanup)
-- **Removed**: 3 unused files (690 lines)
-- **Simplified**: 5 core files (524 lines removed)
-- **Result**: Single implementation path, no duplicate logic
+## 📝 License
 
-## 📜 License
+Private repository - Internal use only
 
-MIT License - See LICENSE file for details
+## 🆘 Support
 
-## 🎯 Philosophy
-
-**"One way to do everything, and that way works perfectly"**
-
-The cleaned-up codebase eliminates confusion by providing a single, robust implementation that handles all export scenarios automatically.
-
----
-
-*Clean code is not written by following a set of rules. You know you are working on clean code when each routine you read turns out to be pretty much what you expected.*
+For issues or questions:
+1. Check the testing checklist above
+2. Review CLAUDE.md for detailed documentation
+3. Contact the development team

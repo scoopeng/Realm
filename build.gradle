@@ -36,40 +36,60 @@ java {
 }
 
 // ============================================
-// PRIMARY EXPORT TASKS - USE THESE!
+// TWO-PHASE EXPORT WORKFLOW - NEW!
 // ============================================
 
-// Main task: Automatic Discovery Export (Recommended)
-task autoDiscover(type: JavaExec) {
+// Phase 1: Discovery - Creates JSON configuration file
+task discover(type: JavaExec) {
     classpath = sourceSets.main.runtimeClasspath
-    mainClass = 'com.example.mongoexport.AutoDiscoveryExporter'
-    jvmArgs = ['-Xmx26g', '-Xms16g']  // Increased to 26GB for 32GB machine
-    doFirst {
-        def collection = project.hasProperty('collection') ? project.property('collection') : 'listings'
-        args = [collection]
-    }
-    description = '★ RECOMMENDED: Automatically discovers all fields, filters by distinct values (>2), uses business names'
-}
-
-// All exports now use the same AutoDiscoveryExporter
-task filteredExport(dependsOn: autoDiscover) {
-    description = 'Alias for autoDiscover - all exports now use the same intelligent filtering'
-}
-
-task fullExport(dependsOn: autoDiscover) {
-    description = 'Alias for autoDiscover - all exports include relationship expansion'
-}
-
-// Analysis Only - Same as autoDiscover
-task analyzeFields(type: JavaExec) {
-    classpath = sourceSets.main.runtimeClasspath
-    mainClass = 'com.example.mongoexport.AutoDiscoveryExporter'
+    mainClass = 'com.example.mongoexport.DiscoveryRunner'
     jvmArgs = ['-Xmx16g', '-Xms8g']
     doFirst {
         def collection = project.hasProperty('collection') ? project.property('collection') : 'listings'
         args = [collection]
     }
-    description = 'Alias for autoDiscover - analyzes and exports'
+    description = '★ NEW Phase 1: Discovers all fields and creates editable JSON configuration in config/'
+}
+
+// Phase 2: Configuration-based Export
+task configExport(type: JavaExec) {
+    classpath = sourceSets.main.runtimeClasspath
+    mainClass = 'com.example.mongoexport.ConfigExportRunner'
+    jvmArgs = ['-Xmx24g', '-Xms16g']
+    doFirst {
+        def collection = project.hasProperty('collection') ? project.property('collection') : 'listings'
+        args = [collection]
+    }
+    description = '★ NEW Phase 2: Exports using JSON configuration from config/ directory'
+}
+
+// ============================================
+// LEGACY EXPORT TASKS - STILL AVAILABLE
+// ============================================
+
+// Original Auto-Discovery Export (All-in-one)
+task autoDiscover(type: JavaExec) {
+    classpath = sourceSets.main.runtimeClasspath
+    mainClass = 'com.example.mongoexport.AutoDiscoveryExporter'
+    jvmArgs = ['-Xmx24g', '-Xms16g']
+    doFirst {
+        def collection = project.hasProperty('collection') ? project.property('collection') : 'listings'
+        args = [collection]
+    }
+    description = 'LEGACY: Original all-in-one discovery and export (use discover + configExport instead)'
+}
+
+// Legacy aliases
+task filteredExport(dependsOn: autoDiscover) {
+    description = 'LEGACY: Alias for autoDiscover'
+}
+
+task fullExport(dependsOn: autoDiscover) {
+    description = 'LEGACY: Alias for autoDiscover'
+}
+
+task analyzeFields(dependsOn: autoDiscover) {
+    description = 'LEGACY: Alias for autoDiscover'
 }
 
 // ============================================
@@ -82,11 +102,7 @@ task analyzeFields(type: JavaExec) {
 // ============================================
 
 task export(dependsOn: autoDiscover) {
-    description = 'Alias for autoDiscover - the recommended export method'
-}
-
-task discover(dependsOn: autoDiscover) {
-    description = 'Alias for autoDiscover'
+    description = 'LEGACY: Alias for autoDiscover'
 }
 
 // ============================================
@@ -100,22 +116,22 @@ task showHelp {
 ║                    REALM MONGODB EXPORTER v2.0                       ║
 ╚══════════════════════════════════════════════════════════════════════╝
 
-PRIMARY COMMANDS (Use These!):
-─────────────────────────────
+NEW TWO-PHASE WORKFLOW (Recommended):
+─────────────────────────────────────
+  Phase 1: Discovery
+  ./gradlew discover -Pcollection=listings
+    ★ Discovers all fields and creates an editable JSON configuration
+    file in config/listings_fields.json
+
+  Phase 2: Export
+  ./gradlew configExport -Pcollection=listings  
+    ★ Exports data using the JSON configuration from Phase 1
+    (You can manually edit the JSON between phases!)
+
+LEGACY ALL-IN-ONE COMMANDS:
+───────────────────────────
   ./gradlew autoDiscover -Pcollection=listings
-    ★ RECOMMENDED: Automatically discovers fields, filters by distinct 
-    values (keeps only fields with >2 distinct values), and uses 
-    business-readable column names.
-
-  ./gradlew filteredExport -Pcollection=listings  
-    Maximum filtering - removes empty, single-value, and sparse columns.
-    Best for clean, analytics-ready data.
-
-  ./gradlew fullExport -Pcollection=listings
-    Complete export with relationship expansion. Includes all fields.
-
-  ./gradlew analyzeFields -Pcollection=listings
-    Analyze fields without exporting. Generates statistics only.
+    Original single-phase discovery and export (still works)
 
 COLLECTION OPTIONS:
 ──────────────────
@@ -127,11 +143,13 @@ COLLECTION OPTIONS:
 
 EXAMPLES:
 ─────────
-  # Best practice workflow:
-  ./gradlew autoDiscover -Pcollection=listings
+  # NEW two-phase workflow:
+  ./gradlew discover -Pcollection=listings
+  # Edit config/listings_fields.json if needed
+  ./gradlew configExport -Pcollection=listings
   
-  # Export transactions with filtering:
-  ./gradlew filteredExport -Pcollection=transactions
+  # Legacy all-in-one:
+  ./gradlew autoDiscover -Pcollection=transactions
   
   # Analyze agents collection:
   ./gradlew analyzeFields -Pcollection=agents

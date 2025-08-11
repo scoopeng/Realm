@@ -20,21 +20,22 @@ import java.util.stream.Collectors;
  * Fully automatic, generic MongoDB denormalizer that discovers ALL fields dynamically.
  * No hardcoded schemas - completely data-driven and future-proof.
  */
-public class AutoDiscoveryExporter extends AbstractUltraExporter {
+public class AutoDiscoveryExporter extends AbstractUltraExporter
+{
     private static final Logger logger = LoggerFactory.getLogger(AutoDiscoveryExporter.class);
     private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-    
+
     // Track all discovered field paths
     private final Set<String> discoveredFieldPaths = new TreeSet<>(); // TreeSet for sorted columns
     private final Map<String, Integer> fieldPathCounts = new ConcurrentHashMap<>();
     private final Map<String, Set<String>> fieldPathValues = new ConcurrentHashMap<>();
     private final Map<String, Integer> fieldPathNullCounts = new ConcurrentHashMap<>(); // Track null occurrences
     private static final int MAX_SAMPLE_VALUES = 100; // Limit samples to prevent memory bloat
-    
+
     // Cache for expanded documents with ID-to-collection tracking
     private final Map<String, Map<ObjectId, Document>> collectionCache = new HashMap<>();
     private final Map<ObjectId, String> idToCollectionMap = new HashMap<>(); // Track which collection each ID belongs to
-    
+
     // Configuration
     private final String collectionName;
     private final int maxExpansionDepth;
@@ -43,42 +44,42 @@ public class AutoDiscoveryExporter extends AbstractUltraExporter {
     private final int minDistinctNonNullValues = 2; // Minimum distinct non-null values for inclusion
     private final boolean useBusinessNames = true; // Use readable business names
     private final Set<String> includedFieldPaths = new LinkedHashSet<>(); // Fields that meet criteria
-    
+
     // Track discovered foreign key fields and their target collections
     private final Map<String, String> discoveredRelationships = new ConcurrentHashMap<>();
-    
+
     // Dynamic collection caching
     private final Set<String> cachedCollectionNames = new HashSet<>();
     private final Object cacheLock = new Object(); // Thread safety for caching
-    
-    public AutoDiscoveryExporter(String collectionName, ExportOptions options) {
-        super(options != null ? options : ExportOptions.builder()
-            .enableFieldStatistics(true)
-            .enableRelationExpansion(true)
-            .expansionDepth(3)
-            .build());
-        
+
+    public AutoDiscoveryExporter(String collectionName, ExportOptions options)
+    {
+        super(options != null ? options : ExportOptions.builder().enableFieldStatistics(true).enableRelationExpansion(true).expansionDepth(3).build());
+
         this.collectionName = collectionName;
         this.maxExpansionDepth = 3;  // Expand up to 3 levels deep (restored from 2)
         this.autoExpandRelations = true;  // Enable automatic relation expansion
         this.enableFieldStatistics = true; // Enable field statistics collection
-        
+
         // CRITICAL FIX: The parent class (AbstractUltraExporter) already initialized relationExpander
         // in its constructor when enableRelationExpansion is true. We inherit and use it.
     }
-    
+
     @Override
-    protected String getCollectionName() {
+    protected String getCollectionName()
+    {
         return collectionName;
     }
-    
+
     @Override
-    protected String getExportFilePrefix() {
+    protected String getExportFilePrefix()
+    {
         return collectionName;
     }
-    
+
     @Override
-    public void export() {
+    public void export()
+    {
         logger.info("=== AUTOMATIC DISCOVERY EXPORT ===");
         logger.info("Collection: {}", collectionName);
         logger.info("Settings:");
@@ -87,183 +88,200 @@ public class AutoDiscoveryExporter extends AbstractUltraExporter {
         logger.info("  - Use business names: {}", useBusinessNames);
         logger.info("  - Expand relationships: {}", autoExpandRelations);
         logger.info("This will automatically discover fields and export only those with meaningful data");
-        
+
         // Phase 1: Discovery (with incremental caching)
         logger.info("\n=== PHASE 1: FIELD DISCOVERY ===");
         discoverAllFields();
-        
+
         // Phase 2: Relationship Discovery (uses cached collections)
         logger.info("\n=== PHASE 2: RELATIONSHIP DISCOVERY ===");
         discoverRelationships();
-        
+
         // Phase 2.5: Filter fields based on distinct values
         logger.info("\n=== PHASE 2.5: FIELD FILTERING ===");
         filterFieldsByDistinctValues();
-        
+
         // Log cache status
         logger.info("\n=== CACHE STATUS ===");
         logger.info("Collections cached during discovery: {}", cachedCollectionNames);
-        logger.info("Total cached documents: {}", 
-            collectionCache.values().stream().mapToInt(Map::size).sum());
-        
+        logger.info("Total cached documents: {}", collectionCache.values().stream().mapToInt(Map::size).sum());
+
         // Phase 3: Export with filtered fields (uses cached collections)
         logger.info("\n=== PHASE 3: EXPORT WITH FILTERED FIELDS ===");
         exportWithAllFields();
-        
+
         // Phase 4: Generate summary
         logger.info("\n=== PHASE 4: SUMMARY GENERATION ===");
         generateFieldReport();
     }
-    
+
     /**
      * Phase 1: Discover all fields by scanning documents - FIXED to use RelationExpander
      */
-    private void discoverAllFields() {
+    private void discoverAllFields()
+    {
         logger.info("Discovering fields in {} collection...", collectionName);
-        
+
         MongoCollection<Document> collection = database.getCollection(collectionName);
         long totalDocs = collection.estimatedDocumentCount();
-        logger.info("Scanning sample of {} documents (total: {})", 
-            Math.min(discoveryBatchSize, totalDocs), totalDocs);
-        
+        logger.info("Scanning sample of {} documents (total: {})", Math.min(discoveryBatchSize, totalDocs), totalDocs);
+
         int scanned = 0;
-        try (MongoCursor<Document> cursor = collection.find().limit(discoveryBatchSize).iterator()) {
-            while (cursor.hasNext()) {
+        try (MongoCursor<Document> cursor = collection.find().limit(discoveryBatchSize).iterator())
+        {
+            while (cursor.hasNext())
+            {
                 Document doc = cursor.next();
-                
+
                 // Just discover base fields - expansion happens in Phase 2 with caching
                 discoverFieldsInDocument(doc, "", 0);
-                
+
                 scanned++;
-                if (scanned % 100 == 0) {
-                    logger.info("  Scanned {} documents, found {} unique field paths", 
-                        scanned, discoveredFieldPaths.size());
+                if (scanned % 100 == 0)
+                {
+                    logger.info("  Scanned {} documents, found {} unique field paths", scanned, discoveredFieldPaths.size());
                 }
             }
         }
-        
+
         // CRITICAL FIX: Ensure business IDs are always discovered even if not in sample
-        if (collectionName.equals("listings")) {
+        if (collectionName.equals("listings"))
+        {
             // Add listings-specific business IDs
             discoveredFieldPaths.add("mlsNumber");
             discoveredFieldPaths.add("listingId");
             logger.info("Added business ID fields for listings: mlsNumber, listingId");
-        } else if (collectionName.equals("transactions")) {
+        } else if (collectionName.equals("transactions"))
+        {
             discoveredFieldPaths.add("transactionId");
             logger.info("Added business ID field for transactions: transactionId");
-        } else if (collectionName.equals("agents")) {
+        } else if (collectionName.equals("agents"))
+        {
             discoveredFieldPaths.add("agentId");
             logger.info("Added business ID field for agents: agentId");
         }
-        
-        logger.info("Discovery complete: Found {} unique field paths in {} documents", 
-            discoveredFieldPaths.size(), scanned);
+
+        logger.info("Discovery complete: Found {} unique field paths in {} documents", discoveredFieldPaths.size(), scanned);
     }
-    
+
     /**
      * Recursively discover all field paths in a document
      */
-    private void discoverFieldsInDocument(Object value, String prefix, int depth) {
+    private void discoverFieldsInDocument(Object value, String prefix, int depth)
+    {
         if (depth > maxExpansionDepth) return;
-        
-        if (value instanceof Document) {
+
+        if (value instanceof Document)
+        {
             Document doc = (Document) value;
-            for (Map.Entry<String, Object> entry : doc.entrySet()) {
+            for (Map.Entry<String, Object> entry : doc.entrySet())
+            {
                 String fieldName = entry.getKey();
                 String fieldPath = prefix.isEmpty() ? fieldName : prefix + "." + fieldName;
                 Object fieldValue = entry.getValue();
-                
+
                 // Track the field path
                 discoveredFieldPaths.add(fieldPath);
                 fieldPathCounts.merge(fieldPath, 1, Integer::sum);
-                
+
                 // Track sample values and nulls - FIXED to prevent memory bloat
-                if (fieldValue == null || 
-                    (fieldValue instanceof String && ((String) fieldValue).trim().isEmpty()) ||
-                    "null".equalsIgnoreCase(String.valueOf(fieldValue))) {
+                if (fieldValue == null || (fieldValue instanceof String && ((String) fieldValue).trim().isEmpty()) || "null".equalsIgnoreCase(String.valueOf(fieldValue)))
+                {
                     fieldPathNullCounts.merge(fieldPath, 1, Integer::sum);
-                } else if (!(fieldValue instanceof Document) && !(fieldValue instanceof List)) {
+                } else if (!(fieldValue instanceof Document) && !(fieldValue instanceof List))
+                {
                     Set<String> samples = fieldPathValues.computeIfAbsent(fieldPath, k -> new HashSet<>());
-                    if (samples.size() < MAX_SAMPLE_VALUES) {
+                    if (samples.size() < MAX_SAMPLE_VALUES)
+                    {
                         String strValue = fieldValue.toString();
                         // Only store if reasonable size to prevent memory issues
-                        if (strValue.length() <= 200) {
+                        if (strValue.length() <= 200)
+                        {
                             samples.add(strValue);
                         }
                     }
                 }
-                
+
                 // Recurse into nested documents
-                if (fieldValue instanceof Document) {
+                if (fieldValue instanceof Document)
+                {
                     discoverFieldsInDocument(fieldValue, fieldPath, depth + 1);
-                } else if (fieldValue instanceof List) {
+                } else if (fieldValue instanceof List)
+                {
                     List<?> list = (List<?>) fieldValue;
-                    if (!list.isEmpty()) {
-                        Object firstItem = list.get(0);
-                        
+                    if (!list.isEmpty())
+                    {
+                        Object firstItem = list.getFirst();
+
                         // For arrays, track both the array field and its contents
                         discoveredFieldPaths.add(fieldPath + "[]");
-                        
-                        if (firstItem instanceof Document) {
+
+                        if (firstItem instanceof Document)
+                        {
                             // Array of documents - discover their structure
                             discoverFieldsInDocument(firstItem, fieldPath + "[]", depth + 1);
-                        } else if (firstItem instanceof ObjectId) {
+                        } else if (firstItem instanceof ObjectId)
+                        {
                             // Array of ObjectIds - likely a foreign key relationship
                             discoveredFieldPaths.add(fieldPath + "[].@reference");
                             // Array of ObjectIds - potential reference
                         }
                     }
-                } else if (fieldValue instanceof ObjectId) {
+                } else if (fieldValue instanceof ObjectId)
+                {
                     // Single ObjectId - likely a foreign key
                     discoveredFieldPaths.add(fieldPath + ".@reference");
                     logger.debug("Found ObjectId reference at: {}", fieldPath);
                 }
             }
-        } else if (value instanceof List) {
+        } else if (value instanceof List)
+        {
             List<?> list = (List<?>) value;
-            if (!list.isEmpty() && list.get(0) instanceof Document) {
+            if (!list.isEmpty() && list.get(0) instanceof Document)
+            {
                 discoverFieldsInDocument(list.get(0), prefix, depth);
             }
         }
     }
-    
+
     /**
      * Phase 2: Discover and expand relationships
      */
-    private void discoverRelationships() {
-        if (!autoExpandRelations) {
+    private void discoverRelationships()
+    {
+        if (!autoExpandRelations)
+        {
             logger.info("Relation expansion disabled");
             return;
         }
-        
+
         logger.info("Discovering relationships from ObjectId references...");
-        
-        Set<String> referenceFields = discoveredFieldPaths.stream()
-            .filter(path -> path.contains("@reference"))
-            .map(path -> path.replace(".@reference", "").replace("[].@reference", ""))
-            .collect(Collectors.toSet());
-        
+
+        Set<String> referenceFields = discoveredFieldPaths.stream().filter(path -> path.contains("@reference")).map(path -> path.replace(".@reference", "").replace("[].@reference", "")).collect(Collectors.toSet());
+
         logger.info("Found {} potential foreign key fields", referenceFields.size());
-        
-        if (referenceFields.isEmpty()) {
+
+        if (referenceFields.isEmpty())
+        {
             logger.warn("No ObjectId references found! This seems wrong for listings collection.");
             logger.info("All discovered field paths: {}", discoveredFieldPaths);
         }
-        
-        for (String refField : referenceFields) {
+
+        for (String refField : referenceFields)
+        {
             discoverRelationForField(refField);
         }
-        
-        logger.info("Relationship discovery complete. Total field paths: {}", 
-            discoveredFieldPaths.size());
+
+        logger.info("Relationship discovery complete. Total field paths: {}", discoveredFieldPaths.size());
     }
-    
+
     /**
      * Discover what collection a foreign key points to
      */
-    private void discoverRelationForField(String fieldPath) {
+    private void discoverRelationForField(String fieldPath)
+    {
         // Discovering relation for field
-        
+
         // Common patterns for field names to collection mappings - ENHANCED
         Map<String, String> commonMappings = new HashMap<>();
         commonMappings.put("property", "properties");
@@ -283,353 +301,395 @@ public class AutoDiscoveryExporter extends AbstractUltraExporter {
         commonMappings.put("team", "teams");
         commonMappings.put("transaction", "transactions");
         commonMappings.put("award", "awards");
-        
+
         // Extract the field name from the path
-        String fieldName = fieldPath.contains(".") ? 
-            fieldPath.substring(fieldPath.lastIndexOf(".") + 1) : fieldPath;
+        String fieldName = fieldPath.contains(".") ? fieldPath.substring(fieldPath.lastIndexOf(".") + 1) : fieldPath;
         fieldName = fieldName.replace("Id", "").replace("[]", "");
-        
+
         // Try to find the target collection
         String targetCollection = null;
-        
+
         // Check common mappings
-        for (Map.Entry<String, String> mapping : commonMappings.entrySet()) {
-            if (fieldName.toLowerCase().contains(mapping.getKey().toLowerCase())) {
+        for (Map.Entry<String, String> mapping : commonMappings.entrySet())
+        {
+            if (fieldName.toLowerCase().contains(mapping.getKey().toLowerCase()))
+            {
                 targetCollection = mapping.getValue();
                 break;
             }
         }
-        
+
         // If we found a target collection, cache it IMMEDIATELY
-        if (targetCollection != null) {
+        if (targetCollection != null)
+        {
             logger.info("  {} -> {} (caching and expanding)", fieldPath, targetCollection);
-            
+
             // Track the discovered relationship
             discoveredRelationships.put(fieldPath, targetCollection);
-            
+
             // Cache the collection if not already cached
             cacheCollectionIfNeeded(targetCollection);
-            
+
             // Now expand fields (will be fast since collection is cached)
             expandRelationFields(fieldPath, targetCollection);
-        } else {
+        } else
+        {
             logger.debug("  {} -> unknown collection (skipping)", fieldPath);
         }
     }
-    
+
     /**
      * Cache a collection immediately when discovered
      */
-    private void cacheCollectionIfNeeded(String collectionName) {
-        synchronized (cacheLock) {
-            if (cachedCollectionNames.contains(collectionName)) {
+    private void cacheCollectionIfNeeded(String collectionName)
+    {
+        synchronized (cacheLock)
+        {
+            if (cachedCollectionNames.contains(collectionName))
+            {
                 return; // Already cached
             }
-            
-            try {
+
+            try
+            {
                 MongoCollection<Document> collection = database.getCollection(collectionName);
                 long count = collection.estimatedDocumentCount();
-                
+
                 // Skip caching collections that are too large
-                if (count > 1000000) {
+                if (count > 1000000)
+                {
                     logger.warn("Skipping cache for {} - too large ({} documents > 1M limit)", collectionName, count);
                     logger.info("Will use direct DB queries for {} lookups", collectionName);
                     return;
                 }
-                
+
                 // Cache entire collection
                 logger.info("Caching entire {} collection (~{} documents)...", collectionName, count);
                 long startTime = System.currentTimeMillis();
-                
+
                 Map<ObjectId, Document> cache = new HashMap<>();
-                collection.find().forEach(doc -> {
+                collection.find().forEach(doc ->
+                {
                     ObjectId id = doc.getObjectId("_id");
-                    if (id != null) {
+                    if (id != null)
+                    {
                         cache.put(id, doc);
                         idToCollectionMap.put(id, collectionName);
                     }
                 });
-                
+
                 collectionCache.put(collectionName, cache);
                 cachedCollectionNames.add(collectionName);
-                
+
                 long elapsed = System.currentTimeMillis() - startTime;
                 logger.info("Cached {} {} documents in {}s", cache.size(), collectionName, elapsed / 1000);
-                
+
                 // Also inform RelationExpander about the cache if available
-                if (relationExpander != null) {
+                if (relationExpander != null)
+                {
                     relationExpander.preloadCollections(Collections.singleton(collectionName));
                 }
-                
-            } catch (Exception e) {
+
+            } catch (Exception e)
+            {
                 logger.warn("Failed to cache collection {}: {}", collectionName, e.getMessage());
             }
         }
     }
-    
+
     /**
      * Expand fields from a related collection - FIXED to sample multiple documents
      */
-    private void expandRelationFields(String fieldPath, String targetCollection) {
-        try {
+    private void expandRelationFields(String fieldPath, String targetCollection)
+    {
+        try
+        {
             // Try to use cache first
             Map<ObjectId, Document> cache = collectionCache.get(targetCollection);
-            if (cache == null || cache.isEmpty()) {
+            if (cache == null || cache.isEmpty())
+            {
                 // Collection not cached (probably too large), sample from DB instead
                 logger.info("    Sampling {} from database (not cached)", targetCollection);
                 MongoCollection<Document> collection = database.getCollection(targetCollection);
                 int sampleSize = 100;
                 Set<String> expandedFields = new HashSet<>();
-                
-                for (Document sample : collection.find().limit(sampleSize)) {
-                    if (sample != null) {
+
+                for (Document sample : collection.find().limit(sampleSize))
+                {
+                    if (sample != null)
+                    {
                         String expandedPrefix = fieldPath + ".@expanded";
                         int beforeCount = discoveredFieldPaths.size();
                         discoverFieldsInDocument(sample, expandedPrefix, 1);
                         int afterCount = discoveredFieldPaths.size();
-                        
-                        if (afterCount > beforeCount) {
-                            expandedFields.addAll(
-                                discoveredFieldPaths.stream()
-                                    .filter(p -> p.startsWith(expandedPrefix))
-                                    .collect(Collectors.toSet())
-                            );
+
+                        if (afterCount > beforeCount)
+                        {
+                            expandedFields.addAll(discoveredFieldPaths.stream().filter(p -> p.startsWith(expandedPrefix)).collect(Collectors.toSet()));
                         }
                     }
                 }
-                
-                logger.debug("    Added {} expanded fields from {} (sampled {} docs from DB)", 
-                    expandedFields.size(), targetCollection, sampleSize);
+
+                logger.debug("    Added {} expanded fields from {} (sampled {} docs from DB)", expandedFields.size(), targetCollection, sampleSize);
                 return;
             }
-            
+
             // Sample from CACHE, not database
             int sampleSize = Math.min(100, cache.size());
             Set<String> expandedFields = new HashSet<>();
-            
+
             int sampled = 0;
-            for (Document sample : cache.values()) {
+            for (Document sample : cache.values())
+            {
                 if (sampled >= sampleSize) break;
-                
-                if (sample != null) {
+
+                if (sample != null)
+                {
                     // Discover fields in the related document
                     String expandedPrefix = fieldPath + ".@expanded";
                     int beforeCount = discoveredFieldPaths.size();
                     discoverFieldsInDocument(sample, expandedPrefix, 1);
                     int afterCount = discoveredFieldPaths.size();
-                    
-                    if (afterCount > beforeCount) {
-                        expandedFields.addAll(
-                            discoveredFieldPaths.stream()
-                                .filter(p -> p.startsWith(expandedPrefix))
-                                .collect(Collectors.toSet())
-                        );
+
+                    if (afterCount > beforeCount)
+                    {
+                        expandedFields.addAll(discoveredFieldPaths.stream().filter(p -> p.startsWith(expandedPrefix)).collect(Collectors.toSet()));
                     }
                 }
                 sampled++;
             }
-            
-            logger.debug("    Added {} expanded fields from {} (sampled {} docs from cache)", 
-                expandedFields.size(), targetCollection, sampled);
-        } catch (Exception e) {
+
+            logger.debug("    Added {} expanded fields from {} (sampled {} docs from cache)", expandedFields.size(), targetCollection, sampled);
+        } catch (Exception e)
+        {
             logger.debug("Could not expand {}: {}", targetCollection, e.getMessage());
         }
     }
-    
+
     /**
      * Phase 3: Export with all discovered fields
      */
-    private void exportWithAllFields() {
-        exportWithStatistics(csvWriter -> {
+    private void exportWithAllFields()
+    {
+        exportWithStatistics(csvWriter ->
+        {
             MongoCollection<Document> collection = database.getCollection(collectionName);
             long totalDocs = collection.countDocuments();
             logger.info("Exporting {} documents with {} fields", totalDocs, includedFieldPaths.size());
-            
+
             int processedCount = 0;
             long startTime = System.currentTimeMillis();
-            
+
             // Process in larger batches for efficiency
             int batchSize = 5000; // Increased from 1000
-            
-            try (MongoCursor<Document> cursor = collection.find().batchSize(batchSize).iterator()) {
+
+            try (MongoCursor<Document> cursor = collection.find().batchSize(batchSize).iterator())
+            {
                 List<Document> batch = new ArrayList<>(batchSize);
-                
-                while (cursor.hasNext()) {
+
+                while (cursor.hasNext())
+                {
                     batch.add(cursor.next());
-                    
-                    if (batch.size() >= batchSize || !cursor.hasNext()) {
+
+                    if (batch.size() >= batchSize || !cursor.hasNext())
+                    {
                         processBatch(batch, csvWriter);
                         processedCount += batch.size();
-                        
+
                         // Progress logging
-                        if (processedCount % 10000 == 0) {
+                        if (processedCount % 10000 == 0)
+                        {
                             long elapsed = System.currentTimeMillis() - startTime;
                             double rate = processedCount / (elapsed / 1000.0);
-                            long eta = (long)((totalDocs - processedCount) / rate);
-                            logger.info("Progress: {} / {} documents ({} docs/sec, ETA: {}s)", 
-                                processedCount, totalDocs, String.format("%.0f", rate), eta);
+                            long eta = (long) ((totalDocs - processedCount) / rate);
+                            logger.info("Progress: {} / {} documents ({} docs/sec, ETA: {}s)", processedCount, totalDocs, String.format("%.0f", rate), eta);
                         }
-                        
+
                         batch.clear();
                     }
                 }
-            } catch (IOException e) {
+            } catch (IOException e)
+            {
                 logger.error("Export failed", e);
             }
-            
+
             long endTime = System.currentTimeMillis();
             double totalSeconds = (endTime - startTime) / 1000.0;
-            logger.info("Export complete: Processed {} of {} documents in {} seconds", 
-                processedCount, totalDocs, String.format("%.1f", totalSeconds));
-            
-            if (processedCount < totalDocs) {
+            logger.info("Export complete: Processed {} of {} documents in {} seconds", processedCount, totalDocs, String.format("%.1f", totalSeconds));
+
+            if (processedCount < totalDocs)
+            {
                 logger.error("WARNING: Only processed {} of {} documents!", processedCount, totalDocs);
             }
-            
+
             return processedCount;
         });
     }
-    
-    private void processBatch(List<Document> batch, CSVWriter csvWriter) throws IOException {
+
+    private void processBatch(List<Document> batch, CSVWriter csvWriter) throws IOException
+    {
         // Build headers once for the entire batch
         String[] headers = null;
-        if (enableFieldStatistics) {
+        if (enableFieldStatistics)
+        {
             headers = buildComprehensiveHeaders();
         }
-        
+
         int successCount = 0;
         int errorCount = 0;
-        
-        for (Document doc : batch) {
-            try {
+
+        for (Document doc : batch)
+        {
+            try
+            {
                 // Expand relations if needed
-                if (autoExpandRelations) {
+                if (autoExpandRelations)
+                {
                     doc = expandDocumentRelations(doc);
                 }
-                
+
                 // Extract values for all discovered fields
                 String[] row = extractValuesForAllFields(doc);
-                
+
                 // Verify row has correct number of columns
-                if (row.length != includedFieldPaths.size()) {
+                if (row.length != includedFieldPaths.size())
+                {
                     logger.warn("Row has {} columns but expected {}", row.length, includedFieldPaths.size());
                 }
-                
+
                 csvWriter.writeNext(row);
                 successCount++;
-                
-                if (enableFieldStatistics && headers != null) {
+
+                if (enableFieldStatistics && headers != null)
+                {
                     collectRowStatistics(row, headers);
                 }
-            } catch (Exception e) {
+            } catch (Exception e)
+            {
                 errorCount++;
                 logger.error("Error processing document {}: {}", doc.get("_id"), e.getMessage(), e);
                 // Don't write empty rows on error - skip the document instead
                 logger.warn("Skipping document due to error");
             }
         }
-        
-        if (errorCount > 0) {
+
+        if (errorCount > 0)
+        {
             logger.warn("Batch processing: {} successful, {} errors", successCount, errorCount);
         }
     }
-    
+
     /**
      * Expand all foreign key relationships in a document
      * Uses our cache for collections we've cached, DB for others
      */
-    private Document expandDocumentRelations(Document doc) {
-        if (!autoExpandRelations) {
+    private Document expandDocumentRelations(Document doc)
+    {
+        if (!autoExpandRelations)
+        {
             return doc;
         }
-        
+
         // Manually expand using OUR cache (not RelationExpander which doesn't use our cache)
         Document expanded = new Document(doc);
-        
-        for (Map.Entry<String, String> rel : discoveredRelationships.entrySet()) {
+
+        for (Map.Entry<String, String> rel : discoveredRelationships.entrySet())
+        {
             String fieldPath = rel.getKey();
             String targetCollection = rel.getValue();
-            
+
             Object value = getValueByPath(doc, fieldPath);
             if (value == null) continue;
-            
+
             // Check if we have this collection cached
             Map<ObjectId, Document> cache = collectionCache.get(targetCollection);
-            
-            if (value instanceof ObjectId) {
+
+            if (value instanceof ObjectId)
+            {
                 Document related = null;
-                if (cache != null) {
+                if (cache != null)
+                {
                     // Use cache for fast lookup
                     related = cache.get((ObjectId) value);
-                } else {
+                } else
+                {
                     // Collection not cached (e.g., properties), lookup from DB
                     MongoCollection<Document> coll = database.getCollection(targetCollection);
                     related = coll.find(new Document("_id", value)).first();
                 }
-                
-                if (related != null) {
+
+                if (related != null)
+                {
                     // Add expanded fields with @expanded prefix
                     String expandedPrefix = fieldPath + ".@expanded";
-                    for (Map.Entry<String, Object> entry : related.entrySet()) {
-                        if (!entry.getKey().startsWith("_")) { // Skip internal fields
+                    for (Map.Entry<String, Object> entry : related.entrySet())
+                    {
+                        if (!entry.getKey().startsWith("_"))
+                        { // Skip internal fields
                             expanded.put(expandedPrefix + "." + entry.getKey(), entry.getValue());
                         }
                     }
                 }
-            } else if (value instanceof List) {
+            } else if (value instanceof List)
+            {
                 // Handle arrays of ObjectIds
                 List<?> list = (List<?>) value;
                 List<Document> expandedList = new ArrayList<>();
-                
-                for (Object item : list) {
-                    if (item instanceof ObjectId) {
+
+                for (Object item : list)
+                {
+                    if (item instanceof ObjectId)
+                    {
                         Document related = null;
-                        if (cache != null) {
+                        if (cache != null)
+                        {
                             related = cache.get((ObjectId) item);
-                        } else {
+                        } else
+                        {
                             MongoCollection<Document> coll = database.getCollection(targetCollection);
                             related = coll.find(new Document("_id", item)).first();
                         }
-                        if (related != null) {
+                        if (related != null)
+                        {
                             expandedList.add(related);
                         }
                     }
                 }
-                
-                if (!expandedList.isEmpty()) {
+
+                if (!expandedList.isEmpty())
+                {
                     // For arrays, we need to handle differently
                     // Just store first item's fields for simplicity
                     Document first = expandedList.get(0);
                     String expandedPrefix = fieldPath + "[].@expanded";
-                    for (Map.Entry<String, Object> entry : first.entrySet()) {
-                        if (!entry.getKey().startsWith("_")) {
+                    for (Map.Entry<String, Object> entry : first.entrySet())
+                    {
+                        if (!entry.getKey().startsWith("_"))
+                        {
                             expanded.put(expandedPrefix + "." + entry.getKey(), entry.getValue());
                         }
                     }
                 }
             }
         }
-        
+
         return expanded;
     }
-    
+
     // DELETED: Entire fallback expansion logic removed
     // DELETED: lookupDocument method removed
     // DELETED: extractSortableLabel method removed
     // DELETED: setValueByPath method removed
-    
+
     /**
      * Filter fields based on distinct non-null value criteria
      * FIXED: Now preserves business-critical IDs while excluding technical IDs
      */
-    private void filterFieldsByDistinctValues() {
+    private void filterFieldsByDistinctValues()
+    {
         // CRITICAL FIX: Define business IDs that MUST be kept
-        Set<String> BUSINESS_IDS = new HashSet<>(Arrays.asList(
-            "mlsNumber", "listingId", "transactionId", "orderId", 
-            "contractNumber", "referenceNumber", "confirmationNumber",
-            "invoiceNumber", "accountNumber", "caseNumber", "ticketId"
-        ));
-        
+        Set<String> BUSINESS_IDS = new HashSet<>(Arrays.asList("mlsNumber", "listingId", "transactionId", "orderId", "contractNumber", "referenceNumber", "confirmationNumber", "invoiceNumber", "accountNumber", "caseNumber", "ticketId"));
+
         includedFieldPaths.clear();
         int excluded = 0;
         int alwaysEmpty = 0;
@@ -637,144 +697,159 @@ public class AutoDiscoveryExporter extends AbstractUltraExporter {
         int multiValue = 0;
         int expandedIncluded = 0;
         int businessIdsKept = 0;
-        
-        for (String fieldPath : discoveredFieldPaths) {
+
+        for (String fieldPath : discoveredFieldPaths)
+        {
             Set<String> values = fieldPathValues.get(fieldPath);
             int distinctNonNullCount = (values != null) ? values.size() : 0;
             int nullCount = fieldPathNullCounts.getOrDefault(fieldPath, 0);
             int totalOccurrences = fieldPathCounts.getOrDefault(fieldPath, 0);
-            
+
             // Calculate actual non-null occurrences
             int nonNullOccurrences = totalOccurrences - nullCount;
-            
+
             // Skip fields that are always empty
-            if (nonNullOccurrences == 0) {
+            if (nonNullOccurrences == 0)
+            {
                 alwaysEmpty++;
                 excluded++;
                 logger.debug("Excluding always-empty field: {}", fieldPath);
                 continue;
             }
-            
+
             // Extract just the field name for business ID checking
-            String fieldName = fieldPath.contains(".") ? 
-                fieldPath.substring(fieldPath.lastIndexOf(".") + 1) : fieldPath;
-            
+            String fieldName = fieldPath.contains(".") ? fieldPath.substring(fieldPath.lastIndexOf(".") + 1) : fieldPath;
+
             // Determine if field should be included
             boolean include = false;
             String reason = "";
-            
+
             // FIRST: Check if this is a business ID that must be kept
             // CRITICAL FIX: Keep business IDs even if they're empty in the sample!
-            if (BUSINESS_IDS.contains(fieldName)) {
+            if (BUSINESS_IDS.contains(fieldName))
+            {
                 include = true;
                 reason = "business ID (preserved)";
                 businessIdsKept++;
                 logger.info("Preserving business ID field: {} (distinct values: {})", fieldPath, distinctNonNullCount);
             }
             // EXCLUDE technical ID fields (but not business IDs)
-            else if (fieldPath.equals("_id") || 
-                fieldPath.equals("__v") ||
-                fieldPath.contains("._id") ||
-                fieldPath.contains(".@reference") ||
-                (fieldPath.endsWith("Id") && !BUSINESS_IDS.contains(fieldName))) {
+            else if (fieldPath.equals("_id") || fieldPath.equals("__v") || fieldPath.contains("._id") || fieldPath.contains(".@reference") || (fieldPath.endsWith("Id") && !BUSINESS_IDS.contains(fieldName)))
+            {
                 include = false;
                 reason = "technical ID excluded";
             }
             // Always include certain important fields (IF they have 2+ distinct values)
-            else if ((fieldPath.contains("Date") ||
-                     fieldPath.contains("Price") ||
-                     fieldPath.contains("Amount")) && distinctNonNullCount >= minDistinctNonNullValues) {
+            else if ((fieldPath.contains("Date") || fieldPath.contains("Price") || fieldPath.contains("Amount")) && distinctNonNullCount >= minDistinctNonNullValues)
+            {
                 include = true;
                 reason = "important field";
             }
             // CONSISTENT RULE: Include ANY field with 2+ distinct non-null values
             // No special treatment for expanded fields - they follow the same rule
-            else if (distinctNonNullCount >= minDistinctNonNullValues) {
+            else if (distinctNonNullCount >= minDistinctNonNullValues)
+            {
                 include = true;
-                if (distinctNonNullCount == 2) {
+                if (distinctNonNullCount == 2)
+                {
                     binary++;
                     reason = "binary field";
-                } else {
+                } else
+                {
                     multiValue++;
                     reason = "multi-value field";
                 }
                 // Track if it's an expanded field for statistics
-                if (fieldPath.contains("@expanded")) {
+                if (fieldPath.contains("@expanded"))
+                {
                     expandedIncluded++;
                 }
             }
             // Exclude if field has 0 or 1 distinct non-null values
-            else {
+            else
+            {
                 include = false;
                 reason = distinctNonNullCount == 0 ? "no values" : "single value";
             }
-            
-            if (include) {
+
+            if (include)
+            {
                 includedFieldPaths.add(fieldPath);
-                logger.debug("Including field: {} ({}, distinct non-null: {})", 
-                    fieldPath, reason, distinctNonNullCount);
-            } else {
+                logger.debug("Including field: {} ({}, distinct non-null: {})", fieldPath, reason, distinctNonNullCount);
+            } else
+            {
                 excluded++;
-                logger.debug("Excluding field: {} ({}, distinct non-null: {})", 
-                    fieldPath, reason, distinctNonNullCount);
+                logger.debug("Excluding field: {} ({}, distinct non-null: {})", fieldPath, reason, distinctNonNullCount);
             }
         }
-        
-        logger.info("Field filtering complete: {} included ({} business IDs, {} binary, {} multi-value, {} expanded), {} excluded ({} always-empty) from {} total", 
-            includedFieldPaths.size(), businessIdsKept, binary, multiValue, expandedIncluded, excluded, alwaysEmpty, discoveredFieldPaths.size());
+
+        logger.info("Field filtering complete: {} included ({} business IDs, {} binary, {} multi-value, {} expanded), {} excluded ({} always-empty) from {} total", includedFieldPaths.size(), businessIdsKept, binary, multiValue, expandedIncluded, excluded, alwaysEmpty, discoveredFieldPaths.size());
     }
-    
+
     /**
      * Extract values for all discovered field paths
      */
-    private String[] extractValuesForAllFields(Document doc) {
+    private String[] extractValuesForAllFields(Document doc)
+    {
         // Use filtered fields, not all discovered fields
         String[] values = new String[includedFieldPaths.size()];
         int index = 0;
-        
-        for (String fieldPath : includedFieldPaths) {
+
+        for (String fieldPath : includedFieldPaths)
+        {
             Object value = getValueByPath(doc, fieldPath);
             values[index++] = formatValue(value);
         }
-        
+
         return values;
     }
-    
+
     /**
      * Get value from document by dot-notation path
      * Arrays are concatenated with semicolons to ensure one row per document
      */
-    private Object getValueByPath(Document doc, String path) {
+    private Object getValueByPath(Document doc, String path)
+    {
         if (doc == null || path == null) return null;
-        
+
         // Handle array notation
         path = path.replace("[]", "");
-        
+
         String[] parts = path.split("\\.");
         Object current = doc;
-        
-        for (String part : parts) {
+
+        for (String part : parts)
+        {
             if (current == null) return null;
-            
-            if (current instanceof Document) {
+
+            if (current instanceof Document)
+            {
                 current = ((Document) current).get(part);
-            } else if (current instanceof List) {
+            } else if (current instanceof List)
+            {
                 List<?> list = (List<?>) current;
-                if (!list.isEmpty()) {
+                if (!list.isEmpty())
+                {
                     // Always concatenate arrays to ensure one row per document
-                    if (part.equals("@expanded") || parts[parts.length - 1].equals(part)) {
+                    if (part.equals("@expanded") || parts[parts.length - 1].equals(part))
+                    {
                         // This is the final part or an expanded field - return the list for formatting
                         return list;
-                    } else {
+                    } else
+                    {
                         // Extract values from all items, sort, and concatenate
                         List<String> values = new ArrayList<>();
-                        for (Object item : list) {
-                            if (item instanceof Document) {
+                        for (Object item : list)
+                        {
+                            if (item instanceof Document)
+                            {
                                 Object val = ((Document) item).get(part);
-                                if (val != null) {
+                                if (val != null)
+                                {
                                     values.add(formatValue(val));
                                 }
-                            } else {
+                            } else
+                            {
                                 values.add(formatValue(item));
                             }
                         }
@@ -782,98 +857,103 @@ public class AutoDiscoveryExporter extends AbstractUltraExporter {
                         Collections.sort(values);
                         return values.isEmpty() ? null : String.join("; ", values);
                     }
-                } else {
+                } else
+                {
                     return null;
                 }
-            } else {
+            } else
+            {
                 return null;
             }
         }
-        
+
         return current;
     }
-    
-    
+
+
     /**
      * Format a value for CSV output
      * Ensures arrays are concatenated and dates are properly formatted
      */
-    private String formatValue(Object value) {
+    private String formatValue(Object value)
+    {
         if (value == null) return "";
-        
-        if (value instanceof Document) {
+
+        if (value instanceof Document)
+        {
             // For nested documents, extract meaningful fields (no IDs)
             Document doc = (Document) value;
-            
+
             // Try to find a meaningful label field
-            String[] labelFields = {"name", "title", "label", "displayName", "fullName", 
-                                   "firstName", "lastName", "description", "address", 
-                                   "email", "phone", "type", "category", "status"};
-            
-            for (String field : labelFields) {
+            String[] labelFields = {"name", "title", "label", "displayName", "fullName", "firstName", "lastName", "description", "address", "email", "phone", "type", "category", "status"};
+
+            for (String field : labelFields)
+            {
                 String val = doc.getString(field);
-                if (val != null && !val.isEmpty()) {
+                if (val != null && !val.isEmpty())
+                {
                     // Clean the value of any newlines
-                    val = val.replaceAll("\\r\\n|\\r|\\n", " ")
-                            .replaceAll("\\u2028|\\u2029", " ")
-                            .replaceAll("\\s+", " ")
-                            .trim();
-                    
+                    val = val.replaceAll("\\r\\n|\\r|\\n", " ").replaceAll("\\u2028|\\u2029", " ").replaceAll("\\s+", " ").trim();
+
                     // For firstName/lastName, combine them
-                    if (field.equals("firstName")) {
+                    if (field.equals("firstName"))
+                    {
                         String lastName = doc.getString("lastName");
-                        if (lastName != null) {
-                            lastName = lastName.replaceAll("\\r\\n|\\r|\\n", " ")
-                                              .replaceAll("\\s+", " ")
-                                              .trim();
+                        if (lastName != null)
+                        {
+                            lastName = lastName.replaceAll("\\r\\n|\\r|\\n", " ").replaceAll("\\s+", " ").trim();
                             return val + " " + lastName;
                         }
                     }
                     return val;
                 }
             }
-            
+
             // If no label fields found, return non-ID fields as key:value pairs
             // But check if this is an @expanded document - if so, just return "@expanded"
-            if (doc.containsKey("@expanded")) {
+            if (doc.containsKey("@expanded"))
+            {
                 return "@expanded";
             }
-            return doc.entrySet().stream()
-                .filter(e -> !e.getKey().equals("_id") && !e.getKey().endsWith("Id"))
-                .limit(2)
-                .map(e -> {
-                    Object val = e.getValue();
-                    // Avoid recursive issues with Documents
-                    if (val instanceof Document) {
-                        return e.getKey() + ":...";
-                    }
-                    return e.getKey() + ":" + formatValue(val);
-                })
-                .collect(Collectors.joining(","));
-        } else if (value instanceof List) {
+            return doc.entrySet().stream().filter(e -> !e.getKey().equals("_id") && !e.getKey().endsWith("Id")).limit(2).map(e ->
+            {
+                Object val = e.getValue();
+                // Avoid recursive issues with Documents
+                if (val instanceof Document)
+                {
+                    return e.getKey() + ":...";
+                }
+                return e.getKey() + ":" + formatValue(val);
+            }).collect(Collectors.joining(","));
+        } else if (value instanceof List)
+        {
             List<?> list = (List<?>) value;
             if (list.isEmpty()) return "";
-            
+
             // Concatenate with semicolon to ensure single row
             int maxItems = 10;
-            
+
             // Format values first
             List<String> formattedValues = new ArrayList<>();
-            for (Object item : list) {
+            for (Object item : list)
+            {
                 String formatted = formatValue(item);
-                if (!formatted.isEmpty()) {
+                if (!formatted.isEmpty())
+                {
                     formattedValues.add(formatted);
                 }
             }
-            
+
             // Sort for consistent output (so same sets always match)
             Collections.sort(formattedValues);
-            
+
             // Build result string
             StringBuilder result = new StringBuilder();
             int count = 0;
-            for (String val : formattedValues) {
-                if (count >= maxItems) {
+            for (String val : formattedValues)
+            {
+                if (count >= maxItems)
+                {
                     result.append("; ...").append(formattedValues.size() - maxItems).append(" more");
                     break;
                 }
@@ -882,83 +962,96 @@ public class AutoDiscoveryExporter extends AbstractUltraExporter {
                 count++;
             }
             return result.toString();
-        } else if (value instanceof Date) {
+        } else if (value instanceof Date)
+        {
             // Format dates consistently
             return DATE_FORMAT.format((Date) value);
-        } else if (value instanceof ObjectId) {
+        } else if (value instanceof ObjectId)
+        {
             return value.toString();
-        } else if (value instanceof Boolean) {
+        } else if (value instanceof Boolean)
+        {
             return value.toString();
-        } else if (value instanceof Number) {
+        } else if (value instanceof Number)
+        {
             // Format numbers appropriately
-            if (value instanceof Double || value instanceof Float) {
+            if (value instanceof Double || value instanceof Float)
+            {
                 double d = ((Number) value).doubleValue();
-                if (d == Math.floor(d) && !Double.isInfinite(d)) {
+                if (d == Math.floor(d) && !Double.isInfinite(d))
+                {
                     return String.format("%.0f", d);
-                } else {
+                } else
+                {
                     return String.format("%.2f", d);
                 }
             }
             return value.toString();
-        } else {
+        } else
+        {
             // Remove ALL types of newlines and carriage returns to ensure one row per document
             String str = value.toString();
-            
+
             // First handle HTML breaks
             str = str.replaceAll("<br\\s*/?>", " ")      // HTML breaks
                     .replaceAll("<BR\\s*/?>", " ")        // Capital HTML breaks
                     .replaceAll("</?(p|P|div|DIV)>", " ") // Paragraph and div tags
                     .replaceAll("<[^>]+>", " ");          // Remove all other HTML tags
-            
+
             // Then replace all possible line breaks with spaces
             str = str.replaceAll("\\r\\n|\\r|\\n", " ")  // Windows, Mac, Unix line breaks
                     .replaceAll("\\u2028|\\u2029", " ")   // Unicode line/paragraph separators
                     .replaceAll("\\u000B|\\u000C|\\u0085", " ") // Vertical tab, form feed, next line
                     .replaceAll("\\s+", " ")              // Collapse multiple spaces
                     .trim();
-            
+
             // Escape quotes to prevent CSV issues
-            if (str.contains("\"")) {
+            if (str.contains("\""))
+            {
                 str = str.replace("\"", "\"\"");  // Double quotes for CSV escaping
             }
-            
+
             return str;
         }
     }
-    
+
     @Override
-    protected String[] buildComprehensiveHeaders() {
+    protected String[] buildComprehensiveHeaders()
+    {
         // Convert filtered field paths to business names
         List<String> headers = new ArrayList<>();
-        
-        for (String fieldPath : includedFieldPaths) {
+
+        for (String fieldPath : includedFieldPaths)
+        {
             // Convert to business name if enabled
-            String headerName = useBusinessNames ? 
-                FieldNameMapper.getBusinessName(fieldPath) : fieldPath;
+            String headerName = useBusinessNames ? FieldNameMapper.getBusinessName(fieldPath) : fieldPath;
             headers.add(headerName);
         }
-        
+
         logger.debug("Generated {} headers with business names", headers.size());
         return headers.toArray(new String[0]);
     }
-    
+
     @Override
-    protected void loadCollectionsIntoMemory() {
+    protected void loadCollectionsIntoMemory()
+    {
         // No longer used - collections are cached dynamically during discovery
         // Left empty to satisfy abstract class requirement
     }
-    
+
     // Process a document for export
-    protected String[] processDocument(Document doc) {
+    protected String[] processDocument(Document doc)
+    {
         return extractValuesForAllFields(doc);
     }
-    
+
     /**
      * Phase 4: Generate comprehensive field report
      */
-    private void generateFieldReport() {
+    private void generateFieldReport()
+    {
         logger.info("Generating field discovery report...");
-        
+
         Map<String, Object> report = new HashMap<>();
         report.put("collection", collectionName);
         report.put("totalFieldsDiscovered", discoveredFieldPaths.size());
@@ -968,10 +1061,11 @@ public class AutoDiscoveryExporter extends AbstractUltraExporter {
         report.put("expansionDepth", maxExpansionDepth);
         report.put("useBusinessNames", useBusinessNames);
         report.put("timestamp", new Date());
-        
+
         // Categorize fields
         List<Map<String, Object>> fieldDetails = new ArrayList<>();
-        for (String fieldPath : discoveredFieldPaths) {
+        for (String fieldPath : discoveredFieldPaths)
+        {
             Map<String, Object> fieldInfo = new HashMap<>();
             fieldInfo.put("path", fieldPath);
             fieldInfo.put("occurrences", fieldPathCounts.getOrDefault(fieldPath, 0));
@@ -979,68 +1073,66 @@ public class AutoDiscoveryExporter extends AbstractUltraExporter {
             fieldInfo.put("isExpanded", fieldPath.contains("@expanded"));
             fieldInfo.put("isArray", fieldPath.contains("[]"));
             fieldInfo.put("depth", fieldPath.split("\\.").length);
-            
+
             // Add sample values if available
             Set<String> samples = fieldPathValues.get(fieldPath);
-            if (samples != null && !samples.isEmpty()) {
+            if (samples != null && !samples.isEmpty())
+            {
                 fieldInfo.put("sampleValues", samples.stream().limit(5).collect(Collectors.toList()));
                 fieldInfo.put("uniqueValues", samples.size());
             }
-            
+
             // Mark if field was included in export
             fieldInfo.put("includedInExport", includedFieldPaths.contains(fieldPath));
-            
+
             // Add business name if included
-            if (includedFieldPaths.contains(fieldPath) && useBusinessNames) {
+            if (includedFieldPaths.contains(fieldPath) && useBusinessNames)
+            {
                 fieldInfo.put("businessName", FieldNameMapper.getBusinessName(fieldPath));
             }
-            
+
             fieldDetails.add(fieldInfo);
         }
-        
+
         report.put("fields", fieldDetails);
-        
+
         // Save the report
         String reportPath = config.getOutputDirectory() + "/" + collectionName + "_discovery_report.json";
-        try {
+        try
+        {
             com.fasterxml.jackson.databind.ObjectMapper mapper = new com.fasterxml.jackson.databind.ObjectMapper();
             mapper.enable(com.fasterxml.jackson.databind.SerializationFeature.INDENT_OUTPUT);
             mapper.writeValue(new java.io.File(reportPath), report);
             logger.info("Discovery report saved to: {}", reportPath);
-        } catch (IOException e) {
+        } catch (IOException e)
+        {
             logger.error("Failed to save discovery report", e);
         }
-        
+
         // Log summary
         long referenceFields = discoveredFieldPaths.stream().filter(p -> p.contains("@reference")).count();
         long expandedFields = discoveredFieldPaths.stream().filter(p -> p.contains("@expanded")).count();
         long arrayFields = discoveredFieldPaths.stream().filter(p -> p.contains("[]")).count();
-        
+
         logger.info("\n=== DISCOVERY SUMMARY ===");
         logger.info("Total fields discovered: {}", discoveredFieldPaths.size());
         logger.info("Reference fields: {}", referenceFields);
         logger.info("Expanded fields: {}", expandedFields);
         logger.info("Array fields: {}", arrayFields);
-        logger.info("Max depth reached: {}", 
-            discoveredFieldPaths.stream()
-                .mapToInt(p -> p.split("\\.").length)
-                .max()
-                .orElse(0));
+        logger.info("Max depth reached: {}", discoveredFieldPaths.stream().mapToInt(p -> p.split("\\.").length).max().orElse(0));
     }
-    
-    public static void main(String[] args) {
-        if (args.length < 1) {
+
+    public static void main(String[] args)
+    {
+        if (args.length < 1)
+        {
             logger.error("Usage: AutoDiscoveryExporter <collection>");
             System.exit(1);
         }
-        
+
         String collection = args[0];
-        ExportOptions options = ExportOptions.builder()
-            .enableFieldStatistics(true)
-            .enableRelationExpansion(true)
-            .expansionDepth(3)
-            .build();
-        
+        ExportOptions options = ExportOptions.builder().enableFieldStatistics(true).enableRelationExpansion(true).expansionDepth(3).build();
+
         AutoDiscoveryExporter exporter = new AutoDiscoveryExporter(collection, options);
         exporter.export();
     }
