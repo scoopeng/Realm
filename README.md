@@ -44,9 +44,13 @@ The configuration file (`config/listings_fields.json`) can be edited between pha
 ```bash
 # Step 1: Discover fields
 ./gradlew discover -Pcollection=listings
+# Creates: config/listings_fields.json (configuration)
+#          config/listings_expansion_audit.txt (visual audit tree)
 
-# Step 2: (Optional) Edit configuration
+# Step 2: (Optional) Review and edit configuration
 vi config/listings_fields.json
+# Review the audit tree to verify expansions:
+cat config/listings_expansion_audit.txt
 
 # Step 3: Export data
 ./gradlew configExport -Pcollection=listings
@@ -229,15 +233,15 @@ src/main/java/com/example/mongoexport/
 │   ├── FieldConfiguration.java    # Individual field metadata
 │   └── DiscoveryConfiguration.java # Root configuration
 ├── discovery/
-│   └── FieldDiscoveryService.java # Field discovery logic
+│   └── FieldDiscoveryService.java # Field discovery and audit logic
 ├── export/
 │   └── ConfigurationBasedExporter.java # Config-based export
 ├── DiscoveryRunner.java          # Discovery entry point
-├── ConfigExportRunner.java        # Export entry point
-└── AutoDiscoveryExporter.java     # Legacy all-in-one
+└── ConfigExportRunner.java        # Export entry point
 
-config/                            # JSON configurations
-└── {collection}_fields.json      # Per-collection config
+config/                            # Configuration files
+├── {collection}_fields.json      # Editable field configuration
+└── {collection}_expansion_audit.txt # Visual expansion tree
 
 output/                            # Export results
 └── {collection}_ultra_comprehensive_{timestamp}.csv

@@ -14,7 +14,9 @@ The project provides intelligent field filtering, relationship expansion, and co
 
 ### Phase 1: Discovery
 - **Command**: `./gradlew discover -Pcollection=listings`
-- **Output**: `config/listings_fields.json`
+- **Output**: 
+  - `config/listings_fields.json` - Editable field configuration
+  - `config/listings_expansion_audit.txt` - Visual expansion tree for auditing
 - **Purpose**: Discovers all fields, expands relationships, collects statistics
 - **Key Class**: `FieldDiscoveryService`
 
@@ -138,7 +140,7 @@ vi config/listings_fields.json
 - `config/DiscoveryConfiguration.java` - Root configuration with all fields
 
 #### Discovery Phase
-- `discovery/FieldDiscoveryService.java` - Discovers fields and generates configuration
+- `discovery/FieldDiscoveryService.java` - Discovers fields, generates configuration and audit tree
 - `DiscoveryRunner.java` - Main entry point for discovery phase
 
 #### Export Phase
@@ -214,6 +216,9 @@ output.directory=./output
 - ✅ Implemented array field configuration
 - ✅ Added automatic field extraction for arrays
 - ✅ Integrated collection caching in export phase
+- ✅ Fixed array statistics collection (arrays now properly included)
+- ✅ Added visual audit tree for field expansion verification
+- ✅ Removed legacy implementation - single clean architecture
 
 ### Key Improvements
 - **Separation of Concerns**: Discovery and export are independent

@@ -58,7 +58,13 @@ task configExport(type: JavaExec) {
     jvmArgs = ['-Xmx24g', '-Xms16g']
     doFirst {
         def collection = project.hasProperty('collection') ? project.property('collection') : 'listings'
-        args = [collection]
+        def rowLimit = project.hasProperty('rowLimit') ? project.property('rowLimit') : null
+        
+        if (rowLimit != null) {
+            args = [collection, rowLimit]
+        } else {
+            args = [collection]
+        }
     }
     description = 'Phase 2: Exports using JSON configuration from config/ directory'
 }
@@ -102,6 +108,9 @@ EXAMPLES:
   ./gradlew discover -Pcollection=listings
   # Edit config/listings_fields.json if needed
   ./gradlew configExport -Pcollection=listings
+  
+  # Export with row limit (for testing):
+  ./gradlew configExport -Pcollection=listings -ProwLimit=1000
   
   # Export transactions:
   ./gradlew discover -Pcollection=transactions

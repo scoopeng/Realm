@@ -33,6 +33,7 @@ public class ConfigurationBasedExporter extends AbstractUltraExporter
     private final Map<String, Map<ObjectId, Document>> collectionCache = new HashMap<>();
     private final Set<String> cachedCollectionNames = new HashSet<>();
     private RelationExpander relationExpander;
+    private Integer rowLimit = null;
 
     /**
      * Create exporter from configuration file
@@ -59,6 +60,15 @@ public class ConfigurationBasedExporter extends AbstractUltraExporter
 
         logger.info("Loaded configuration for collection: {}", config.getCollection());
         logger.info("Total fields: {}, Included fields: {}", config.getFields().size(), includedFields.size());
+    }
+
+    /**
+     * Set a row limit for testing purposes
+     */
+    public void setRowLimit(Integer limit)
+    {
+        this.rowLimit = limit;
+        logger.info("Row limit set to: {} rows", limit);
     }
 
     /**
@@ -200,17 +210,33 @@ public class ConfigurationBasedExporter extends AbstractUltraExporter
             // Export data
             MongoCollection<Document> collection = database.getCollection(configuration.getCollection());
             long totalDocs = collection.countDocuments();
-            logger.info("Exporting {} documents from {}", totalDocs, configuration.getCollection());
+
+            // Apply row limit if set
+            long docsToExport = totalDocs;
+            if (rowLimit != null && rowLimit > 0)
+            {
+                docsToExport = Math.min(rowLimit, totalDocs);
+                logger.info("Exporting {} documents from {} (limited from {} total)",
+                        docsToExport, configuration.getCollection(), totalDocs);
+            } else
+            {
+                logger.info("Exporting {} documents from {}", totalDocs, configuration.getCollection());
+            }
 
             int processedCount = 0;
             int batchSize = configuration.getExportSettings().getBatchSize();
             long startTime = System.currentTimeMillis();
 
-            try (MongoCursor<Document> cursor = collection.find().batchSize(batchSize).iterator())
+            // Apply limit to query if needed
+            int queryLimit = rowLimit != null ? rowLimit : 0;
+
+            try (MongoCursor<Document> cursor = queryLimit > 0 ?
+                    collection.find().limit(queryLimit).batchSize(batchSize).iterator() :
+                    collection.find().batchSize(batchSize).iterator())
             {
                 List<Document> batch = new ArrayList<>(batchSize);
 
-                while (cursor.hasNext())
+                while (cursor.hasNext() && (rowLimit == null || processedCount < rowLimit))
                 {
                     batch.add(cursor.next());
 
@@ -218,7 +244,7 @@ public class ConfigurationBasedExporter extends AbstractUltraExporter
                     {
                         processBatch(batch, csvWriter);
                         processedCount += batch.size();
-                        logProgress(processedCount, totalDocs, startTime);
+                        logProgress(processedCount, docsToExport, startTime);
                         batch.clear();
                     }
                 }
