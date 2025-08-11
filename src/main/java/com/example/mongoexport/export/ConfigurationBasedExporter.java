@@ -54,13 +54,13 @@ public class ConfigurationBasedExporter extends AbstractUltraExporter
         logger.info("Loaded configuration for collection: {}", config.getCollection());
         logger.info("Total fields: {}, Included fields: {}", config.getFields().size(), includedFields.size());
 
-        // Log if there are any expanded fields (we won't actually expand them)
+        // Log if there are any expanded fields
         long expandedCount = includedFields.stream()
                 .filter(f -> f.getFieldPath().contains("_expanded"))
                 .count();
         if (expandedCount > 0)
         {
-            logger.warn("Found {} expanded fields in configuration - these will be skipped for performance", expandedCount);
+            logger.info("Found {} expanded fields in configuration - will resolve via cached lookups", expandedCount);
         }
     }
 
@@ -283,7 +283,25 @@ public class ConfigurationBasedExporter extends AbstractUltraExporter
         {
             for (FieldConfiguration field : includedFields)
             {
-                if (field.getRelationshipTarget() != null && !field.getRelationshipTarget().isEmpty())
+                // Handle expanded fields 
+                if (field.getFieldPath().contains("_expanded"))
+                {
+                    String fieldPath = field.getFieldPath();
+                    String baseField = fieldPath.substring(0, fieldPath.indexOf("_expanded"));
+                    
+                    // Get the base ObjectId
+                    Object baseValue = doc.get(baseField);
+                    if (baseValue instanceof ObjectId)
+                    {
+                        String targetCollection = guessTargetCollection(baseField);
+                        if (targetCollection != null)
+                        {
+                            idsToLoad.computeIfAbsent(targetCollection, k -> new HashSet<>()).add((ObjectId) baseValue);
+                        }
+                    }
+                }
+                // Also handle regular relationship fields
+                else if (field.getRelationshipTarget() != null && !field.getRelationshipTarget().isEmpty())
                 {
                     Object value = extractFieldValue(doc, field);
                     if (value instanceof ObjectId)
@@ -394,10 +412,49 @@ public class ConfigurationBasedExporter extends AbstractUltraExporter
      */
     private Object extractFieldValue(Document doc, FieldConfiguration field)
     {
-        // Skip expanded fields for performance - they require expensive lookups
+        // Handle expanded fields by looking up the base ObjectId and extracting nested fields
         if (field.getFieldPath().contains("_expanded"))
         {
-            return null;
+            // Example: property_expanded.city -> need to get property ObjectId, lookup, then get city
+            String fieldPath = field.getFieldPath();
+            String baseField = fieldPath.substring(0, fieldPath.indexOf("_expanded"));
+            String nestedPath = fieldPath.substring(fieldPath.indexOf("_expanded") + "_expanded".length());
+            
+            // Remove leading dot if present
+            if (nestedPath.startsWith("."))
+            {
+                nestedPath = nestedPath.substring(1);
+            }
+            
+            // Get the base ObjectId
+            Object baseValue = doc.get(baseField);
+            if (!(baseValue instanceof ObjectId))
+            {
+                return null;
+            }
+            
+            // Determine target collection from the base field
+            String targetCollection = guessTargetCollection(baseField);
+            if (targetCollection == null)
+            {
+                return null;
+            }
+            
+            // Look up the referenced document
+            Document referencedDoc = lookupDocument(targetCollection, (ObjectId) baseValue);
+            if (referencedDoc == null)
+            {
+                return null;
+            }
+            
+            // If no nested path, return the whole document (shouldn't happen in practice)
+            if (nestedPath.isEmpty())
+            {
+                return referencedDoc;
+            }
+            
+            // Extract the nested field from the referenced document
+            return extractNestedField(referencedDoc, nestedPath);
         }
 
         String[] pathParts = field.getFieldPath().split("\\.");
@@ -741,5 +798,82 @@ public class ConfigurationBasedExporter extends AbstractUltraExporter
         // Log report
         logger.info("Export Report:");
         report.forEach((key, value) -> logger.info("  {}: {}", key, value));
+    }
+    
+    /**
+     * Extract a nested field from a document using dot notation
+     */
+    private Object extractNestedField(Document doc, String path)
+    {
+        String[] parts = path.split("\\.");
+        Object current = doc;
+        
+        for (String part : parts)
+        {
+            if (current == null)
+            {
+                return null;
+            }
+            
+            if (current instanceof Document)
+            {
+                current = ((Document) current).get(part);
+            }
+            else if (current instanceof List && !part.matches("\\d+"))
+            {
+                // Handle extracting from array of documents
+                List<?> list = (List<?>) current;
+                List<Object> values = new ArrayList<>();
+                for (Object item : list)
+                {
+                    if (item instanceof Document)
+                    {
+                        Object value = ((Document) item).get(part);
+                        if (value != null)
+                        {
+                            values.add(value);
+                        }
+                    }
+                }
+                current = values.isEmpty() ? null : values;
+            }
+            else
+            {
+                return null;
+            }
+        }
+        
+        return current;
+    }
+    
+    /**
+     * Guess the target collection name from a field name
+     */
+    private String guessTargetCollection(String fieldName)
+    {
+        // Use the same logic as RelationExpander
+        if (fieldName.equals("property"))
+        {
+            return "properties";
+        }
+        else if (fieldName.equals("listingBrokerage"))
+        {
+            return "brokerages";
+        }
+        else if (fieldName.equals("listingAgent") || fieldName.equals("listingAgentId"))
+        {
+            return "agents";
+        }
+        else if (fieldName.equals("buyerAgent") || fieldName.equals("buyerAgentId"))
+        {
+            return "agents";
+        }
+        else if (fieldName.equals("buyerBrokerage"))
+        {
+            return "brokerages";
+        }
+        // Add more mappings as needed
+        
+        return null;
     }
 }

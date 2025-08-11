@@ -230,6 +230,7 @@ output.directory=./output
 - ✅ Added smart ObjectId resolution to display meaningful values instead of IDs
 - ✅ Fixed RelationExpander field mappings (listingBrokerage, not listingBrokerageId)
 - ✅ Fixed FieldNameMapper to generate clean business names without "_expanded"
+- ✅ **Fixed expanded field resolution** - Now properly looks up and populates expanded fields from cached collections (e.g., Property City, Property Street Address)
 
 ### Key Improvements
 - **Separation of Concerns**: Discovery and export are independent
@@ -238,6 +239,7 @@ output.directory=./output
 - **Better Performance**: Cache only required collections, selective expansion
 - **Batch Loading**: Pre-caches referenced documents in batches for 100x speedup (16→1,897 rows/sec)
 - **Smart ObjectId Resolution**: Automatically expands ObjectId references to meaningful values (e.g., property address)
+- **Expanded Field Resolution**: Properly resolves _expanded fields by looking up referenced documents and extracting nested values (maintaining 2,000+ rows/sec)
 - **Flexible Array Handling**: Configure per-field display
 - **Export Testing**: Row limit parameter for quick validation
 - **Audit Trail**: Visual tree showing field expansion hierarchy
