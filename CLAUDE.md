@@ -102,7 +102,8 @@ The project provides intelligent field filtering, relationship expansion, and co
 - **Exclude Technical IDs**: _id, __v, fields ending with Id (unless business ID)
 - **Exclude Empty Fields**: 0 distinct non-null values
 - **Exclude Single-Value Fields**: Only 1 distinct non-null value  
-- **Include Multi-Value Fields**: 2+ distinct non-null values
+- **Exclude Sparse Fields**: Fields present in <10% of documents (configurable threshold)
+- **Include Multi-Value Fields**: 2+ distinct non-null values AND >10% presence
 - **Business-Readable Names**: All columns use human-readable names
 
 ### Relationship Handling
@@ -212,6 +213,17 @@ output.directory=./output
 
 ## RECENT UPDATES (2025-08-11)
 
+### Latest Improvements (7:50 AM UTC)
+- ✅ **Implemented Sparse Field Threshold** - Fields appearing in <10% of documents are excluded by default
+  - Prevents empty columns in exports (e.g., belowGradeAreaFinished only in 13.6% of docs)
+  - Reduced included fields from 83 to 46 for listings collection
+  - Configurable threshold (default 10%)
+- ✅ **Fixed Expanded Field Resolution** - _expanded fields now properly populate from cached collections
+  - Property City, Property Street Address now show actual values
+  - Maintains excellent performance (2,000+ rows/sec)
+
+## RECENT UPDATES (2025-08-11 - Earlier)
+
 ### Two-Phase Workflow Implementation
 - ✅ Created separate discovery and export phases
 - ✅ Implemented JSON configuration schema
@@ -257,6 +269,11 @@ output.directory=./output
 1. **Hardcoded Relationships**: RelationExpander has hardcoded field-to-collection mappings
    - Currently requires manual updates when schema changes
    - Should auto-discover relationships based on field names and ObjectId patterns
+
+2. **Expanded Field Statistics**: Expanded fields don't calculate compound sparsity
+   - Example: property_expanded.city might be empty even if property exists
+   - Need to calculate: (parent field presence) × (child field presence in referenced docs)
+   - Currently working on Option 2: Sample-based statistics during expansion
 
 ### Next Steps
 1. ✅ Complete testing of two-phase workflow

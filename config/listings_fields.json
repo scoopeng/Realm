@@ -120,18 +120,6 @@
       "sampleValues" : [ "false", "true" ]
     }
   }, {
-    "fieldPath" : "extraStatus",
-    "businessName" : "Extra Status",
-    "sourceCollection" : "listings",
-    "dataType" : "string",
-    "include" : true,
-    "statistics" : {
-      "distinctNonNullValues" : 100,
-      "nullCount" : 0,
-      "totalOccurrences" : 888,
-      "sampleValues" : [ "Back on Market", "Cancelled", "Expired", "New Listing", "Not Developable" ]
-    }
-  }, {
     "fieldPath" : "fees",
     "businessName" : "Fees",
     "sourceCollection" : "listings",
@@ -250,30 +238,6 @@
       "sampleValues" : [ "false", "true" ]
     }
   }, {
-    "fieldPath" : "hasPool",
-    "businessName" : "Has Pool",
-    "sourceCollection" : "listings",
-    "dataType" : "boolean",
-    "include" : true,
-    "statistics" : {
-      "distinctNonNullValues" : 2,
-      "nullCount" : 0,
-      "totalOccurrences" : 17,
-      "sampleValues" : [ "false", "true" ]
-    }
-  }, {
-    "fieldPath" : "importDate",
-    "businessName" : "Import Date",
-    "sourceCollection" : "listings",
-    "dataType" : "string",
-    "include" : true,
-    "statistics" : {
-      "distinctNonNullValues" : 6,
-      "nullCount" : 0,
-      "totalOccurrences" : 17,
-      "sampleValues" : [ "2020-06-24T20:54:03.722Z", "2020-08-21T16:49:29.840Z", "2020-08-21T18:56:49.660Z", "2021-06-23T09:00:15.489Z", "2021-07-15T09:00:16.099Z" ]
-    }
-  }, {
     "fieldPath" : "isFurnished",
     "businessName" : "Is Furnished",
     "sourceCollection" : "listings",
@@ -321,28 +285,6 @@
       "availableFields" : [ "createdAt", "deleted", "fullName", "lastUpdated", "privateURL", "updatedAt" ]
     }
   }, {
-    "fieldPath" : "listingAgents_expanded",
-    "businessName" : "Listing Agents",
-    "sourceCollection" : "listings",
-    "dataType" : "array",
-    "include" : true,
-    "statistics" : {
-      "distinctNonNullValues" : 37,
-      "nullCount" : 0,
-      "totalOccurrences" : 42,
-      "sampleValues" : [ "5b6c6b3e9e89b41f53e0e017", "5b6c6b3e9e89b41f53e0e018", "5b6c6b3e9e89b41f53e0e01c", "5b6c6b3f9e89b41f53e0e01d", "5b6c6b3f9e89b41f53e0e021" ],
-      "avgArrayLength" : 1.0,
-      "maxArrayLength" : 1
-    },
-    "arrayConfig" : {
-      "displayMode" : "comma_separated",
-      "sortOrder" : "alphanumeric",
-      "delimiter" : ", ",
-      "objectType" : "object",
-      "referenceField" : "subscription",
-      "referenceCollection" : "subscriptions"
-    }
-  }, {
     "fieldPath" : "listingBrokerage",
     "businessName" : "Listing Brokerage ID",
     "sourceCollection" : "listings",
@@ -356,72 +298,6 @@
     },
     "relationshipTarget" : "brokerages"
   }, {
-    "fieldPath" : "listingBrokerage_expanded.agents",
-    "businessName" : "Listing Brokerage Agents",
-    "sourceCollection" : "listings",
-    "dataType" : "array",
-    "include" : true,
-    "statistics" : {
-      "distinctNonNullValues" : 100,
-      "nullCount" : 0,
-      "totalOccurrences" : 100,
-      "sampleValues" : [ "5b6c6b3f9e89b41f53e0e069", "5c4ba9e8e3e54a1813c00065", "5ca52685f924ad76917f33e3", "5eea772accce19003aeeb0d8", "5ef11dacbfa1e7002497b31c" ],
-      "avgArrayLength" : 4689.0,
-      "maxArrayLength" : 4689
-    },
-    "arrayConfig" : {
-      "extractField" : "fullName",
-      "displayMode" : "comma_separated",
-      "sortOrder" : "alphanumeric",
-      "delimiter" : ", ",
-      "objectType" : "objectId",
-      "referenceCollection" : "agents",
-      "availableFields" : [ "createdAt", "deleted", "fullName", "lastUpdated", "privateURL", "updatedAt" ]
-    }
-  }, {
-    "fieldPath" : "listingBrokerage_expanded.offices",
-    "businessName" : "Listing Brokerage Offices",
-    "sourceCollection" : "listings",
-    "dataType" : "array",
-    "include" : true,
-    "statistics" : {
-      "distinctNonNullValues" : 10,
-      "nullCount" : 0,
-      "totalOccurrences" : 100,
-      "sampleValues" : [ "Document{{city=Alpine, email=info@jhrea.com, streetAddress=46 Iron Horse Drive, phone=3076547575, state=WY, zipcode=83128}}", "Document{{city=Coeur d'Alene, email=info@jhrea.com, streetAddress=421 East Lakeside, Suite 201, phone=2086603189, state=ID, zipcode=83814}}", "Document{{city=Driggs, email=info@jhrea.com, streetAddress=65 South Main Street, phone=2083547325, state=ID, zipcode=83422}}", "Document{{city=Jackson, email=info@jhrea.com, streetAddress=14885 SPORTING CLUB ROAD, phone=3077333444, state=WY, zipcode=83001}}", "Document{{city=Jackson, email=info@jhrea.com, streetAddress=270 West Pearl Avenue, phone=3077341007, state=WY, zipcode=83001}}" ],
-      "avgArrayLength" : 10.0,
-      "maxArrayLength" : 10
-    },
-    "arrayConfig" : {
-      "extractField" : "zipcode",
-      "displayMode" : "comma_separated",
-      "sortOrder" : "alphanumeric",
-      "delimiter" : ", ",
-      "objectType" : "object",
-      "availableFields" : [ "city", "country", "email", "officeName", "phone", "state", "streetAddress", "unitNumber", "zipcode" ]
-    }
-  }, {
-    "fieldPath" : "listingBrokerage_expanded.teams",
-    "businessName" : "Listing Brokerage Teams",
-    "sourceCollection" : "listings",
-    "dataType" : "array",
-    "include" : true,
-    "statistics" : {
-      "distinctNonNullValues" : 13,
-      "nullCount" : 0,
-      "totalOccurrences" : 100,
-      "sampleValues" : [ "5c9e8520ffbec5380fd6754c", "5ca51b578886ef47ea512be7", "5ca51d8de136cde71da7ddf5", "5ca51e374cbcd5c2d180d879", "5ca52e2ae5d6bb9fec120607" ],
-      "avgArrayLength" : 13.0,
-      "maxArrayLength" : 13
-    },
-    "arrayConfig" : {
-      "displayMode" : "comma_separated",
-      "sortOrder" : "alphanumeric",
-      "delimiter" : ", ",
-      "objectType" : "objectId",
-      "referenceCollection" : "teams"
-    }
-  }, {
     "fieldPath" : "listingEmail",
     "businessName" : "Listing Email",
     "sourceCollection" : "listings",
@@ -432,18 +308,6 @@
       "nullCount" : 0,
       "totalOccurrences" : 3249,
       "sampleValues" : [ "CGlover@bhsusa.com", "GRamaniRuff@bhsusa.com", "HPaull@bhsusa.com", "Jeff.miller@bhsusa.com", "LPulitzer@bhsusa.com" ]
-    }
-  }, {
-    "fieldPath" : "listingType",
-    "businessName" : "Listing Type",
-    "sourceCollection" : "listings",
-    "dataType" : "string",
-    "include" : true,
-    "statistics" : {
-      "distinctNonNullValues" : 5,
-      "nullCount" : 0,
-      "totalOccurrences" : 29,
-      "sampleValues" : [ "Bank Owned", "Bankruptcy Sale", "Foreclosure", "Public", "Short Sale" ]
     }
   }, {
     "fieldPath" : "listingUrl",
@@ -611,30 +475,6 @@
     },
     "relationshipTarget" : "properties"
   }, {
-    "fieldPath" : "propertyAdjacentTo",
-    "businessName" : "Property Adjacent To",
-    "sourceCollection" : "listings",
-    "dataType" : "string",
-    "include" : true,
-    "statistics" : {
-      "distinctNonNullValues" : 28,
-      "nullCount" : 0,
-      "totalOccurrences" : 546,
-      "sampleValues" : [ "Broadway", "Buffalo Fork", "Common Area", "Conservation Lands", "Elk Refuge / Grand Teton National Park" ]
-    }
-  }, {
-    "fieldPath" : "propertyName",
-    "businessName" : "Property Name",
-    "sourceCollection" : "listings",
-    "dataType" : "string",
-    "include" : true,
-    "statistics" : {
-      "distinctNonNullValues" : 100,
-      "nullCount" : 0,
-      "totalOccurrences" : 706,
-      "sampleValues" : [ "1 Beekman Place", "1020 PARK AVE INC", "1040 MADISON, INC.", "1158 FIFTH AVE, INC", "15 CPW" ]
-    }
-  }, {
     "fieldPath" : "propertyType",
     "businessName" : "Property Type",
     "sourceCollection" : "listings",
@@ -645,148 +485,6 @@
       "nullCount" : 0,
       "totalOccurrences" : 5647,
       "sampleValues" : [ "2 Units", "2 unit", "2-4 Units", "3 Units", "Affordable Housing" ]
-    }
-  }, {
-    "fieldPath" : "property_expanded.city",
-    "businessName" : "Property City",
-    "sourceCollection" : "listings",
-    "dataType" : "string",
-    "include" : true,
-    "statistics" : {
-      "distinctNonNullValues" : 24,
-      "nullCount" : 0,
-      "totalOccurrences" : 100,
-      "sampleValues" : [ "Afton", "Alpine", "Alta", "Bedford", "Bondurant" ]
-    }
-  }, {
-    "fieldPath" : "property_expanded.fullAddress",
-    "businessName" : "Property Full Address",
-    "sourceCollection" : "listings",
-    "dataType" : "string",
-    "include" : true,
-    "statistics" : {
-      "distinctNonNullValues" : 92,
-      "nullCount" : 0,
-      "totalOccurrences" : 100,
-      "sampleValues" : [ "  31 JADE COURT ,Star Valley Ranch,83127", "  AMERINE RANCH MERNA 23-112 ,Daniel,83115", "  COTTONWOOD RYEGRASS ,Daniel,83115", "  E 1000 S ,Driggs,83422", "  ELKHORN DRIVE ,Alpine,83128" ]
-    }
-  }, {
-    "fieldPath" : "property_expanded.realmData.externalData",
-    "businessName" : "Property Realm Data External Data",
-    "sourceCollection" : "listings",
-    "dataType" : "array",
-    "include" : true,
-    "statistics" : {
-      "distinctNonNullValues" : 28,
-      "nullCount" : 0,
-      "totalOccurrences" : 100,
-      "sampleValues" : [ "Document{{tagNames=[], lifestyleNames=[], ingestionDate=Thu Jan 17 23:46:06 UTC 2019, source=iBehavior}}", "Document{{tagNames=[has_a_pond], lifestyleNames=[waterfront_living], ingestionDate=Thu Jan 17 23:46:06 UTC 2019, source=iBehavior}}", "Document{{tagNames=[has_a_wine_cellar], lifestyleNames=[], ingestionDate=Thu Jan 17 23:46:06 UTC 2019, source=iBehavior}}", "Document{{tagNames=[has_livestock], lifestyleNames=[country_living, farm_ranch_living], ingestionDate=Thu Jan 17 23:46:06 UTC 2019, source=iBehavior}}", "Document{{tagNames=[in_the_mountains, is_in_the_woods], lifestyleNames=[country_living, farm_ranch_living, eco_friendly_living], ingestionDate=Thu Jan 17 23:46:06 UTC 2019, source=iBehavior}}" ],
-      "avgArrayLength" : 1.02,
-      "maxArrayLength" : 2
-    },
-    "arrayConfig" : {
-      "extractField" : "lifestyleNames",
-      "displayMode" : "comma_separated",
-      "sortOrder" : "alphanumeric",
-      "delimiter" : ", ",
-      "objectType" : "object",
-      "availableFields" : [ "ingestionDate", "lifestyleNames", "source", "tagNames" ]
-    }
-  }, {
-    "fieldPath" : "property_expanded.realmData.matchResults.high",
-    "businessName" : "Property Realm Data Match Results High",
-    "sourceCollection" : "listings",
-    "dataType" : "integer",
-    "include" : true,
-    "statistics" : {
-      "distinctNonNullValues" : 6,
-      "nullCount" : 0,
-      "totalOccurrences" : 13,
-      "sampleValues" : [ "0", "1", "10", "11", "2" ]
-    }
-  }, {
-    "fieldPath" : "property_expanded.realmData.matchResults.low",
-    "businessName" : "Property Realm Data Match Results Low",
-    "sourceCollection" : "listings",
-    "dataType" : "integer",
-    "include" : true,
-    "statistics" : {
-      "distinctNonNullValues" : 7,
-      "nullCount" : 0,
-      "totalOccurrences" : 13,
-      "sampleValues" : [ "0", "10", "12", "14", "16" ]
-    }
-  }, {
-    "fieldPath" : "property_expanded.realmData.matchResults.med",
-    "businessName" : "Property Realm Data Match Results Med",
-    "sourceCollection" : "listings",
-    "dataType" : "integer",
-    "include" : true,
-    "statistics" : {
-      "distinctNonNullValues" : 6,
-      "nullCount" : 0,
-      "totalOccurrences" : 13,
-      "sampleValues" : [ "0", "1", "2", "4", "6" ]
-    }
-  }, {
-    "fieldPath" : "property_expanded.realmData.matchResults.total",
-    "businessName" : "Property Realm Data Match Results Total",
-    "sourceCollection" : "listings",
-    "dataType" : "integer",
-    "include" : true,
-    "statistics" : {
-      "distinctNonNullValues" : 9,
-      "nullCount" : 0,
-      "totalOccurrences" : 13,
-      "sampleValues" : [ "0", "14", "15", "19", "20" ]
-    }
-  }, {
-    "fieldPath" : "property_expanded.realmData.matchResults.totalAgents",
-    "businessName" : "Property Realm Data Match Results Total Agents",
-    "sourceCollection" : "listings",
-    "dataType" : "integer",
-    "include" : true,
-    "statistics" : {
-      "distinctNonNullValues" : 2,
-      "nullCount" : 0,
-      "totalOccurrences" : 13,
-      "sampleValues" : [ "0", "3" ]
-    }
-  }, {
-    "fieldPath" : "property_expanded.streetAddress",
-    "businessName" : "Property Street Address",
-    "sourceCollection" : "listings",
-    "dataType" : "string",
-    "include" : true,
-    "statistics" : {
-      "distinctNonNullValues" : 82,
-      "nullCount" : 0,
-      "totalOccurrences" : 85,
-      "sampleValues" : [ "  31 JADE COURT ", "  AMERINE RANCH MERNA 23-112 ", "  COTTONWOOD RYEGRASS ", "  E 1000 S ", "  ELKHORN DRIVE " ]
-    }
-  }, {
-    "fieldPath" : "property_expanded.updatedAt",
-    "businessName" : "Property Updated At",
-    "sourceCollection" : "listings",
-    "dataType" : "date",
-    "include" : true,
-    "statistics" : {
-      "distinctNonNullValues" : 2,
-      "nullCount" : 0,
-      "totalOccurrences" : 2,
-      "sampleValues" : [ "Thu Oct 20 09:04:19 UTC 2022", "Tue Aug 16 09:14:28 UTC 2022" ]
-    }
-  }, {
-    "fieldPath" : "property_expanded.zipcode",
-    "businessName" : "Property Zipcode",
-    "sourceCollection" : "listings",
-    "dataType" : "string",
-    "include" : true,
-    "statistics" : {
-      "distinctNonNullValues" : 24,
-      "nullCount" : 0,
-      "totalOccurrences" : 100,
-      "sampleValues" : [ "82070", "82513", "82922", "82941", "83001" ]
     }
   }, {
     "fieldPath" : "realmData.lifestyleNames",
@@ -807,183 +505,6 @@
       "sortOrder" : "alphanumeric",
       "delimiter" : ", ",
       "objectType" : "string"
-    }
-  }, {
-    "fieldPath" : "realmData.lifestyles",
-    "businessName" : "Realm Data Lifestyles",
-    "sourceCollection" : "listings",
-    "dataType" : "array",
-    "include" : true,
-    "statistics" : {
-      "distinctNonNullValues" : 2,
-      "nullCount" : 8,
-      "totalOccurrences" : 9,
-      "sampleValues" : [ "5db9b02ef723983b5c712cb8", "5db9b02ef723983b5c712cfb" ],
-      "avgArrayLength" : 2.0,
-      "maxArrayLength" : 2
-    },
-    "arrayConfig" : {
-      "extractField" : "lifestyleName",
-      "displayMode" : "comma_separated",
-      "sortOrder" : "alphanumeric",
-      "delimiter" : ", ",
-      "objectType" : "object",
-      "referenceField" : "lifestyle",
-      "referenceCollection" : "lifestyles",
-      "availableFields" : [ "lifestyleName" ]
-    }
-  }, {
-    "fieldPath" : "realmData.matchResults.checksum",
-    "businessName" : "Realm Data Match Results Checksum",
-    "sourceCollection" : "listings",
-    "dataType" : "integer",
-    "include" : true,
-    "statistics" : {
-      "distinctNonNullValues" : 7,
-      "nullCount" : 0,
-      "totalOccurrences" : 10,
-      "sampleValues" : [ "0", "1111", "130682", "1606", "1618" ]
-    }
-  }, {
-    "fieldPath" : "realmData.matchResults.date",
-    "businessName" : "Realm Data Match Results Date",
-    "sourceCollection" : "listings",
-    "dataType" : "string",
-    "include" : true,
-    "statistics" : {
-      "distinctNonNullValues" : 2,
-      "nullCount" : 0,
-      "totalOccurrences" : 9,
-      "sampleValues" : [ "08-11-2025", "08-16-2022" ]
-    }
-  }, {
-    "fieldPath" : "realmData.matchResults.high",
-    "businessName" : "Realm Data Match Results High",
-    "sourceCollection" : "listings",
-    "dataType" : "integer",
-    "include" : true,
-    "statistics" : {
-      "distinctNonNullValues" : 5,
-      "nullCount" : 0,
-      "totalOccurrences" : 73,
-      "sampleValues" : [ "0", "11", "16", "4", "67" ]
-    }
-  }, {
-    "fieldPath" : "realmData.matchResults.highAffordable",
-    "businessName" : "Realm Data Match Results High Affordable",
-    "sourceCollection" : "listings",
-    "dataType" : "integer",
-    "include" : true,
-    "statistics" : {
-      "distinctNonNullValues" : 2,
-      "nullCount" : 0,
-      "totalOccurrences" : 9,
-      "sampleValues" : [ "0", "3" ]
-    }
-  }, {
-    "fieldPath" : "realmData.matchResults.highestScore",
-    "businessName" : "Realm Data Match Results Highest Score",
-    "sourceCollection" : "listings",
-    "dataType" : "integer",
-    "include" : true,
-    "statistics" : {
-      "distinctNonNullValues" : 7,
-      "nullCount" : 0,
-      "totalOccurrences" : 9,
-      "sampleValues" : [ "0", "0.33116883116883117", "0.4363059262564394", "0.48664440734557596", "0.5219527278783991" ]
-    }
-  }, {
-    "fieldPath" : "realmData.matchResults.low",
-    "businessName" : "Realm Data Match Results Low",
-    "sourceCollection" : "listings",
-    "dataType" : "integer",
-    "include" : true,
-    "statistics" : {
-      "distinctNonNullValues" : 15,
-      "nullCount" : 0,
-      "totalOccurrences" : 73,
-      "sampleValues" : [ "0", "1", "10", "102", "11" ]
-    }
-  }, {
-    "fieldPath" : "realmData.matchResults.lowestScore",
-    "businessName" : "Realm Data Match Results Lowest Score",
-    "sourceCollection" : "listings",
-    "dataType" : "double",
-    "include" : true,
-    "statistics" : {
-      "distinctNonNullValues" : 7,
-      "nullCount" : 0,
-      "totalOccurrences" : 9,
-      "sampleValues" : [ "0.22268336488519974", "0.3073394495412844", "0.33277462609592573", "0.4195709077404721", "0.42835365853658536" ]
-    }
-  }, {
-    "fieldPath" : "realmData.matchResults.med",
-    "businessName" : "Realm Data Match Results Med",
-    "sourceCollection" : "listings",
-    "dataType" : "integer",
-    "include" : true,
-    "statistics" : {
-      "distinctNonNullValues" : 10,
-      "nullCount" : 0,
-      "totalOccurrences" : 73,
-      "sampleValues" : [ "0", "1", "10", "11", "180" ]
-    }
-  }, {
-    "fieldPath" : "realmData.matchResults.oppScore",
-    "businessName" : "Realm Data Match Results Opp Score",
-    "sourceCollection" : "listings",
-    "dataType" : "integer",
-    "include" : true,
-    "statistics" : {
-      "distinctNonNullValues" : 6,
-      "nullCount" : 0,
-      "totalOccurrences" : 10,
-      "sampleValues" : [ "0", "5", "50", "62", "8" ]
-    }
-  }, {
-    "fieldPath" : "realmData.matchResults.seen",
-    "businessName" : "Realm Data Match Results Seen",
-    "sourceCollection" : "listings",
-    "dataType" : "array",
-    "include" : true,
-    "statistics" : {
-      "distinctNonNullValues" : 4,
-      "nullCount" : 0,
-      "totalOccurrences" : 7,
-      "sampleValues" : [ "5b6c6b3f9e89b41f53e0e02b", "5b6c6b419e89b41f53e0e168", "5b6c6b419e89b41f53e0e16f", "5b6c6b419e89b41f53e0e1c2" ],
-      "avgArrayLength" : 6.285714285714286,
-      "maxArrayLength" : 14
-    },
-    "arrayConfig" : {
-      "displayMode" : "comma_separated",
-      "sortOrder" : "alphanumeric",
-      "delimiter" : ", ",
-      "objectType" : "string",
-      "referenceCollection" : "seens"
-    }
-  }, {
-    "fieldPath" : "realmData.matchResults.total",
-    "businessName" : "Realm Data Match Results Total",
-    "sourceCollection" : "listings",
-    "dataType" : "integer",
-    "include" : true,
-    "statistics" : {
-      "distinctNonNullValues" : 15,
-      "nullCount" : 0,
-      "totalOccurrences" : 73,
-      "sampleValues" : [ "0", "1", "10", "115", "116" ]
-    }
-  }, {
-    "fieldPath" : "realmData.matchResults.totalAgents",
-    "businessName" : "Realm Data Match Results Total Agents",
-    "sourceCollection" : "listings",
-    "dataType" : "integer",
-    "include" : true,
-    "statistics" : {
-      "distinctNonNullValues" : 7,
-      "nullCount" : 0,
-      "totalOccurrences" : 73,
-      "sampleValues" : [ "0", "1", "2", "3", "4" ]
     }
   }, {
     "fieldPath" : "realmData.tagNames",
@@ -1066,42 +587,6 @@
       "sampleValues" : [ "1051 SAGG MAIN", "217 Flywater Trail", "36-FOOT WIDE BEAUTY", "5-Story Loft-Style Tribeca Townhome", "5TH AVE - TWO PRIVATE FULL FLOORS" ]
     }
   }, {
-    "fieldPath" : "unitFloor",
-    "businessName" : "Unit Floor",
-    "sourceCollection" : "listings",
-    "dataType" : "string",
-    "include" : true,
-    "statistics" : {
-      "distinctNonNullValues" : 17,
-      "nullCount" : 0,
-      "totalOccurrences" : 157,
-      "sampleValues" : [ "10th floor", "1st", "1st floor", "2nd", "2nd floor" ]
-    }
-  }, {
-    "fieldPath" : "unitLocation",
-    "businessName" : "Unit Location",
-    "sourceCollection" : "listings",
-    "dataType" : "string",
-    "include" : true,
-    "statistics" : {
-      "distinctNonNullValues" : 10,
-      "nullCount" : 0,
-      "totalOccurrences" : 372,
-      "sampleValues" : [ "3rd", "End", "Inter.", "Interior", "end" ]
-    }
-  }, {
-    "fieldPath" : "updatedAt",
-    "businessName" : "Updated At",
-    "sourceCollection" : "listings",
-    "dataType" : "date",
-    "include" : true,
-    "statistics" : {
-      "distinctNonNullValues" : 3,
-      "nullCount" : 0,
-      "totalOccurrences" : 9,
-      "sampleValues" : [ "Mon Aug 11 04:25:08 UTC 2025", "Mon Aug 11 04:25:09 UTC 2025", "Tue Aug 16 10:46:15 UTC 2022" ]
-    }
-  }, {
     "fieldPath" : "viewTypes",
     "businessName" : "View Types",
     "sourceCollection" : "listings",
@@ -1122,30 +607,6 @@
       "delimiter" : ", ",
       "objectType" : "object",
       "availableFields" : [ "viewType" ]
-    }
-  }, {
-    "fieldPath" : "virtualTourURL",
-    "businessName" : "Virtual Tour URL",
-    "sourceCollection" : "listings",
-    "dataType" : "string",
-    "include" : true,
-    "statistics" : {
-      "distinctNonNullValues" : 100,
-      "nullCount" : 0,
-      "totalOccurrences" : 465,
-      "sampleValues" : [ "htt://tours.miamirealtyphotos.com/public/vtour/display/646142?a=1", "http://Properties.SpectrumRealEstatePhotography.com/18555collinsave/?mls", "http://Tours.SpectrumRealEstatePhotography.com/idx/173213", "http://tour.circlepix.com/tour/titan/?id=2336329&version=unbranded&_seoAddress=13050-Mar-Street-Cora", "http://www.digitaldestinations.com/bhs/111e65/living.html" ]
-    }
-  }, {
-    "fieldPath" : "waterFeatures",
-    "businessName" : "Water Features",
-    "sourceCollection" : "listings",
-    "dataType" : "string",
-    "include" : true,
-    "statistics" : {
-      "distinctNonNullValues" : 71,
-      "nullCount" : 0,
-      "totalOccurrences" : 776,
-      "sampleValues" : [ "2 Ponds / waterfall", "Buffalo", "Cache Creek", "Creek", "Creek / Pond" ]
     }
   }, {
     "fieldPath" : "yearBuilt",
@@ -1173,7 +634,7 @@
     }
   } ],
   "collection" : "listings",
-  "discoveredAt" : 1754896650612,
+  "discoveredAt" : 1754898703454,
   "discoveryParameters" : {
     "sampleSize" : 10000,
     "expansionDepth" : 3,
@@ -1372,7 +833,7 @@
     "businessName" : "Extra Status",
     "sourceCollection" : "listings",
     "dataType" : "string",
-    "include" : true,
+    "include" : false,
     "statistics" : {
       "distinctNonNullValues" : 100,
       "nullCount" : 0,
@@ -1550,7 +1011,7 @@
     "businessName" : "Has Pool",
     "sourceCollection" : "listings",
     "dataType" : "boolean",
-    "include" : true,
+    "include" : false,
     "statistics" : {
       "distinctNonNullValues" : 2,
       "nullCount" : 0,
@@ -1572,7 +1033,7 @@
     "businessName" : "Import Date",
     "sourceCollection" : "listings",
     "dataType" : "string",
-    "include" : true,
+    "include" : false,
     "statistics" : {
       "distinctNonNullValues" : 6,
       "nullCount" : 0,
@@ -1644,7 +1105,7 @@
     "businessName" : "Listing Agents",
     "sourceCollection" : "listings",
     "dataType" : "array",
-    "include" : true,
+    "include" : false,
     "statistics" : {
       "distinctNonNullValues" : 37,
       "nullCount" : 0,
@@ -1715,7 +1176,7 @@
     "businessName" : "Listing Brokerage Agents",
     "sourceCollection" : "listings",
     "dataType" : "array",
-    "include" : true,
+    "include" : false,
     "statistics" : {
       "distinctNonNullValues" : 100,
       "nullCount" : 0,
@@ -1882,7 +1343,7 @@
     "businessName" : "Listing Brokerage Offices",
     "sourceCollection" : "listings",
     "dataType" : "array",
-    "include" : true,
+    "include" : false,
     "statistics" : {
       "distinctNonNullValues" : 10,
       "nullCount" : 0,
@@ -1957,7 +1418,7 @@
     "businessName" : "Listing Brokerage Teams",
     "sourceCollection" : "listings",
     "dataType" : "array",
-    "include" : true,
+    "include" : false,
     "statistics" : {
       "distinctNonNullValues" : 13,
       "nullCount" : 0,
@@ -2002,7 +1463,7 @@
     "businessName" : "Listing Type",
     "sourceCollection" : "listings",
     "dataType" : "string",
-    "include" : true,
+    "include" : false,
     "statistics" : {
       "distinctNonNullValues" : 5,
       "nullCount" : 0,
@@ -2237,7 +1698,7 @@
     "businessName" : "Property Adjacent To",
     "sourceCollection" : "listings",
     "dataType" : "string",
-    "include" : true,
+    "include" : false,
     "statistics" : {
       "distinctNonNullValues" : 28,
       "nullCount" : 0,
@@ -2249,7 +1710,7 @@
     "businessName" : "Property Name",
     "sourceCollection" : "listings",
     "dataType" : "string",
-    "include" : true,
+    "include" : false,
     "statistics" : {
       "distinctNonNullValues" : 100,
       "nullCount" : 0,
@@ -2309,7 +1770,7 @@
     "businessName" : "Property City",
     "sourceCollection" : "listings",
     "dataType" : "string",
-    "include" : true,
+    "include" : false,
     "statistics" : {
       "distinctNonNullValues" : 24,
       "nullCount" : 0,
@@ -2333,7 +1794,7 @@
     "businessName" : "Property Full Address",
     "sourceCollection" : "listings",
     "dataType" : "string",
-    "include" : true,
+    "include" : false,
     "statistics" : {
       "distinctNonNullValues" : 92,
       "nullCount" : 0,
@@ -2356,7 +1817,7 @@
     "businessName" : "Property Realm Data External Data",
     "sourceCollection" : "listings",
     "dataType" : "array",
-    "include" : true,
+    "include" : false,
     "statistics" : {
       "distinctNonNullValues" : 28,
       "nullCount" : 0,
@@ -2389,7 +1850,7 @@
     "businessName" : "Property Realm Data Match Results High",
     "sourceCollection" : "listings",
     "dataType" : "integer",
-    "include" : true,
+    "include" : false,
     "statistics" : {
       "distinctNonNullValues" : 6,
       "nullCount" : 0,
@@ -2401,7 +1862,7 @@
     "businessName" : "Property Realm Data Match Results Low",
     "sourceCollection" : "listings",
     "dataType" : "integer",
-    "include" : true,
+    "include" : false,
     "statistics" : {
       "distinctNonNullValues" : 7,
       "nullCount" : 0,
@@ -2413,7 +1874,7 @@
     "businessName" : "Property Realm Data Match Results Med",
     "sourceCollection" : "listings",
     "dataType" : "integer",
-    "include" : true,
+    "include" : false,
     "statistics" : {
       "distinctNonNullValues" : 6,
       "nullCount" : 0,
@@ -2425,7 +1886,7 @@
     "businessName" : "Property Realm Data Match Results Total",
     "sourceCollection" : "listings",
     "dataType" : "integer",
-    "include" : true,
+    "include" : false,
     "statistics" : {
       "distinctNonNullValues" : 9,
       "nullCount" : 0,
@@ -2437,7 +1898,7 @@
     "businessName" : "Property Realm Data Match Results Total Agents",
     "sourceCollection" : "listings",
     "dataType" : "integer",
-    "include" : true,
+    "include" : false,
     "statistics" : {
       "distinctNonNullValues" : 2,
       "nullCount" : 0,
@@ -2469,7 +1930,7 @@
     "businessName" : "Property Street Address",
     "sourceCollection" : "listings",
     "dataType" : "string",
-    "include" : true,
+    "include" : false,
     "statistics" : {
       "distinctNonNullValues" : 82,
       "nullCount" : 0,
@@ -2491,7 +1952,7 @@
     "businessName" : "Property Updated At",
     "sourceCollection" : "listings",
     "dataType" : "date",
-    "include" : true,
+    "include" : false,
     "statistics" : {
       "distinctNonNullValues" : 2,
       "nullCount" : 0,
@@ -2503,7 +1964,7 @@
     "businessName" : "Property Zipcode",
     "sourceCollection" : "listings",
     "dataType" : "string",
-    "include" : true,
+    "include" : false,
     "statistics" : {
       "distinctNonNullValues" : 24,
       "nullCount" : 0,
@@ -2546,7 +2007,7 @@
     "businessName" : "Realm Data Lifestyles",
     "sourceCollection" : "listings",
     "dataType" : "array",
-    "include" : true,
+    "include" : false,
     "statistics" : {
       "distinctNonNullValues" : 2,
       "nullCount" : 8,
@@ -2581,7 +2042,7 @@
     "businessName" : "Realm Data Match Results Checksum",
     "sourceCollection" : "listings",
     "dataType" : "integer",
-    "include" : true,
+    "include" : false,
     "statistics" : {
       "distinctNonNullValues" : 7,
       "nullCount" : 0,
@@ -2593,7 +2054,7 @@
     "businessName" : "Realm Data Match Results Date",
     "sourceCollection" : "listings",
     "dataType" : "string",
-    "include" : true,
+    "include" : false,
     "statistics" : {
       "distinctNonNullValues" : 2,
       "nullCount" : 0,
@@ -2605,7 +2066,7 @@
     "businessName" : "Realm Data Match Results High",
     "sourceCollection" : "listings",
     "dataType" : "integer",
-    "include" : true,
+    "include" : false,
     "statistics" : {
       "distinctNonNullValues" : 5,
       "nullCount" : 0,
@@ -2617,7 +2078,7 @@
     "businessName" : "Realm Data Match Results High Affordable",
     "sourceCollection" : "listings",
     "dataType" : "integer",
-    "include" : true,
+    "include" : false,
     "statistics" : {
       "distinctNonNullValues" : 2,
       "nullCount" : 0,
@@ -2629,7 +2090,7 @@
     "businessName" : "Realm Data Match Results Highest Score",
     "sourceCollection" : "listings",
     "dataType" : "integer",
-    "include" : true,
+    "include" : false,
     "statistics" : {
       "distinctNonNullValues" : 7,
       "nullCount" : 0,
@@ -2641,7 +2102,7 @@
     "businessName" : "Realm Data Match Results Low",
     "sourceCollection" : "listings",
     "dataType" : "integer",
-    "include" : true,
+    "include" : false,
     "statistics" : {
       "distinctNonNullValues" : 15,
       "nullCount" : 0,
@@ -2653,7 +2114,7 @@
     "businessName" : "Realm Data Match Results Lowest Score",
     "sourceCollection" : "listings",
     "dataType" : "double",
-    "include" : true,
+    "include" : false,
     "statistics" : {
       "distinctNonNullValues" : 7,
       "nullCount" : 0,
@@ -2665,7 +2126,7 @@
     "businessName" : "Realm Data Match Results Med",
     "sourceCollection" : "listings",
     "dataType" : "integer",
-    "include" : true,
+    "include" : false,
     "statistics" : {
       "distinctNonNullValues" : 10,
       "nullCount" : 0,
@@ -2689,7 +2150,7 @@
     "businessName" : "Realm Data Match Results Opp Score",
     "sourceCollection" : "listings",
     "dataType" : "integer",
-    "include" : true,
+    "include" : false,
     "statistics" : {
       "distinctNonNullValues" : 6,
       "nullCount" : 0,
@@ -2701,7 +2162,7 @@
     "businessName" : "Realm Data Match Results Seen",
     "sourceCollection" : "listings",
     "dataType" : "array",
-    "include" : true,
+    "include" : false,
     "statistics" : {
       "distinctNonNullValues" : 4,
       "nullCount" : 0,
@@ -2732,7 +2193,7 @@
     "businessName" : "Realm Data Match Results Total",
     "sourceCollection" : "listings",
     "dataType" : "integer",
-    "include" : true,
+    "include" : false,
     "statistics" : {
       "distinctNonNullValues" : 15,
       "nullCount" : 0,
@@ -2744,7 +2205,7 @@
     "businessName" : "Realm Data Match Results Total Agents",
     "sourceCollection" : "listings",
     "dataType" : "integer",
-    "include" : true,
+    "include" : false,
     "statistics" : {
       "distinctNonNullValues" : 7,
       "nullCount" : 0,
@@ -2857,7 +2318,7 @@
     "businessName" : "Unit Floor",
     "sourceCollection" : "listings",
     "dataType" : "string",
-    "include" : true,
+    "include" : false,
     "statistics" : {
       "distinctNonNullValues" : 17,
       "nullCount" : 0,
@@ -2869,7 +2330,7 @@
     "businessName" : "Unit Location",
     "sourceCollection" : "listings",
     "dataType" : "string",
-    "include" : true,
+    "include" : false,
     "statistics" : {
       "distinctNonNullValues" : 10,
       "nullCount" : 0,
@@ -2881,7 +2342,7 @@
     "businessName" : "Updated At",
     "sourceCollection" : "listings",
     "dataType" : "date",
-    "include" : true,
+    "include" : false,
     "statistics" : {
       "distinctNonNullValues" : 3,
       "nullCount" : 0,
@@ -2915,7 +2376,7 @@
     "businessName" : "Virtual Tour URL",
     "sourceCollection" : "listings",
     "dataType" : "string",
-    "include" : true,
+    "include" : false,
     "statistics" : {
       "distinctNonNullValues" : 100,
       "nullCount" : 0,
@@ -2927,7 +2388,7 @@
     "businessName" : "Water Features",
     "sourceCollection" : "listings",
     "dataType" : "string",
-    "include" : true,
+    "include" : false,
     "statistics" : {
       "distinctNonNullValues" : 71,
       "nullCount" : 0,

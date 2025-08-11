@@ -31,6 +31,7 @@ public class FieldDiscoveryService
     private final int sampleSize;
     private final int expansionDepth;
     private final int minDistinctNonNullValues;
+    private final double sparseFieldThreshold;  // Minimum percentage of non-null values (0.1 = 10%)
 
     // Discovery tracking
     private final Map<String, FieldMetadata> fieldMetadataMap = new ConcurrentHashMap<>();
@@ -40,6 +41,9 @@ public class FieldDiscoveryService
 
     // Track array internals separately - we'll consolidate them later
     private final Map<String, ArrayInternals> arrayInternalsMap = new HashMap<>();
+    
+    // Track actual documents scanned for sparse field calculation
+    private int actualDocumentsScanned = 0;
 
     // Business IDs that should always be included
     private static final Set<String> BUSINESS_IDS = new HashSet<>(Arrays.asList("mlsNumber", "listingId", "transactionId", "orderId", "contractNumber", "referenceNumber", "confirmationNumber", "invoiceNumber", "accountNumber", "caseNumber", "ticketId", "agentId"));
@@ -87,16 +91,22 @@ public class FieldDiscoveryService
 
     public FieldDiscoveryService(MongoDatabase database, String collectionName)
     {
-        this(database, collectionName, 10000, 3, 2);
+        this(database, collectionName, 10000, 3, 2, 0.1);  // Default: 10% sparse threshold
     }
 
     public FieldDiscoveryService(MongoDatabase database, String collectionName, int sampleSize, int expansionDepth, int minDistinctNonNullValues)
+    {
+        this(database, collectionName, sampleSize, expansionDepth, minDistinctNonNullValues, 0.1);  // Default: 10% sparse threshold
+    }
+
+    public FieldDiscoveryService(MongoDatabase database, String collectionName, int sampleSize, int expansionDepth, int minDistinctNonNullValues, double sparseFieldThreshold)
     {
         this.database = database;
         this.collectionName = collectionName;
         this.sampleSize = sampleSize;
         this.expansionDepth = expansionDepth;
         this.minDistinctNonNullValues = minDistinctNonNullValues;
+        this.sparseFieldThreshold = sparseFieldThreshold;
     }
 
     /**
@@ -108,6 +118,7 @@ public class FieldDiscoveryService
         logger.info("Collection: {}", collectionName);
         logger.info("Sample size: {}", sampleSize);
         logger.info("Expansion depth: {}", expansionDepth);
+        logger.info("Sparse field threshold: {}% non-null required", sparseFieldThreshold * 100);
 
         // Create configuration
         DiscoveryConfiguration config = new DiscoveryConfiguration(collectionName);
@@ -167,8 +178,11 @@ public class FieldDiscoveryService
                 }
             }
         }
+        
+        // Store the actual number of documents scanned
+        actualDocumentsScanned = scanned;
 
-        logger.info("Base field discovery complete: {} fields found", fieldMetadataMap.size());
+        logger.info("Base field discovery complete: {} fields found from {} documents", fieldMetadataMap.size(), scanned);
     }
 
     /**
@@ -818,6 +832,7 @@ public class FieldDiscoveryService
     {
         int excluded = 0;
         int businessIdsKept = 0;
+        int sparseFieldsExcluded = 0;
 
         for (FieldConfiguration field : config.getFields())
         {
@@ -839,14 +854,50 @@ public class FieldDiscoveryService
             {
                 shouldInclude = false;
             }
-            // Apply minimum distinct values rule
+            // Apply filtering rules
             else
             {
                 FieldConfiguration.FieldStatistics stats = field.getStatistics();
                 if (stats != null)
                 {
                     int distinctValues = stats.getDistinctNonNullValues() != null ? stats.getDistinctNonNullValues() : 0;
-                    shouldInclude = distinctValues >= minDistinctNonNullValues;
+                    
+                    // First check minimum distinct values
+                    if (distinctValues < minDistinctNonNullValues)
+                    {
+                        shouldInclude = false;
+                    }
+                    else
+                    {
+                        // Check sparse field threshold based on actual documents scanned
+                        Integer totalOccurrences = stats.getTotalOccurrences();
+                        
+                        // Use actual documents scanned as the base for percentage calculation
+                        // This handles fields that don't exist in all documents (sparse fields)
+                        if (actualDocumentsScanned > 0)
+                        {
+                            // For sparse fields, totalOccurrences represents how many documents have the field
+                            // We want to exclude fields that appear in less than threshold% of all documents
+                            double fieldPresencePercentage = (double) (totalOccurrences != null ? totalOccurrences : 0) / actualDocumentsScanned;
+                            
+                            if (fieldPresencePercentage < sparseFieldThreshold)
+                            {
+                                shouldInclude = false;
+                                sparseFieldsExcluded++;
+                                logger.debug("Excluding sparse field '{}': present in {}% of documents (threshold: {}%)", 
+                                    fieldPath, String.format("%.2f", fieldPresencePercentage * 100), 
+                                    String.format("%.0f", sparseFieldThreshold * 100));
+                            }
+                            else
+                            {
+                                shouldInclude = true;
+                            }
+                        }
+                        else
+                        {
+                            shouldInclude = true;  // Include if we don't have document count
+                        }
+                    }
                 }
             }
 
@@ -857,7 +908,8 @@ public class FieldDiscoveryService
             }
         }
 
-        logger.info("Filtering complete: {} fields excluded, {} business IDs kept", excluded, businessIdsKept);
+        logger.info("Filtering complete: {} fields excluded ({} sparse), {} business IDs kept", 
+            excluded, sparseFieldsExcluded, businessIdsKept);
     }
 
     /**

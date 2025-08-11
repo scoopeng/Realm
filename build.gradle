@@ -69,6 +69,12 @@ task configExport(type: JavaExec) {
     description = 'Phase 2: Exports using JSON configuration from config/ directory'
 }
 
+task checkField(type: JavaExec) {
+    classpath = sourceSets.main.runtimeClasspath
+    mainClass = 'com.example.mongoexport.CheckFieldRunner'
+    description = 'Debug tool to check field values in MongoDB'
+}
+
 
 
 // ============================================
