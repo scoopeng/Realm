@@ -2,9 +2,9 @@
 FIELD EXPANSION AUDIT TREE
 =================================================================
 Collection: listings
-Generated: Mon Aug 11 08:07:31 UTC 2025
+Generated: Mon Aug 11 08:43:24 UTC 2025
 Total Fields: 139
-Included Fields: 53
+Included Fields: 51
 Expansion Depth: 3
 =================================================================
 
@@ -25,7 +25,7 @@ description [object] - 4 distinct values
 displayAddress [boolean] - 2 distinct values
 exteriorType [null] (EXCLUDED) - 0 distinct values
 extraStatus [string] (EXCLUDED) - 100 distinct values
-fees [array] - 100 distinct values
+fees [array] (EXCLUDED) - 100 distinct values
 fullAddress [string] - 100 distinct values
 fullBathrooms [integer] - 11 distinct values
 guestHouseBathrooms [integer] - 11 distinct values
@@ -145,7 +145,7 @@ title [object] (EXCLUDED) - 0 distinct values
 unitFloor [string] (EXCLUDED) - 17 distinct values
 unitLocation [string] (EXCLUDED) - 10 distinct values
 updatedAt [date] (EXCLUDED) - 3 distinct values
-viewTypes [array] - 4 distinct values
+viewTypes [array] (EXCLUDED) - 4 distinct values
 virtualTourURL [string] (EXCLUDED) - 100 distinct values
 waterFeatures [string] (EXCLUDED) - 71 distinct values
 yearBuilt [integer] - 100 distinct values

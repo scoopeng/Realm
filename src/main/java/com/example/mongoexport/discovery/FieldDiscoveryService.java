@@ -37,6 +37,7 @@ public class FieldDiscoveryService
     private final Map<String, FieldMetadata> fieldMetadataMap = new ConcurrentHashMap<>();
     private final Map<String, String> fieldToCollectionMap = new ConcurrentHashMap<>();
     private final Set<String> cachedCollections = new HashSet<>();
+    private Set<String> currentDocumentFields;  // Track fields in current document to avoid double-counting
     private final Map<String, Map<ObjectId, Document>> collectionCache = new HashMap<>();
 
     // Track array internals separately - we'll consolidate them later
@@ -173,6 +174,8 @@ public class FieldDiscoveryService
             while (cursor.hasNext())
             {
                 Document doc = cursor.next();
+                // Track fields seen in this document to avoid double-counting
+                currentDocumentFields = new HashSet<>();
                 discoverFieldsInDocument(doc, "", collectionName, 0);
                 scanned++;
 
@@ -221,7 +224,21 @@ public class FieldDiscoveryService
                     return m;
                 });
 
-                metadata.totalOccurrences++;
+                // Check if value is non-empty before counting occurrence
+                boolean hasValue = fieldValue != null && !isEmptyValue(fieldValue);
+                
+                // Only count this field once per document AND only if it has a value
+                if (currentDocumentFields != null && !currentDocumentFields.contains(fieldPath) && hasValue)
+                {
+                    metadata.totalOccurrences++;
+                    currentDocumentFields.add(fieldPath);
+                    
+                    // Debug logging for specific fields
+                    if (fieldPath.equals("fees") || fieldPath.equals("viewTypes") || fieldPath.equals("belowGradeAreaFinished"))
+                    {
+                        logger.debug("Field {} occurrence count: {}", fieldPath, metadata.totalOccurrences);
+                    }
+                }
                 fieldToCollectionMap.put(fieldPath, sourceCollection);
 
                 // Process field value
@@ -654,6 +671,8 @@ public class FieldDiscoveryService
                 Document doc = cursor.next();
                 Document expanded = expander.expandDocument(doc, collectionName, 1);
 
+                // Reset field tracking for this document to avoid double-counting
+                currentDocumentFields = new HashSet<>();
                 // Discover fields in expanded document
                 discoverFieldsInDocument(expanded, "", collectionName, 0);
             }

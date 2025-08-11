@@ -20,7 +20,7 @@
     "statistics" : {
       "distinctNonNullValues" : 10,
       "nullCount" : 7,
-      "totalOccurrences" : 10100,
+      "totalOccurrences" : 10093,
       "sampleValues" : [ "2019-02-04", "2019-02-08T19:38:51.128Z", "2020-07-29T23:30:29.074Z", "Unsub-2020-06-24T20:54:03.722Z", "Unsub-2020-08-21T16:49:29.840Z" ]
     }
   }, {
@@ -104,7 +104,7 @@
     "statistics" : {
       "distinctNonNullValues" : 100,
       "nullCount" : 23,
-      "totalOccurrences" : 8036,
+      "totalOccurrences" : 8013,
       "sampleValues" : [ ".4 acre lot available in the up and coming subdivision of Alpine Meadows. Easy access to national forest, lakes &amp; rivers. Pefect location for commuting to Jackson.<br><br><br><br>", "20+ acres in the New Fork Social Club on Remembrance Lane.  Beautiful 360 views on this well maintained piece of land.<br><br><br><br>", "2018 Fees Paid1 Floating Fall Week<br><br>On Paved Road,Ski in/out,Slope Side,ST Rentals Allowed,Year Round Access<br><br>Mountain View,Scenic,Slope Side View", "3 acre commercially zoned/mixed use adjacent to highway 26. Approximately 477 feet of highway frontage. 0.9 miles North of Alpine Junction, west side of highway.<br><br><br><br>", "5 Acres centrally located in Etna WY. This five acres has tremendous mountain views and NO CC&amp;Rs.<br><br><br><br>" ]
     }
   }, {
@@ -120,28 +120,6 @@
       "sampleValues" : [ "false", "true" ]
     }
   }, {
-    "fieldPath" : "fees",
-    "businessName" : "Fees",
-    "sourceCollection" : "listings",
-    "dataType" : "array",
-    "include" : true,
-    "statistics" : {
-      "distinctNonNullValues" : 100,
-      "nullCount" : 9239,
-      "totalOccurrences" : 10100,
-      "sampleValues" : [ "Document{{feeType=CommonCharges, feeAmount=18072.00}}", "Document{{feeType=CommonCharges, feeAmount=1994.00}}", "Document{{feeType=CommonCharges, feeAmount=2189.00}}", "Document{{feeType=CommonCharges, feeAmount=2250.00}}", "Document{{feeType=CommonCharges, feeAmount=2570.21}}" ],
-      "avgArrayLength" : 1.0,
-      "maxArrayLength" : 1
-    },
-    "arrayConfig" : {
-      "extractField" : "feeAmount",
-      "displayMode" : "comma_separated",
-      "sortOrder" : "alphanumeric",
-      "delimiter" : ", ",
-      "objectType" : "object",
-      "availableFields" : [ "feeAmount", "feeType" ]
-    }
-  }, {
     "fieldPath" : "fullAddress",
     "businessName" : "Full Address",
     "sourceCollection" : "listings",
@@ -150,7 +128,7 @@
     "statistics" : {
       "distinctNonNullValues" : 100,
       "nullCount" : 126,
-      "totalOccurrences" : 8410,
+      "totalOccurrences" : 8284,
       "sampleValues" : [ "  31 JADE COURT ,Star Valley Ranch,83127", "  AMERINE RANCH MERNA 23-112 ,Daniel,83115", "  COTTONWOOD RYEGRASS ,Daniel,83115", "  E 1000 S ,Driggs,83422", "  ELKHORN DRIVE ,Alpine,83128" ]
     }
   }, {
@@ -270,7 +248,7 @@
     "statistics" : {
       "distinctNonNullValues" : 100,
       "nullCount" : 6147,
-      "totalOccurrences" : 10100,
+      "totalOccurrences" : 3953,
       "sampleValues" : [ "5b6c6b3e9e89b41f53e0e012", "5b6c6b3e9e89b41f53e0e018", "5b6c6b3f9e89b41f53e0e01d", "5b6c6b3f9e89b41f53e0e022", "5b6c6b3f9e89b41f53e0e02b" ],
       "avgArrayLength" : 1.0007589172780167,
       "maxArrayLength" : 2
@@ -447,7 +425,7 @@
     "statistics" : {
       "distinctNonNullValues" : 100,
       "nullCount" : 18,
-      "totalOccurrences" : 1365,
+      "totalOccurrences" : 1347,
       "sampleValues" : [ " $100,000 allowance for custom driveway construction included in price.", " HOA $2,000 + $1,500 Streams and Trails fee, annually for a total of $3,500. 2016 Property taxes have yet to be accessed with home value (Land 2015 taxes $27,807)", " Lease in place until November of 2018 with Exclusive Resorts, call Bill for Details.", " Please call Barbara or Brandon to show. You cannot see the view or building areas of lots by driving by, and seller does not want unaccompanied brokers on the property", " Possession cannot occur before October 31, 2017. Seller will leaseback. Property not in a subdivision, so ''NO'' CC&Rs." ]
     }
   }, {
@@ -459,7 +437,7 @@
     "statistics" : {
       "distinctNonNullValues" : 96,
       "nullCount" : 5643,
-      "totalOccurrences" : 10100,
+      "totalOccurrences" : 4457,
       "sampleValues" : [ "Document{{parkingType=\r\n}}", "Document{{parkingType=1 - Covered}}", "Document{{parkingType=1 - UG}}", "Document{{parkingType=1-A & 1-D shop}}", "Document{{parkingType=1-A - 216 sf.}}" ],
       "avgArrayLength" : 1.0,
       "maxArrayLength" : 1
@@ -481,7 +459,7 @@
     "statistics" : {
       "distinctNonNullValues" : 100,
       "nullCount" : 6162,
-      "totalOccurrences" : 10100,
+      "totalOccurrences" : 3938,
       "sampleValues" : [ "Document{{pictureUrl=http://cdn.resize.sparkplatform.com/tet/1024x768/true/20090929213747154055000000-o.jpg}}", "Document{{pictureUrl=http://cdn.resize.sparkplatform.com/tet/1024x768/true/20090929213750354218000000-o.jpg}}", "Document{{pictureUrl=http://cdn.resize.sparkplatform.com/tet/1024x768/true/20090929213753604272000000-o.jpg}}", "Document{{pictureUrl=http://cdn.resize.sparkplatform.com/tet/1024x768/true/20090929213756771695000000-o.jpg}}", "Document{{pictureUrl=http://cdn.resize.sparkplatform.com/tet/1024x768/true/20101111222317780297000000-o.jpg}}" ],
       "avgArrayLength" : 14.547486033519553,
       "maxArrayLength" : 135
@@ -610,7 +588,7 @@
     "statistics" : {
       "distinctNonNullValues" : 14,
       "nullCount" : 818,
-      "totalOccurrences" : 1909,
+      "totalOccurrences" : 1091,
       "sampleValues" : [ "active_living", "country_living", "eco_friendly_living", "entertainment_living", "family_estate" ],
       "avgArrayLength" : 3.1778185151237395,
       "maxArrayLength" : 12
@@ -702,28 +680,6 @@
       "sampleValues" : [ "1051 SAGG MAIN", "217 Flywater Trail", "36-FOOT WIDE BEAUTY", "5-Story Loft-Style Tribeca Townhome", "5TH AVE - TWO PRIVATE FULL FLOORS" ]
     }
   }, {
-    "fieldPath" : "viewTypes",
-    "businessName" : "View Types",
-    "sourceCollection" : "listings",
-    "dataType" : "array",
-    "include" : true,
-    "statistics" : {
-      "distinctNonNullValues" : 4,
-      "nullCount" : 9663,
-      "totalOccurrences" : 10100,
-      "sampleValues" : [ "Document{{viewType=City}}", "Document{{viewType=Park}}", "Document{{viewType=River}}", "Document{{}}" ],
-      "avgArrayLength" : 1.0,
-      "maxArrayLength" : 1
-    },
-    "arrayConfig" : {
-      "extractField" : "viewType",
-      "displayMode" : "comma_separated",
-      "sortOrder" : "alphanumeric",
-      "delimiter" : ", ",
-      "objectType" : "object",
-      "availableFields" : [ "viewType" ]
-    }
-  }, {
     "fieldPath" : "yearBuilt",
     "businessName" : "Year Built",
     "sourceCollection" : "listings",
@@ -749,7 +705,7 @@
     }
   } ],
   "collection" : "listings",
-  "discoveredAt" : 1754899620904,
+  "discoveredAt" : 1754901774048,
   "discoveryParameters" : {
     "sampleSize" : 10000,
     "expansionDepth" : 3,
@@ -801,7 +757,7 @@
     "statistics" : {
       "distinctNonNullValues" : 0,
       "nullCount" : 10100,
-      "totalOccurrences" : 10100
+      "totalOccurrences" : 0
     }
   }, {
     "fieldPath" : "archived",
@@ -812,7 +768,7 @@
     "statistics" : {
       "distinctNonNullValues" : 10,
       "nullCount" : 7,
-      "totalOccurrences" : 10100,
+      "totalOccurrences" : 10093,
       "sampleValues" : [ "2019-02-04", "2019-02-08T19:38:51.128Z", "2020-07-29T23:30:29.074Z", "Unsub-2020-06-24T20:54:03.722Z", "Unsub-2020-08-21T16:49:29.840Z" ]
     }
   }, {
@@ -871,7 +827,7 @@
     "statistics" : {
       "distinctNonNullValues" : 0,
       "nullCount" : 10100,
-      "totalOccurrences" : 10100
+      "totalOccurrences" : 0
     }
   }, {
     "fieldPath" : "dateListed",
@@ -918,7 +874,7 @@
     "statistics" : {
       "distinctNonNullValues" : 100,
       "nullCount" : 23,
-      "totalOccurrences" : 8036,
+      "totalOccurrences" : 8013,
       "sampleValues" : [ ".4 acre lot available in the up and coming subdivision of Alpine Meadows. Easy access to national forest, lakes &amp; rivers. Pefect location for commuting to Jackson.<br><br><br><br>", "20+ acres in the New Fork Social Club on Remembrance Lane.  Beautiful 360 views on this well maintained piece of land.<br><br><br><br>", "2018 Fees Paid1 Floating Fall Week<br><br>On Paved Road,Ski in/out,Slope Side,ST Rentals Allowed,Year Round Access<br><br>Mountain View,Scenic,Slope Side View", "3 acre commercially zoned/mixed use adjacent to highway 26. Approximately 477 feet of highway frontage. 0.9 miles North of Alpine Junction, west side of highway.<br><br><br><br>", "5 Acres centrally located in Etna WY. This five acres has tremendous mountain views and NO CC&amp;Rs.<br><br><br><br>" ]
     }
   }, {
@@ -941,7 +897,7 @@
     "statistics" : {
       "distinctNonNullValues" : 0,
       "nullCount" : 10100,
-      "totalOccurrences" : 10100
+      "totalOccurrences" : 0
     }
   }, {
     "fieldPath" : "extraStatus",
@@ -960,11 +916,11 @@
     "businessName" : "Fees",
     "sourceCollection" : "listings",
     "dataType" : "array",
-    "include" : true,
+    "include" : false,
     "statistics" : {
       "distinctNonNullValues" : 100,
       "nullCount" : 9239,
-      "totalOccurrences" : 10100,
+      "totalOccurrences" : 861,
       "sampleValues" : [ "Document{{feeType=CommonCharges, feeAmount=18072.00}}", "Document{{feeType=CommonCharges, feeAmount=1994.00}}", "Document{{feeType=CommonCharges, feeAmount=2189.00}}", "Document{{feeType=CommonCharges, feeAmount=2250.00}}", "Document{{feeType=CommonCharges, feeAmount=2570.21}}" ],
       "avgArrayLength" : 1.0,
       "maxArrayLength" : 1
@@ -986,7 +942,7 @@
     "statistics" : {
       "distinctNonNullValues" : 100,
       "nullCount" : 126,
-      "totalOccurrences" : 8410,
+      "totalOccurrences" : 8284,
       "sampleValues" : [ "  31 JADE COURT ,Star Valley Ranch,83127", "  AMERINE RANCH MERNA 23-112 ,Daniel,83115", "  COTTONWOOD RYEGRASS ,Daniel,83115", "  E 1000 S ,Driggs,83422", "  ELKHORN DRIVE ,Alpine,83128" ]
     }
   }, {
@@ -1082,7 +1038,7 @@
     "statistics" : {
       "distinctNonNullValues" : 1,
       "nullCount" : 13,
-      "totalOccurrences" : 17,
+      "totalOccurrences" : 4,
       "sampleValues" : [ "false" ]
     }
   }, {
@@ -1118,7 +1074,7 @@
     "statistics" : {
       "distinctNonNullValues" : 1,
       "nullCount" : 13,
-      "totalOccurrences" : 17,
+      "totalOccurrences" : 4,
       "sampleValues" : [ "false" ]
     }
   }, {
@@ -1141,7 +1097,7 @@
     "statistics" : {
       "distinctNonNullValues" : 0,
       "nullCount" : 10100,
-      "totalOccurrences" : 10100
+      "totalOccurrences" : 0
     }
   }, {
     "fieldPath" : "importDate",
@@ -1188,7 +1144,7 @@
     "statistics" : {
       "distinctNonNullValues" : 8,
       "nullCount" : 1,
-      "totalOccurrences" : 17,
+      "totalOccurrences" : 16,
       "sampleValues" : [ "5b6c6b3e9e89b41f53e0e012", "5b6c6b3f9e89b41f53e0e02b", "5b6c6b3f9e89b41f53e0e080", "5b6c6b419e89b41f53e0e16f", "5b6c6b7d9e89b41f53e0e6f0" ]
     },
     "relationshipTarget" : "agents"
@@ -1201,7 +1157,7 @@
     "statistics" : {
       "distinctNonNullValues" : 100,
       "nullCount" : 6147,
-      "totalOccurrences" : 10100,
+      "totalOccurrences" : 3953,
       "sampleValues" : [ "5b6c6b3e9e89b41f53e0e012", "5b6c6b3e9e89b41f53e0e018", "5b6c6b3f9e89b41f53e0e01d", "5b6c6b3f9e89b41f53e0e022", "5b6c6b3f9e89b41f53e0e02b" ],
       "avgArrayLength" : 1.0007589172780167,
       "maxArrayLength" : 2
@@ -1317,7 +1273,7 @@
     "statistics" : {
       "distinctNonNullValues" : 0,
       "nullCount" : 100,
-      "totalOccurrences" : 100
+      "totalOccurrences" : 0
     }
   }, {
     "fieldPath" : "listingBrokerage_expanded.brokers",
@@ -1327,7 +1283,7 @@
     "statistics" : {
       "distinctNonNullValues" : 0,
       "nullCount" : 100,
-      "totalOccurrences" : 100
+      "totalOccurrences" : 0
     }
   }, {
     "fieldPath" : "listingBrokerage_expanded.contacts",
@@ -1337,7 +1293,7 @@
     "statistics" : {
       "distinctNonNullValues" : 0,
       "nullCount" : 100,
-      "totalOccurrences" : 100
+      "totalOccurrences" : 0
     }
   }, {
     "fieldPath" : "listingBrokerage_expanded.deleted",
@@ -1370,7 +1326,7 @@
     "statistics" : {
       "distinctNonNullValues" : 0,
       "nullCount" : 100,
-      "totalOccurrences" : 100
+      "totalOccurrences" : 0
     }
   }, {
     "fieldPath" : "listingBrokerage_expanded.isDeveloper",
@@ -1392,7 +1348,7 @@
     "statistics" : {
       "distinctNonNullValues" : 0,
       "nullCount" : 100,
-      "totalOccurrences" : 100
+      "totalOccurrences" : 0
     }
   }, {
     "fieldPath" : "listingBrokerage_expanded.mlsInfo",
@@ -1506,7 +1462,7 @@
     "statistics" : {
       "distinctNonNullValues" : 0,
       "nullCount" : 100,
-      "totalOccurrences" : 100
+      "totalOccurrences" : 0
     }
   }, {
     "fieldPath" : "listingBrokerage_expanded.realmData.tagNames",
@@ -1516,7 +1472,7 @@
     "statistics" : {
       "distinctNonNullValues" : 0,
       "nullCount" : 100,
-      "totalOccurrences" : 100
+      "totalOccurrences" : 0
     }
   }, {
     "fieldPath" : "listingBrokerage_expanded.realmData.tags",
@@ -1526,7 +1482,7 @@
     "statistics" : {
       "distinctNonNullValues" : 0,
       "nullCount" : 100,
-      "totalOccurrences" : 100
+      "totalOccurrences" : 0
     }
   }, {
     "fieldPath" : "listingBrokerage_expanded.teams",
@@ -1666,7 +1622,7 @@
     "statistics" : {
       "distinctNonNullValues" : 100,
       "nullCount" : 4,
-      "totalOccurrences" : 9221,
+      "totalOccurrences" : 9217,
       "sampleValues" : [ "09-3298", "15-848", "16-1214", "16-2234", "16-2308" ]
     }
   }, {
@@ -1713,7 +1669,7 @@
     "statistics" : {
       "distinctNonNullValues" : 100,
       "nullCount" : 18,
-      "totalOccurrences" : 1365,
+      "totalOccurrences" : 1347,
       "sampleValues" : [ " $100,000 allowance for custom driveway construction included in price.", " HOA $2,000 + $1,500 Streams and Trails fee, annually for a total of $3,500. 2016 Property taxes have yet to be accessed with home value (Land 2015 taxes $27,807)", " Lease in place until November of 2018 with Exclusive Resorts, call Bill for Details.", " Please call Barbara or Brandon to show. You cannot see the view or building areas of lots by driving by, and seller does not want unaccompanied brokers on the property", " Possession cannot occur before October 31, 2017. Seller will leaseback. Property not in a subdivision, so ''NO'' CC&Rs." ]
     }
   }, {
@@ -1725,7 +1681,7 @@
     "statistics" : {
       "distinctNonNullValues" : 96,
       "nullCount" : 5643,
-      "totalOccurrences" : 10100,
+      "totalOccurrences" : 4457,
       "sampleValues" : [ "Document{{parkingType=\r\n}}", "Document{{parkingType=1 - Covered}}", "Document{{parkingType=1 - UG}}", "Document{{parkingType=1-A & 1-D shop}}", "Document{{parkingType=1-A - 216 sf.}}" ],
       "avgArrayLength" : 1.0,
       "maxArrayLength" : 1
@@ -1747,7 +1703,7 @@
     "statistics" : {
       "distinctNonNullValues" : 100,
       "nullCount" : 6162,
-      "totalOccurrences" : 10100,
+      "totalOccurrences" : 3938,
       "sampleValues" : [ "Document{{pictureUrl=http://cdn.resize.sparkplatform.com/tet/1024x768/true/20090929213747154055000000-o.jpg}}", "Document{{pictureUrl=http://cdn.resize.sparkplatform.com/tet/1024x768/true/20090929213750354218000000-o.jpg}}", "Document{{pictureUrl=http://cdn.resize.sparkplatform.com/tet/1024x768/true/20090929213753604272000000-o.jpg}}", "Document{{pictureUrl=http://cdn.resize.sparkplatform.com/tet/1024x768/true/20090929213756771695000000-o.jpg}}", "Document{{pictureUrl=http://cdn.resize.sparkplatform.com/tet/1024x768/true/20101111222317780297000000-o.jpg}}" ],
       "avgArrayLength" : 14.547486033519553,
       "maxArrayLength" : 135
@@ -2028,7 +1984,7 @@
     "statistics" : {
       "distinctNonNullValues" : 0,
       "nullCount" : 10,
-      "totalOccurrences" : 10
+      "totalOccurrences" : 0
     }
   }, {
     "fieldPath" : "property_expanded.schools",
@@ -2038,7 +1994,7 @@
     "statistics" : {
       "distinctNonNullValues" : 0,
       "nullCount" : 100,
-      "totalOccurrences" : 100
+      "totalOccurrences" : 0
     }
   }, {
     "fieldPath" : "property_expanded.streetAddress",
@@ -2060,7 +2016,7 @@
     "statistics" : {
       "distinctNonNullValues" : 0,
       "nullCount" : 100,
-      "totalOccurrences" : 100
+      "totalOccurrences" : 0
     }
   }, {
     "fieldPath" : "property_expanded.updatedAt",
@@ -2106,7 +2062,7 @@
     "statistics" : {
       "distinctNonNullValues" : 14,
       "nullCount" : 818,
-      "totalOccurrences" : 1909,
+      "totalOccurrences" : 1091,
       "sampleValues" : [ "active_living", "country_living", "eco_friendly_living", "entertainment_living", "family_estate" ],
       "avgArrayLength" : 3.1778185151237395,
       "maxArrayLength" : 12
@@ -2126,7 +2082,7 @@
     "statistics" : {
       "distinctNonNullValues" : 2,
       "nullCount" : 8,
-      "totalOccurrences" : 9,
+      "totalOccurrences" : 1,
       "sampleValues" : [ "5db9b02ef723983b5c712cb8", "5db9b02ef723983b5c712cfb" ],
       "avgArrayLength" : 2.0,
       "maxArrayLength" : 2
@@ -2301,7 +2257,7 @@
     "statistics" : {
       "distinctNonNullValues" : 0,
       "nullCount" : 7,
-      "totalOccurrences" : 7
+      "totalOccurrences" : 0
     }
   }, {
     "fieldPath" : "realmData.matchResults.total",
@@ -2379,7 +2335,7 @@
     "statistics" : {
       "distinctNonNullValues" : 0,
       "nullCount" : 10100,
-      "totalOccurrences" : 10100
+      "totalOccurrences" : 0
     }
   }, {
     "fieldPath" : "roomCount",
@@ -2469,11 +2425,11 @@
     "businessName" : "View Types",
     "sourceCollection" : "listings",
     "dataType" : "array",
-    "include" : true,
+    "include" : false,
     "statistics" : {
       "distinctNonNullValues" : 4,
       "nullCount" : 9663,
-      "totalOccurrences" : 10100,
+      "totalOccurrences" : 437,
       "sampleValues" : [ "Document{{viewType=City}}", "Document{{viewType=Park}}", "Document{{viewType=River}}", "Document{{}}" ],
       "avgArrayLength" : 1.0,
       "maxArrayLength" : 1

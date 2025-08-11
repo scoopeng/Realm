@@ -237,6 +237,14 @@ output.directory=./output
 
 ## RECENT UPDATES (2025-08-11)
 
+### Critical Bug Fix - Discovery Phase (8:45 AM UTC)
+- ✅ **Fixed incorrect field occurrence counting** - Empty arrays were being counted as field occurrences
+  - Root cause: Empty arrays (`fees: []`, `viewTypes: []`) were counted as having values
+  - Impact: Fields with mostly empty arrays showed >100% occurrence rate
+  - Fix: Only count fields with actual non-empty values
+  - Added per-document field tracking to prevent double-counting in nested documents
+  - Result: Sparse fields now correctly excluded (reduced from 53 to 51 fields)
+
 ### Final Production-Ready Improvements (8:00 AM UTC)
 - ✅ **Compound Sparsity for Expanded Fields** - Intelligently filters expanded fields
   - Calculates: (parent field presence %) × (child field presence %)
