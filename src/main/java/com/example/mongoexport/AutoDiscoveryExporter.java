@@ -505,19 +505,81 @@ public class AutoDiscoveryExporter extends AbstractUltraExporter {
     
     /**
      * Expand all foreign key relationships in a document
-     * Uses RelationExpander exclusively - no fallback
+     * Uses our cache for collections we've cached, DB for others
      */
     private Document expandDocumentRelations(Document doc) {
-        if (relationExpander != null && autoExpandRelations) {
-            try {
-                return relationExpander.expandDocument(doc, collectionName, maxExpansionDepth);
-            } catch (Exception e) {
-                logger.error("RelationExpander failed for document {}: {}", 
-                    doc.getObjectId("_id"), e.getMessage());
-                return doc; // Return original if expansion fails
+        if (!autoExpandRelations) {
+            return doc;
+        }
+        
+        // Manually expand using OUR cache (not RelationExpander which doesn't use our cache)
+        Document expanded = new Document(doc);
+        
+        for (Map.Entry<String, String> rel : discoveredRelationships.entrySet()) {
+            String fieldPath = rel.getKey();
+            String targetCollection = rel.getValue();
+            
+            Object value = getValueByPath(doc, fieldPath);
+            if (value == null) continue;
+            
+            // Check if we have this collection cached
+            Map<ObjectId, Document> cache = collectionCache.get(targetCollection);
+            
+            if (value instanceof ObjectId) {
+                Document related = null;
+                if (cache != null) {
+                    // Use cache for fast lookup
+                    related = cache.get((ObjectId) value);
+                } else {
+                    // Collection not cached (e.g., properties), lookup from DB
+                    MongoCollection<Document> coll = database.getCollection(targetCollection);
+                    related = coll.find(new Document("_id", value)).first();
+                }
+                
+                if (related != null) {
+                    // Add expanded fields with @expanded prefix
+                    String expandedPrefix = fieldPath + ".@expanded";
+                    for (Map.Entry<String, Object> entry : related.entrySet()) {
+                        if (!entry.getKey().startsWith("_")) { // Skip internal fields
+                            expanded.put(expandedPrefix + "." + entry.getKey(), entry.getValue());
+                        }
+                    }
+                }
+            } else if (value instanceof List) {
+                // Handle arrays of ObjectIds
+                List<?> list = (List<?>) value;
+                List<Document> expandedList = new ArrayList<>();
+                
+                for (Object item : list) {
+                    if (item instanceof ObjectId) {
+                        Document related = null;
+                        if (cache != null) {
+                            related = cache.get((ObjectId) item);
+                        } else {
+                            MongoCollection<Document> coll = database.getCollection(targetCollection);
+                            related = coll.find(new Document("_id", item)).first();
+                        }
+                        if (related != null) {
+                            expandedList.add(related);
+                        }
+                    }
+                }
+                
+                if (!expandedList.isEmpty()) {
+                    // For arrays, we need to handle differently
+                    // Just store first item's fields for simplicity
+                    Document first = expandedList.get(0);
+                    String expandedPrefix = fieldPath + "[].@expanded";
+                    for (Map.Entry<String, Object> entry : first.entrySet()) {
+                        if (!entry.getKey().startsWith("_")) {
+                            expanded.put(expandedPrefix + "." + entry.getKey(), entry.getValue());
+                        }
+                    }
+                }
             }
         }
-        return doc;
+        
+        return expanded;
     }
     
     // DELETED: Entire fallback expansion logic removed
