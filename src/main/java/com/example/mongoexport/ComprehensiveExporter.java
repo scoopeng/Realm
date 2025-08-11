@@ -45,57 +45,17 @@ public class ComprehensiveExporter {
     private static ExportOptions parseOptions(String mode, String[] args) {
         ExportOptions.Builder builder = ExportOptions.builder();
         
+        // Default mode is auto-discovery with expansion
+        // All exports use the same AutoDiscoveryExporter internally
         switch (mode.toLowerCase()) {
             case "full":
-                // Full export with all data and relation expansion
+            case "auto":
+            default:
+                // Standard auto-discovery mode with expansion and filtering
                 builder.enableRelationExpansion(true)
                        .enableFieldStatistics(true)
-                       .expansionDepth(2)
-                       .generateMetadata(true)
-                       .generateStatistics(true);
+                       .expansionDepth(3);
                 break;
-                
-            case "auto":
-                // Automatic mode - discovers fields, filters by distinct values, uses business names
-                // This is the recommended mode for most use cases
-                builder.enableRelationExpansion(false)  // Disabled for initial discovery
-                       .enableFieldStatistics(true)
-                       .generateMetadata(true)
-                       .generateStatistics(true)
-                       .excludeEmptyColumns()
-                       .excludeSingleValueColumns()
-                       .excludeSparseColumns();
-                break;
-                
-            case "analyze":
-                // Analyze mode - collect statistics without expansion
-                builder.enableRelationExpansion(false)
-                       .enableFieldStatistics(true)
-                       .generateMetadata(true)
-                       .generateStatistics(true);
-                break;
-                
-            case "filtered":
-                // Filtered mode - uses intelligent filtering based on distinct values
-                builder.enableRelationExpansion(false)  // Disabled for speed
-                       .enableFieldStatistics(false)
-                       .excludeEmptyColumns()
-                       .excludeSingleValueColumns()
-                       .excludeSparseColumns()
-                       .sparseThreshold(95.0);
-                break;
-                
-            case "minimal":
-                // Minimal mode - no expansion, no stats, just core data
-                builder.enableRelationExpansion(false)
-                       .enableFieldStatistics(false)
-                       .generateMetadata(false)
-                       .generateStatistics(false);
-                break;
-                
-            default:
-                logger.warn("Unknown mode: {}. Using auto mode.", mode);
-                return parseOptions("auto", args);
         }
         
         // Parse additional options from command line
@@ -131,14 +91,5 @@ public class ComprehensiveExporter {
         exporter.export();
     }
     
-    private static String describeOptions(ExportOptions options) {
-        StringBuilder desc = new StringBuilder();
-        desc.append("expansion=").append(options.isEnableRelationExpansion());
-        desc.append(", statistics=").append(options.isEnableFieldStatistics());
-        desc.append(", depth=").append(options.getExpansionDepth());
-        if (!options.isIncludeEmptyColumns()) desc.append(", excludeEmpty");
-        if (!options.isIncludeSingleValueColumns()) desc.append(", excludeSingleValue");
-        if (!options.isIncludeSparseColumns()) desc.append(", excludeSparse");
-        return desc.toString();
-    }
+    // Removed unused describeOptions method
 }

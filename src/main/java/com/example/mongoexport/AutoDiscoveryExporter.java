@@ -406,125 +406,25 @@ public class AutoDiscoveryExporter extends AbstractUltraExporter {
     
     /**
      * Expand all foreign key relationships in a document
-     * FIXED: Now properly uses RelationExpander when available
+     * Uses RelationExpander exclusively - no fallback
      */
     private Document expandDocumentRelations(Document doc) {
-        // Use RelationExpander if available (initialized by parent class)
         if (relationExpander != null && autoExpandRelations) {
             try {
-                // Use RelationExpander's proper expansion logic
                 return relationExpander.expandDocument(doc, collectionName, maxExpansionDepth);
             } catch (Exception e) {
-                logger.warn("RelationExpander failed, falling back to basic expansion: {}", e.getMessage());
+                logger.error("RelationExpander failed for document {}: {}", 
+                    doc.getObjectId("_id"), e.getMessage());
+                return doc; // Return original if expansion fails
             }
         }
-        
-        // Fallback to basic expansion
-        Document expanded = new Document(doc);
-        
-        for (String fieldPath : discoveredFieldPaths) {
-            if (fieldPath.contains("@reference")) {
-                String actualPath = fieldPath.replace(".@reference", "").replace("[].@reference", "");
-                Object value = getValueByPath(doc, actualPath);
-                
-                if (value instanceof ObjectId) {
-                    // Single reference - expand it
-                    Document relatedDoc = lookupDocument((ObjectId) value);
-                    if (relatedDoc != null) {
-                        setValueByPath(expanded, actualPath + ".@expanded", relatedDoc);
-                    }
-                } else if (value instanceof List) {
-                    // Array of references - expand them but keep as single row
-                    // When we extract values later, these will be concatenated with semicolons
-                    List<?> list = (List<?>) value;
-                    List<Document> expandedList = new ArrayList<>();
-                    for (Object item : list) {
-                        if (item instanceof ObjectId) {
-                            Document relatedDoc = lookupDocument((ObjectId) item);
-                            if (relatedDoc != null) {
-                                expandedList.add(relatedDoc);
-                            }
-                        }
-                    }
-                    if (!expandedList.isEmpty()) {
-                        // Sort expanded documents by meaningful fields for consistency
-                        expandedList.sort((d1, d2) -> {
-                            // Extract a sortable label from each document
-                            String label1 = extractSortableLabel(d1);
-                            String label2 = extractSortableLabel(d2);
-                            return label1.compareTo(label2);
-                        });
-                        setValueByPath(expanded, actualPath + ".@expanded", expandedList);
-                    }
-                }
-            }
-        }
-        
-        return expanded;
+        return doc;
     }
     
-    /**
-     * Extract a sortable label from a document for consistent ordering
-     */
-    private String extractSortableLabel(Document doc) {
-        if (doc == null) return "";
-        
-        // Try to find a meaningful field to sort by
-        String[] sortFields = {"name", "title", "label", "displayName", "fullName", 
-                              "firstName", "email", "type", "category", "status"};
-        
-        for (String field : sortFields) {
-            String val = doc.getString(field);
-            if (val != null && !val.isEmpty()) {
-                // For firstName, combine with lastName if available
-                if (field.equals("firstName")) {
-                    String lastName = doc.getString("lastName");
-                    if (lastName != null) {
-                        return val + " " + lastName;
-                    }
-                }
-                return val.toLowerCase(); // Lowercase for consistent sorting
-            }
-        }
-        
-        // If no meaningful field found, use the ID as last resort (but not in output)
-        ObjectId id = doc.getObjectId("_id");
-        return id != null ? id.toString() : "";
-    }
-    
-    /**
-     * Generic document lookup across all collections - FIXED to track collection source
-     */
-    private Document lookupDocument(ObjectId id) {
-        if (id == null) return null;
-        
-        // First check if we know which collection this ID belongs to
-        // This fixes CRITICAL ISSUE 2 - proper collection tracking
-        String collectionName = idToCollectionMap.get(id);
-        if (collectionName != null) {
-            Map<ObjectId, Document> cache = collectionCache.get(collectionName);
-            if (cache != null) {
-                Document doc = cache.get(id);
-                if (doc != null) {
-                    return doc;
-                }
-            }
-        }
-        
-        // Fallback: Try all cached collections (but this is less efficient)
-        for (Map.Entry<String, Map<ObjectId, Document>> entry : collectionCache.entrySet()) {
-            Document doc = entry.getValue().get(id);
-            if (doc != null) {
-                // Found it - update our tracking map for next time
-                idToCollectionMap.put(id, entry.getKey());
-                return doc;
-            }
-        }
-        
-        // If not in cache, we skip it (everything should be pre-cached)
-        // This avoids slow database lookups during export
-        return null;
-    }
+    // DELETED: Entire fallback expansion logic removed
+    // DELETED: lookupDocument method removed
+    // DELETED: extractSortableLabel method removed
+    // DELETED: setValueByPath method removed
     
     /**
      * Filter fields based on distinct non-null value criteria
@@ -692,24 +592,6 @@ public class AutoDiscoveryExporter extends AbstractUltraExporter {
         return current;
     }
     
-    /**
-     * Set value in document by path (for expansion)
-     */
-    private void setValueByPath(Document doc, String path, Object value) {
-        String[] parts = path.split("\\.");
-        Document current = doc;
-        
-        for (int i = 0; i < parts.length - 1; i++) {
-            Object next = current.get(parts[i]);
-            if (!(next instanceof Document)) {
-                next = new Document();
-                current.put(parts[i], next);
-            }
-            current = (Document) next;
-        }
-        
-        current.put(parts[parts.length - 1], value);
-    }
     
     /**
      * Format a value for CSV output
@@ -976,7 +858,7 @@ public class AutoDiscoveryExporter extends AbstractUltraExporter {
         logger.info("Cached {} properties", propertyCache.size());
     }
     
-    @Override
+    // Process a document for export
     protected String[] processDocument(Document doc) {
         return extractValuesForAllFields(doc);
     }

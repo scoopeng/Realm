@@ -16,10 +16,11 @@ import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import java.util.Date;
+import java.io.File;
 
 /**
  * Abstract base class for ultra-comprehensive MongoDB to CSV exporters.
@@ -55,13 +56,7 @@ public abstract class AbstractUltraExporter {
     protected final MongoDatabase database;
     protected final ExportOptions options;
     
-    // Column statistics tracking - FIXED: Using thread-safe collections
-    protected Map<Integer, Map<String, Integer>> columnStats = new ConcurrentHashMap<>();
-    protected Map<Integer, Integer> nullCounts = new ConcurrentHashMap<>();
     protected int totalRows = 0;
-    
-    // Export metadata
-    protected ExportMetadata exportMetadata;
     
     // Relation expansion and field statistics
     protected RelationExpander relationExpander;
@@ -79,7 +74,6 @@ public abstract class AbstractUltraExporter {
         this.options = options != null ? options : new ExportOptions();
         MongoClient mongoClient = MongoClients.create(config.getMongoUrl());
         this.database = mongoClient.getDatabase(config.getDatabaseName());
-        this.exportMetadata = new ExportMetadata();
         
         // Initialize based on options
         this.enableRelationExpansion = this.options.isEnableRelationExpansion();
@@ -137,10 +131,6 @@ public abstract class AbstractUltraExporter {
         return 2000; // Default
     }
     
-    /**
-     * Process a document to extract row data
-     */
-    protected abstract String[] processDocument(Document doc);
     
     /**
      * Get fields to exclude based on saved summary or discovery report - FIXED: Unified approach
@@ -261,11 +251,6 @@ public abstract class AbstractUltraExporter {
             String[] headers = buildComprehensiveHeaders();
             csvWriter.writeNext(headers);
             
-            // Initialize column statistics and metadata
-            initializeStatistics(headers);
-            exportMetadata.setHeaders(Arrays.asList(headers));
-            exportMetadata.setExportDate(new Date());
-            exportMetadata.setExporterClass(this.getClass().getSimpleName());
             
             // Initialize field statistics collector if enabled
             if (enableFieldStatistics) {
@@ -284,9 +269,6 @@ public abstract class AbstractUltraExporter {
             double totalSeconds = totalTime / 1000.0;
             
             // Set final metadata
-            exportMetadata.setTotalRows(processedCount);
-            exportMetadata.setProcessingTimeSeconds(totalSeconds);
-            exportMetadata.setRowsPerSecond(processedCount / totalSeconds);
             
             logger.info("Export completed: {} total rows written to {}", processedCount, outputPath);
             logger.info("Total time: {} seconds ({} rows/sec)", 
@@ -319,254 +301,32 @@ public abstract class AbstractUltraExporter {
         }
     }
     
-    /**
-     * Initialize column statistics
-     */
-    protected void initializeStatistics(String[] headers) {
-        for (int i = 0; i < headers.length; i++) {
-            columnStats.put(i, new HashMap<>());
-            nullCounts.put(i, 0);
-            exportMetadata.addColumnMetadata(i, headers[i]);
-        }
-    }
     
-    /**
-     * Collect statistics for a row
-     */
+    // Helper method for collecting row statistics
     protected void collectRowStatistics(String[] row, String[] headers) {
-        for (int i = 0; i < row.length; i++) {
-            String value = row[i];
-            if (value == null || value.trim().isEmpty()) {
-                nullCounts.put(i, nullCounts.getOrDefault(i, 0) + 1);
-            } else {
-                Map<String, Integer> valueMap = columnStats.get(i);
-                valueMap.put(value, valueMap.getOrDefault(value, 0) + 1);
-            }
-        }
-        
-        // Also collect in field statistics collector if enabled
-        if (enableFieldStatistics && fieldStatisticsCollector != null) {
-            fieldStatisticsCollector.recordRow(row, headers);
-        }
+        // Field statistics collection disabled in clean implementation
+        // This is handled by AutoDiscoveryExporter directly
     }
     
-    /**
-     * Write column statistics file
-     * @deprecated This method is not used by Enhanced exporters which use FieldStatisticsCollector instead.
-     *             Kept for potential future use but currently not called.
-     */
-    @Deprecated
-    protected void writeStatisticsFile(String statsPath, String[] headers) {
-        try (FileWriter writer = new FileWriter(statsPath)) {
-            writer.write("COLUMN STATISTICS REPORT\n");
-            writer.write("========================\n");
-            writer.write("Total rows analyzed: " + totalRows + "\n\n");
-            
-            List<ColumnStatistic> emptyColumns = new ArrayList<>();
-            List<ColumnStatistic> singleValueColumns = new ArrayList<>();
-            List<ColumnStatistic> sparseColumns = new ArrayList<>();
-            
-            for (int i = 0; i < headers.length; i++) {
-                int nullCount = nullCounts.get(i);
-                Map<String, Integer> valueMap = columnStats.get(i);
-                double nullPercentage = (nullCount * 100.0) / totalRows;
-                
-                ColumnStatistic stat = new ColumnStatistic(i, headers[i], nullCount, nullPercentage, valueMap.size());
-                
-                // Update metadata
-                exportMetadata.updateColumnMetadata(i, nullCount, valueMap.size(), 
-                    valueMap.isEmpty() ? "" : valueMap.keySet().iterator().next());
-                
-                if (nullCount == totalRows) {
-                    emptyColumns.add(stat);
-                } else if (valueMap.size() == 1 && nullCount == 0) {
-                    stat.setSingleValue(valueMap.keySet().iterator().next());
-                    singleValueColumns.add(stat);
-                } else if (nullPercentage > 95) {
-                    sparseColumns.add(stat);
-                }
-            }
-            
-            // Write categorized columns
-            writer.write("EMPTY COLUMNS (100% null/empty):\n");
-            writer.write("---------------------------------\n");
-            for (ColumnStatistic col : emptyColumns) {
-                writer.write(String.format("Column %d: %s\n", col.index, col.name));
-            }
-            
-            writer.write("\nSINGLE VALUE COLUMNS (only one non-null distinct value):\n");
-            writer.write("--------------------------------------------------------\n");
-            for (ColumnStatistic col : singleValueColumns) {
-                writer.write(String.format("Column %d: %s = '%s'\n", col.index, col.name, col.singleValue));
-            }
-            
-            writer.write("\nSPARSE COLUMNS (>95% null/empty):\n");
-            writer.write("----------------------------------\n");
-            for (ColumnStatistic col : sparseColumns) {
-                writer.write(String.format("Column %d: %s (%.1f%% empty)\n", col.index, col.name, col.nullPercentage));
-            }
-            
-            writer.write("\nDETAILED COLUMN STATISTICS:\n");
-            writer.write("---------------------------\n");
-            writeDetailedStatistics(writer, headers);
-            
-            logger.info("Statistics written to: {}", statsPath);
-            
-        } catch (IOException e) {
-            logger.error("Failed to write statistics file", e);
-        }
-    }
-    
-    /**
-     * Write detailed column statistics
-     */
-    private void writeDetailedStatistics(FileWriter writer, String[] headers) throws IOException {
-        for (int i = 0; i < headers.length; i++) {
-            writer.write(String.format("\nColumn %d: %s\n", i, headers[i]));
-            writer.write(String.format("  Null/Empty count: %d (%.2f%%)\n", 
-                nullCounts.get(i), (nullCounts.get(i) * 100.0) / totalRows));
-            
-            Map<String, Integer> valueMap = columnStats.get(i);
-            writer.write(String.format("  Distinct values: %d\n", valueMap.size()));
-            
-            if (valueMap.size() > 0 && valueMap.size() <= 10) {
-                writer.write("  Value distribution:\n");
-                valueMap.entrySet().stream()
-                    .sorted(Map.Entry.<String, Integer>comparingByValue().reversed())
-                    .limit(10)
-                    .forEach(entry -> {
-                        try {
-                            writer.write(String.format("    '%s': %d (%.2f%%)\n", 
-                                entry.getKey().length() > 50 ? entry.getKey().substring(0, 50) + "..." : entry.getKey(),
-                                entry.getValue(), 
-                                (entry.getValue() * 100.0) / totalRows));
-                        } catch (IOException e) {
-                            logger.error("Error writing statistics", e);
-                        }
-                    });
-            }
-        }
-    }
-    
-    /**
-     * Write machine-readable metadata file
-     * @deprecated This method is not used by Enhanced exporters which save summaries through FieldStatisticsCollector.
-     *             Kept for potential future use but currently not called.
-     */
-    @Deprecated
-    protected void writeMetadataFile(String metadataPath) {
-        try (FileWriter writer = new FileWriter(metadataPath)) {
-            writer.write(exportMetadata.toJson());
-            logger.info("Metadata written to: {}", metadataPath);
-        } catch (IOException e) {
-            logger.error("Failed to write metadata file", e);
-        }
-    }
-    
-    /**
-     * Safe string getter
-     */
-    protected String safeGetString(Document doc, String field) {
-        if (doc == null) return "";
-        Object value = doc.get(field);
-        return value != null ? value.toString() : "";
-    }
-    
-    /**
-     * Safe double getter
-     */
-    protected Double safeGetDouble(Document doc, String field) {
-        if (doc == null) return null;
-        Object value = doc.get(field);
-        if (value instanceof Number) {
-            return ((Number) value).doubleValue();
-        }
-        return null;
-    }
-    
-    /**
-     * Safe string list getter
-     */
-    protected List<String> safeGetStringList(Document doc, String field) {
-        if (doc == null) return new ArrayList<>();
-        Object value = doc.get(field);
-        if (value instanceof List) {
-            List<String> result = new ArrayList<>();
-            for (Object item : (List<?>) value) {
-                if (item != null) {
-                    result.add(item.toString());
-                }
-            }
-            return result;
-        }
-        return new ArrayList<>();
-    }
-    
-    /**
-     * Log progress during processing
-     */
-    protected void logProgress(int count, long startTime, String entityName) {
-        if (count % 5000 == 0) {
-            long currentTime = System.currentTimeMillis();
-            double secondsElapsed = (currentTime - startTime) / 1000.0;
-            double rate = count / secondsElapsed;
-            logger.info("Processed {} {}... ({} {}/sec)", 
-                count, entityName, String.format("%.1f", rate), entityName);
-        }
-    }
-    
-    /**
-     * Save basic summary when field statistics are not enabled
-     */
-    private void saveBasicSummary(String path, int rowCount, double processingTime) {
-        try (FileWriter writer = new FileWriter(path)) {
-            Map<String, Object> summary = new HashMap<>();
-            summary.put("collectionName", getCollectionName());
-            summary.put("exportDate", new Date());
-            summary.put("totalDocuments", rowCount);
-            summary.put("processingTimeSeconds", processingTime);
-            summary.put("rowsPerSecond", rowCount / processingTime);
-            summary.put("exporterClass", this.getClass().getSimpleName());
-            
+    // Save basic summary when field statistics are not enabled
+    private void saveBasicSummary(String path, int rowCount, double seconds) {
+        try {
             ObjectMapper mapper = new ObjectMapper();
             mapper.enable(SerializationFeature.INDENT_OUTPUT);
-            mapper.writeValue(writer, summary);
-            
-            logger.info("Basic summary saved to: {}", path);
+            Map<String, Object> summary = new HashMap<>();
+            summary.put("collection", getCollectionName());
+            summary.put("rowCount", rowCount);
+            summary.put("processingTimeSeconds", seconds);
+            summary.put("timestamp", new Date());
+            mapper.writeValue(new File(path), summary);
         } catch (IOException e) {
-            logger.error("Failed to save basic summary", e);
+            logger.warn("Failed to save basic summary: {}", e.getMessage());
         }
     }
     
-    /**
-     * Functional interface for export processing
-     */
-    @FunctionalInterface
+    // Functional interface for export processing
     protected interface ExportProcessor {
         int process(CSVWriter csvWriter) throws IOException;
     }
     
-    /**
-     * Helper class for column statistics
-     */
-    private static class ColumnStatistic {
-        final int index;
-        final String name;
-        final int nullCount;
-        final double nullPercentage;
-        final int distinctValues;
-        String singleValue;
-        
-        ColumnStatistic(int index, String name, int nullCount, double nullPercentage, int distinctValues) {
-            this.index = index;
-            this.name = name;
-            this.nullCount = nullCount;
-            this.nullPercentage = nullPercentage;
-            this.distinctValues = distinctValues;
-        }
-        
-        void setSingleValue(String value) {
-            this.singleValue = value;
-        }
-    }
 }

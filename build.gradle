@@ -51,70 +51,31 @@ task autoDiscover(type: JavaExec) {
     description = '★ RECOMMENDED: Automatically discovers all fields, filters by distinct values (>2), uses business names'
 }
 
-// Filtered Export - Maximum filtering for clean data
-task filteredExport(type: JavaExec) {
-    classpath = sourceSets.main.runtimeClasspath
-    mainClass = 'com.example.mongoexport.ComprehensiveExporter'
-    jvmArgs = ['-Xmx16g', '-Xms8g']
-    doFirst {
-        def collection = project.hasProperty('collection') ? project.property('collection') : 'listings'
-        args = ['filtered', collection]
-    }
-    description = 'Export with maximum filtering - excludes empty, single-value, and sparse columns'
+// All exports now use the same AutoDiscoveryExporter
+task filteredExport(dependsOn: autoDiscover) {
+    description = 'Alias for autoDiscover - all exports now use the same intelligent filtering'
 }
 
-// Full Export - Everything including relationships
-task fullExport(type: JavaExec) {
-    classpath = sourceSets.main.runtimeClasspath
-    mainClass = 'com.example.mongoexport.ComprehensiveExporter'
-    jvmArgs = ['-Xmx20g', '-Xms10g']
-    doFirst {
-        def collection = project.hasProperty('collection') ? project.property('collection') : 'listings'
-        args = ['full', collection]
-    }
-    description = 'Full export with relationship expansion and all fields'
+task fullExport(dependsOn: autoDiscover) {
+    description = 'Alias for autoDiscover - all exports include relationship expansion'
 }
 
-// Analysis Only - No export, just field analysis
+// Analysis Only - Same as autoDiscover
 task analyzeFields(type: JavaExec) {
     classpath = sourceSets.main.runtimeClasspath
-    mainClass = 'com.example.mongoexport.ComprehensiveExporter'
+    mainClass = 'com.example.mongoexport.AutoDiscoveryExporter'
     jvmArgs = ['-Xmx16g', '-Xms8g']
     doFirst {
         def collection = project.hasProperty('collection') ? project.property('collection') : 'listings'
-        args = ['analyze', collection]
+        args = [collection]
     }
-    description = 'Analyze fields without exporting data - generates statistics only'
+    description = 'Alias for autoDiscover - analyzes and exports'
 }
 
 // ============================================
 // UTILITY TASKS
 // ============================================
-
-// Smart Export with command-line options (Legacy)
-task smartExport(type: JavaExec) {
-    classpath = sourceSets.main.runtimeClasspath
-    mainClass = 'com.example.mongoexport.SmartExporter'
-    jvmArgs = ['-Xmx20g', '-Xms10g']
-    doFirst {
-        def exportArgs = project.hasProperty('exportArgs') ? 
-            project.property('exportArgs').toString().split(' ') : ['export', 'listings']
-        args = exportArgs
-    }
-    description = 'Legacy smart export with field filtering'
-}
-
-// Field Scanner
-task scanFields(type: JavaExec) {
-    classpath = sourceSets.main.runtimeClasspath
-    mainClass = 'com.example.mongoexport.FieldScanner'
-    jvmArgs = ['-Xmx8g', '-Xms4g']
-    doFirst {
-        def collection = project.hasProperty('collection') ? project.property('collection') : 'listings'
-        args = [collection]
-    }
-    description = 'Scan a collection to analyze field usage patterns'
-}
+// All legacy tasks removed - use autoDiscover instead
 
 // ============================================
 // CONVENIENCE ALIASES
