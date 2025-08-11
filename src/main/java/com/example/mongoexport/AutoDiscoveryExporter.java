@@ -142,6 +142,20 @@ public class AutoDiscoveryExporter extends AbstractUltraExporter {
             }
         }
         
+        // CRITICAL FIX: Ensure business IDs are always discovered even if not in sample
+        if (collectionName.equals("listings")) {
+            // Add listings-specific business IDs
+            discoveredFieldPaths.add("mlsNumber");
+            discoveredFieldPaths.add("listingId");
+            logger.info("Added business ID fields for listings: mlsNumber, listingId");
+        } else if (collectionName.equals("transactions")) {
+            discoveredFieldPaths.add("transactionId");
+            logger.info("Added business ID field for transactions: transactionId");
+        } else if (collectionName.equals("agents")) {
+            discoveredFieldPaths.add("agentId");
+            logger.info("Added business ID field for agents: agentId");
+        }
+        
         logger.info("Discovery complete: Found {} unique field paths in {} documents", 
             discoveredFieldPaths.size(), scanned);
     }
@@ -650,10 +664,12 @@ public class AutoDiscoveryExporter extends AbstractUltraExporter {
             String reason = "";
             
             // FIRST: Check if this is a business ID that must be kept
-            if (BUSINESS_IDS.contains(fieldName) && distinctNonNullCount > 0) {
+            // CRITICAL FIX: Keep business IDs even if they're empty in the sample!
+            if (BUSINESS_IDS.contains(fieldName)) {
                 include = true;
-                reason = "business ID";
+                reason = "business ID (preserved)";
                 businessIdsKept++;
+                logger.info("Preserving business ID field: {} (distinct values: {})", fieldPath, distinctNonNullCount);
             }
             // EXCLUDE technical ID fields (but not business IDs)
             else if (fieldPath.equals("_id") || 
