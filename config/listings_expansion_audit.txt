@@ -2,7 +2,7 @@
 FIELD EXPANSION AUDIT TREE
 =================================================================
 Collection: listings
-Generated: Mon Aug 11 08:05:08 UTC 2025
+Generated: Mon Aug 11 08:07:31 UTC 2025
 Total Fields: 139
 Included Fields: 53
 Expansion Depth: 3

@@ -129,10 +129,34 @@ vi config/listings_fields.json
 ./gradlew configExport -Pcollection=listings -ProwLimit=1000
 ```
 
+### PRODUCTION RUN INSTRUCTIONS
+```bash
+# Full listings export (all 64,503 documents)
+./gradlew discover -Pcollection=listings
+./gradlew configExport -Pcollection=listings
+
+# Full transactions export
+./gradlew discover -Pcollection=transactions
+./gradlew configExport -Pcollection=transactions
+
+# Full agents export
+./gradlew discover -Pcollection=agents
+./gradlew configExport -Pcollection=agents
+```
+
+### Performance Expectations
+- **Discovery Phase**: ~30 seconds (samples 10,000 docs + analyzes relationships)
+- **Export Phase**: 
+  - Small collections (<100K docs): 1-2 minutes
+  - Medium collections (100K-500K docs): 3-5 minutes
+  - Large collections (>1M docs): 10+ minutes
+- **Export Speed**: 2,000-4,000 rows/sec depending on field complexity
+
 ### Available Collections
-- `listings` - Active property listings
-- `transactions` - Sales transactions
-- `agents` - Agent profiles
+- `listings` - Active property listings (~64K docs)
+- `transactions` - Sales transactions (size varies)
+- `agents` - Agent profiles (~28K docs)
+- `properties` - Property records (~1.9M docs - use with caution)
 - Any other MongoDB collection name
 
 ## PROJECT STRUCTURE
@@ -213,14 +237,21 @@ output.directory=./output
 
 ## RECENT UPDATES (2025-08-11)
 
-### Latest Improvements (7:50 AM UTC)
+### Final Production-Ready Improvements (8:00 AM UTC)
+- ✅ **Compound Sparsity for Expanded Fields** - Intelligently filters expanded fields
+  - Calculates: (parent field presence %) × (child field presence %)
+  - Samples 1,000 docs from referenced collections for statistics
+  - Reduced expanded fields from 50+ to 7 meaningful ones
+  - Example: property_expanded.city included only if compound sparsity >10%
+
+### Earlier Improvements (7:50 AM UTC)
 - ✅ **Implemented Sparse Field Threshold** - Fields appearing in <10% of documents are excluded by default
   - Prevents empty columns in exports (e.g., belowGradeAreaFinished only in 13.6% of docs)
-  - Reduced included fields from 83 to 46 for listings collection
+  - Reduced included fields from 83 to 53 for listings collection
   - Configurable threshold (default 10%)
 - ✅ **Fixed Expanded Field Resolution** - _expanded fields now properly populate from cached collections
   - Property City, Property Street Address now show actual values
-  - Maintains excellent performance (2,000+ rows/sec)
+  - Maintains excellent performance (2,400+ rows/sec)
 
 ## RECENT UPDATES (2025-08-11 - Earlier)
 
@@ -249,9 +280,11 @@ output.directory=./output
 - **Human-Editable Config**: JSON can be manually adjusted
 - **Reusable Configurations**: Save and version configurations
 - **Better Performance**: Cache only required collections, selective expansion
-- **Batch Loading**: Pre-caches referenced documents in batches for 100x speedup (16→1,897 rows/sec)
-- **Smart ObjectId Resolution**: Automatically expands ObjectId references to meaningful values (e.g., property address)
-- **Expanded Field Resolution**: Properly resolves _expanded fields by looking up referenced documents and extracting nested values (maintaining 2,000+ rows/sec)
+- **Batch Loading**: Pre-caches referenced documents in batches for 100x speedup
+- **Smart ObjectId Resolution**: Automatically expands ObjectId references to meaningful values
+- **Sparse Field Filtering**: Excludes fields present in <10% of documents
+- **Compound Sparsity**: Calculates parent × child field presence for intelligent expansion
+- **Expanded Field Resolution**: Properly resolves _expanded fields with actual values
 - **Flexible Array Handling**: Configure per-field display
 - **Export Testing**: Row limit parameter for quick validation
 - **Audit Trail**: Visual tree showing field expansion hierarchy

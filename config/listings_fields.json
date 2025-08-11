@@ -749,7 +749,7 @@
     }
   } ],
   "collection" : "listings",
-  "discoveredAt" : 1754899478554,
+  "discoveredAt" : 1754899620904,
   "discoveryParameters" : {
     "sampleSize" : 10000,
     "expansionDepth" : 3,
