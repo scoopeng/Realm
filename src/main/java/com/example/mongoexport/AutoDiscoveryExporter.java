@@ -463,7 +463,15 @@ public class AutoDiscoveryExporter extends AbstractUltraExporter {
                 logger.error("Export failed", e);
             }
             
-            logger.info("Export complete: Processed exactly {} documents", processedCount);
+            long endTime = System.currentTimeMillis();
+            double totalSeconds = (endTime - startTime) / 1000.0;
+            logger.info("Export complete: Processed {} of {} documents in {} seconds", 
+                processedCount, totalDocs, String.format("%.1f", totalSeconds));
+            
+            if (processedCount < totalDocs) {
+                logger.error("WARNING: Only processed {} of {} documents!", processedCount, totalDocs);
+            }
+            
             return processedCount;
         });
     }
@@ -474,6 +482,9 @@ public class AutoDiscoveryExporter extends AbstractUltraExporter {
         if (enableFieldStatistics) {
             headers = buildComprehensiveHeaders();
         }
+        
+        int successCount = 0;
+        int errorCount = 0;
         
         for (Document doc : batch) {
             try {
@@ -491,15 +502,21 @@ public class AutoDiscoveryExporter extends AbstractUltraExporter {
                 }
                 
                 csvWriter.writeNext(row);
+                successCount++;
                 
                 if (enableFieldStatistics && headers != null) {
                     collectRowStatistics(row, headers);
                 }
             } catch (Exception e) {
-                logger.error("Error processing document {}: {}", doc.get("_id"), e.getMessage());
+                errorCount++;
+                logger.error("Error processing document {}: {}", doc.get("_id"), e.getMessage(), e);
                 // Don't write empty rows on error - skip the document instead
                 logger.warn("Skipping document due to error");
             }
+        }
+        
+        if (errorCount > 0) {
+            logger.warn("Batch processing: {} successful, {} errors", successCount, errorCount);
         }
     }
     
