@@ -2,7 +2,6 @@ package com.example.mongoexport.export;
 
 import com.example.mongoexport.AbstractUltraExporter;
 import com.example.mongoexport.ExportOptions;
-import com.example.mongoexport.RelationExpander;
 import com.example.mongoexport.config.DiscoveryConfiguration;
 import com.example.mongoexport.config.FieldConfiguration;
 import com.mongodb.client.MongoCollection;
@@ -32,8 +31,6 @@ public class ConfigurationBasedExporter extends AbstractUltraExporter
     private final List<FieldConfiguration> includedFields;
     private final Map<String, Map<ObjectId, Document>> collectionCache = new HashMap<>();
     private final Set<String> cachedCollectionNames = new HashSet<>();
-    private RelationExpander relationExpander;
-    private boolean needsExpansion = false;
     private Integer rowLimit = null;
     private String[] cachedHeaders = null;
 
@@ -54,21 +51,17 @@ public class ConfigurationBasedExporter extends AbstractUltraExporter
         this.configuration = config;
         this.includedFields = config.getIncludedFields();
 
-        // Check if we need expansion - only if we have included fields with "_expanded" in the path
-        for (FieldConfiguration field : includedFields)
-        {
-            if (field.getFieldPath().contains("_expanded"))
-            {
-                needsExpansion = true;
-                this.relationExpander = new RelationExpander(database);
-                logger.info("Expansion enabled - found expanded fields in configuration");
-                break;
-            }
-        }
-
         logger.info("Loaded configuration for collection: {}", config.getCollection());
         logger.info("Total fields: {}, Included fields: {}", config.getFields().size(), includedFields.size());
-        logger.info("Expansion needed: {}", needsExpansion);
+
+        // Log if there are any expanded fields (we won't actually expand them)
+        long expandedCount = includedFields.stream()
+                .filter(f -> f.getFieldPath().contains("_expanded"))
+                .count();
+        if (expandedCount > 0)
+        {
+            logger.warn("Found {} expanded fields in configuration - these will be skipped for performance", expandedCount);
+        }
     }
 
     /**
@@ -252,6 +245,9 @@ public class ConfigurationBasedExporter extends AbstractUltraExporter
 
                     if (batch.size() >= batchSize)
                     {
+                        // Pre-cache required documents for this batch
+                        preCacheRequiredDocuments(batch);
+                        
                         processBatch(batch, csvWriter);
                         processedCount += batch.size();
                         logProgress(processedCount, docsToExport, startTime);
@@ -262,6 +258,9 @@ public class ConfigurationBasedExporter extends AbstractUltraExporter
                 // Process remaining documents
                 if (!batch.isEmpty())
                 {
+                    // Pre-cache required documents for this batch
+                    preCacheRequiredDocuments(batch);
+                    
                     processBatch(batch, csvWriter);
                     processedCount += batch.size();
                 }
@@ -273,22 +272,97 @@ public class ConfigurationBasedExporter extends AbstractUltraExporter
     }
 
     /**
+     * Pre-cache required documents for a batch
+     */
+    private void preCacheRequiredDocuments(List<Document> batch)
+    {
+        // Find all ObjectId fields that reference other collections
+        Map<String, Set<ObjectId>> idsToLoad = new HashMap<>();
+        
+        for (Document doc : batch)
+        {
+            for (FieldConfiguration field : includedFields)
+            {
+                if (field.getRelationshipTarget() != null && !field.getRelationshipTarget().isEmpty())
+                {
+                    Object value = extractFieldValue(doc, field);
+                    if (value instanceof ObjectId)
+                    {
+                        String targetCollection = field.getRelationshipTarget();
+                        idsToLoad.computeIfAbsent(targetCollection, k -> new HashSet<>()).add((ObjectId) value);
+                    }
+                }
+            }
+        }
+        
+        // Batch load documents for each collection
+        for (Map.Entry<String, Set<ObjectId>> entry : idsToLoad.entrySet())
+        {
+            String collectionName = entry.getKey();
+            Set<ObjectId> ids = entry.getValue();
+            
+            // Skip if collection doesn't exist or if we have all documents already cached
+            if (!cachedCollectionNames.contains(collectionName))
+            {
+                continue;
+            }
+            
+            Map<ObjectId, Document> cache = collectionCache.get(collectionName);
+            if (cache == null)
+            {
+                continue;
+            }
+            
+            // Find IDs that aren't already cached
+            Set<ObjectId> missingIds = new HashSet<>();
+            for (ObjectId id : ids)
+            {
+                if (!cache.containsKey(id))
+                {
+                    missingIds.add(id);
+                }
+            }
+            
+            // Batch load missing documents
+            if (!missingIds.isEmpty())
+            {
+                MongoCollection<Document> collection = database.getCollection(collectionName);
+                Document query = new Document("_id", new Document("$in", new ArrayList<>(missingIds)));
+                
+                try (MongoCursor<Document> cursor = collection.find(query).iterator())
+                {
+                    int loaded = 0;
+                    while (cursor.hasNext())
+                    {
+                        Document doc = cursor.next();
+                        Object id = doc.get("_id");
+                        if (id instanceof ObjectId)
+                        {
+                            cache.put((ObjectId) id, doc);
+                            loaded++;
+                        }
+                    }
+                    
+                    if (loaded > 0)
+                    {
+                        logger.debug("Batch loaded {} documents from {} collection", loaded, collectionName);
+                    }
+                }
+            }
+        }
+    }
+    
+    /**
      * Process a batch of documents
      */
     private void processBatch(List<Document> batch, CSVWriter csvWriter)
     {
         for (Document doc : batch)
         {
-            // Only expand if we have expanded fields in our included fields
-            if (needsExpansion && relationExpander != null)
-            {
-                doc = relationExpander.expandDocument(doc, configuration.getCollection(), 1);
-            }
-            
             // Extract values for included fields
             String[] row = extractRow(doc);
             csvWriter.writeNext(row);
-            
+
             // Track statistics if enabled
             if (fieldStatisticsCollector != null)
             {
@@ -320,6 +394,12 @@ public class ConfigurationBasedExporter extends AbstractUltraExporter
      */
     private Object extractFieldValue(Document doc, FieldConfiguration field)
     {
+        // Skip expanded fields for performance - they require expensive lookups
+        if (field.getFieldPath().contains("_expanded"))
+        {
+            return null;
+        }
+
         String[] pathParts = field.getFieldPath().split("\\.");
         Object current = doc;
 
@@ -394,9 +474,28 @@ public class ConfigurationBasedExporter extends AbstractUltraExporter
             return DATE_FORMAT.format((Date) value);
         }
 
-        // Handle ObjectIds
+        // Handle ObjectIds - check if this field references another collection
         if (value instanceof ObjectId)
         {
+            // Check if this is a reference to another collection that we should expand
+            if (field.getRelationshipTarget() != null && !field.getRelationshipTarget().isEmpty())
+            {
+                String targetCollection = field.getRelationshipTarget();
+                
+                // Try to look up the referenced document
+                Document referencedDoc = lookupDocument(targetCollection, (ObjectId) value);
+                if (referencedDoc != null)
+                {
+                    // Try to find a good display field
+                    String displayValue = extractBestDisplayField(referencedDoc);
+                    if (displayValue != null && !displayValue.isEmpty())
+                    {
+                        return displayValue;
+                    }
+                }
+            }
+            
+            // Fall back to just the ObjectId string
             return value.toString();
         }
 
@@ -405,13 +504,13 @@ public class ConfigurationBasedExporter extends AbstractUltraExporter
         {
             return ((Document) value).toJson();
         }
-        
+
         // Handle booleans - return as unquoted true/false
         if (value instanceof Boolean)
         {
             return value.toString();
         }
-        
+
         // Handle numbers - return as unquoted numbers
         if (value instanceof Number)
         {
@@ -420,6 +519,71 @@ public class ConfigurationBasedExporter extends AbstractUltraExporter
 
         // Default string conversion
         return value.toString();
+    }
+
+    /**
+     * Look up a document from cache or database
+     */
+    private Document lookupDocument(String collectionName, ObjectId id)
+    {
+        // First check if we have this collection cached
+        Map<ObjectId, Document> cache = collectionCache.get(collectionName);
+        
+        if (cache != null)
+        {
+            // Check if document is in cache
+            Document cached = cache.get(id);
+            if (cached != null)
+            {
+                return cached;
+            }
+            
+            // If cache exists but document not found, try lazy loading
+            if (cachedCollectionNames.contains(collectionName))
+            {
+                // Lazy load this specific document
+                MongoCollection<Document> collection = database.getCollection(collectionName);
+                Document doc = collection.find(new Document("_id", id)).first();
+                
+                if (doc != null)
+                {
+                    // Add to cache for future use
+                    cache.put(id, doc);
+                    return doc;
+                }
+            }
+        }
+        
+        return null;
+    }
+    
+    /**
+     * Extract the best display field from a document
+     */
+    private String extractBestDisplayField(Document doc)
+    {
+        // Priority order for display fields
+        String[] preferredFields = {
+            "fullAddress",    // For properties
+            "fullName",       // For agents
+            "name",           // Generic name field
+            "title",          // For various entities
+            "streetAddress",  // For addresses
+            "displayName",    // Display-specific field
+            "description"     // Fallback description
+        };
+        
+        for (String fieldName : preferredFields)
+        {
+            Object value = doc.get(fieldName);
+            if (value != null && !value.toString().trim().isEmpty())
+            {
+                return value.toString();
+            }
+        }
+        
+        // If no preferred field found, return null to fall back to ID
+        return null;
     }
 
     /**

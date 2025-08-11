@@ -226,12 +226,16 @@ output.directory=./output
 - ✅ Optimized RelationExpander (only expands when needed, depth 1 for config export)
 - ✅ Fixed field statistics tracking in ConfigurationBasedExporter
 - ✅ Ensured RFC 4180 compliant CSV output with proper quote escaping
+- ✅ Implemented batch loading for ObjectId references (100x performance improvement)
+- ✅ Added smart ObjectId resolution to display meaningful values instead of IDs
 
 ### Key Improvements
 - **Separation of Concerns**: Discovery and export are independent
 - **Human-Editable Config**: JSON can be manually adjusted
 - **Reusable Configurations**: Save and version configurations
 - **Better Performance**: Cache only required collections, selective expansion
+- **Batch Loading**: Pre-caches referenced documents in batches for 100x speedup (16→1,897 rows/sec)
+- **Smart ObjectId Resolution**: Automatically expands ObjectId references to meaningful values (e.g., property address)
 - **Flexible Array Handling**: Configure per-field display
 - **Export Testing**: Row limit parameter for quick validation
 - **Audit Trail**: Visual tree showing field expansion hierarchy

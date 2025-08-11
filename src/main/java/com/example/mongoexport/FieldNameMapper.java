@@ -7,14 +7,16 @@ import java.util.Map;
  * Maps MongoDB field paths to business-readable column names.
  * This centralizes all field naming logic for consistent, user-friendly exports.
  */
-public class FieldNameMapper {
+public class FieldNameMapper
+{
     private static final Map<String, String> FIELD_MAPPINGS = new HashMap<>();
-    
-    static {
+
+    static
+    {
         // Core document fields
         FIELD_MAPPINGS.put("_id", "Record ID");
         FIELD_MAPPINGS.put("__v", "Version");
-        
+
         // Listing core fields
         FIELD_MAPPINGS.put("mlsNumber", "MLS Number");
         FIELD_MAPPINGS.put("listingId", "Listing ID");
@@ -30,7 +32,7 @@ public class FieldNameMapper {
         FIELD_MAPPINGS.put("archived", "Archive Date");
         FIELD_MAPPINGS.put("deleted", "Is Deleted");
         FIELD_MAPPINGS.put("importDate", "Import Date");
-        
+
         // Property details
         FIELD_MAPPINGS.put("property", "Property ID");
         FIELD_MAPPINGS.put("property._id", "Property Record ID");
@@ -46,7 +48,7 @@ public class FieldNameMapper {
         FIELD_MAPPINGS.put("yearBuilt", "Year Built");
         FIELD_MAPPINGS.put("stories", "Stories");
         FIELD_MAPPINGS.put("rooms", "Total Rooms");
-        
+
         // Address fields
         FIELD_MAPPINGS.put("fullAddress", "Full Address");
         FIELD_MAPPINGS.put("streetAddress", "Street Address");
@@ -66,7 +68,7 @@ public class FieldNameMapper {
         FIELD_MAPPINGS.put("location.latitude", "Location Latitude");
         FIELD_MAPPINGS.put("location.longitude", "Location Longitude");
         FIELD_MAPPINGS.put("displayAddress", "Display Address");
-        
+
         // Features and amenities
         FIELD_MAPPINGS.put("hasBasement", "Has Basement");
         FIELD_MAPPINGS.put("hasFireplace", "Has Fireplace");
@@ -84,7 +86,7 @@ public class FieldNameMapper {
         FIELD_MAPPINGS.put("flooring", "Flooring");
         FIELD_MAPPINGS.put("parking", "Parking");
         FIELD_MAPPINGS.put("parkingSpaces", "Parking Spaces");
-        
+
         // Marketing fields
         FIELD_MAPPINGS.put("description", "Description");
         FIELD_MAPPINGS.put("description.en", "Description (English)");
@@ -94,7 +96,7 @@ public class FieldNameMapper {
         FIELD_MAPPINGS.put("virtualTourUrl", "Virtual Tour URL");
         FIELD_MAPPINGS.put("photos", "Photos");
         FIELD_MAPPINGS.put("photosCount", "Photos Count");
-        
+
         // Agent fields
         FIELD_MAPPINGS.put("listingAgentId", "Listing Agent ID");
         FIELD_MAPPINGS.put("listingAgent", "Listing Agent ID");
@@ -108,7 +110,7 @@ public class FieldNameMapper {
         FIELD_MAPPINGS.put("listingAgents[].email", "Listing Agent Email");
         FIELD_MAPPINGS.put("listingAgents[].phone", "Listing Agent Phone");
         FIELD_MAPPINGS.put("listingAgents[].isPrimary", "Is Primary Agent");
-        
+
         // Brokerage fields
         FIELD_MAPPINGS.put("listingBrokerageId", "Listing Brokerage ID");
         FIELD_MAPPINGS.put("listingBrokerage", "Listing Brokerage ID");
@@ -116,7 +118,7 @@ public class FieldNameMapper {
         FIELD_MAPPINGS.put("listingBrokerage.phone", "Listing Brokerage Phone");
         FIELD_MAPPINGS.put("listingBrokerage.address", "Listing Brokerage Address");
         FIELD_MAPPINGS.put("listingBrokerage.email", "Listing Brokerage Email");
-        
+
         // Financial fields
         FIELD_MAPPINGS.put("taxAmount", "Tax Amount");
         FIELD_MAPPINGS.put("taxYear", "Tax Year");
@@ -128,19 +130,19 @@ public class FieldNameMapper {
         FIELD_MAPPINGS.put("fees[].feeAmount", "Fee Amount");
         FIELD_MAPPINGS.put("fees[].feeType", "Fee Type");
         FIELD_MAPPINGS.put("fees[].feeFrequency", "Fee Frequency");
-        
+
         // School fields
         FIELD_MAPPINGS.put("elementarySchool", "Elementary School");
         FIELD_MAPPINGS.put("middleSchool", "Middle School");
         FIELD_MAPPINGS.put("highSchool", "High School");
         FIELD_MAPPINGS.put("schoolDistrict", "School District");
-        
+
         // HOA and community
         FIELD_MAPPINGS.put("hoaName", "HOA Name");
         FIELD_MAPPINGS.put("subdivision", "Subdivision");
         FIELD_MAPPINGS.put("community", "Community");
         FIELD_MAPPINGS.put("communityFeatures", "Community Features");
-        
+
         // Transaction fields
         FIELD_MAPPINGS.put("buyerAgentId", "Buyer Agent ID");
         FIELD_MAPPINGS.put("buyerAgent", "Buyer Agent ID");
@@ -148,7 +150,7 @@ public class FieldNameMapper {
         FIELD_MAPPINGS.put("buyerBrokerageId", "Buyer Brokerage ID");
         FIELD_MAPPINGS.put("buyerBrokerage", "Buyer Brokerage ID");
         FIELD_MAPPINGS.put("buyerBrokerage.name", "Buyer Brokerage Name");
-        
+
         // Showing and access
         FIELD_MAPPINGS.put("showingInstructions", "Showing Instructions");
         FIELD_MAPPINGS.put("showingContactName", "Showing Contact Name");
@@ -157,7 +159,7 @@ public class FieldNameMapper {
         FIELD_MAPPINGS.put("lockboxType", "Lockbox Type");
         FIELD_MAPPINGS.put("lockboxCode", "Lockbox Code");
         FIELD_MAPPINGS.put("alwaysEmailAgent", "Always Email Agent");
-        
+
         // Status and timestamps
         FIELD_MAPPINGS.put("listingStatus", "Listing Status");
         FIELD_MAPPINGS.put("standardStatus", "Standard Status");
@@ -171,7 +173,7 @@ public class FieldNameMapper {
         FIELD_MAPPINGS.put("createdAt", "Created At");
         FIELD_MAPPINGS.put("updatedAt", "Updated At");
         FIELD_MAPPINGS.put("lastModified", "Last Modified");
-        
+
         // Source and MLS fields
         FIELD_MAPPINGS.put("sourceSystemId", "Source System ID");
         FIELD_MAPPINGS.put("sourceSystemName", "Source System Name");
@@ -179,7 +181,7 @@ public class FieldNameMapper {
         FIELD_MAPPINGS.put("mlsName", "MLS Name");
         FIELD_MAPPINGS.put("mlsAreaMajor", "MLS Area Major");
         FIELD_MAPPINGS.put("mlsAreaMinor", "MLS Area Minor");
-        
+
         // Additional property features
         FIELD_MAPPINGS.put("waterfront", "Waterfront");
         FIELD_MAPPINGS.put("waterfrontFeatures", "Waterfront Features");
@@ -190,14 +192,14 @@ public class FieldNameMapper {
         FIELD_MAPPINGS.put("foundationDetails", "Foundation Details");
         FIELD_MAPPINGS.put("basementType", "Basement Type");
         FIELD_MAPPINGS.put("basementFinished", "Basement Finished");
-        
+
         // Utility fields
         FIELD_MAPPINGS.put("utilities", "Utilities");
         FIELD_MAPPINGS.put("waterSource", "Water Source");
         FIELD_MAPPINGS.put("sewerType", "Sewer Type");
         FIELD_MAPPINGS.put("electricService", "Electric Service");
         FIELD_MAPPINGS.put("gasType", "Gas Type");
-        
+
         // Occupancy and possession
         FIELD_MAPPINGS.put("occupancy", "Occupancy");
         FIELD_MAPPINGS.put("possession", "Possession");
@@ -205,122 +207,132 @@ public class FieldNameMapper {
         FIELD_MAPPINGS.put("rentAmount", "Rent Amount");
         FIELD_MAPPINGS.put("leaseExpiration", "Lease Expiration");
         FIELD_MAPPINGS.put("tenantPays", "Tenant Pays");
-        
+
         // Reference fields (for relationships)
         FIELD_MAPPINGS.put("@reference", "Reference");
         FIELD_MAPPINGS.put("_id.@reference", "ID Reference");
         FIELD_MAPPINGS.put("property.@reference", "Property Reference");
         FIELD_MAPPINGS.put("listingAgentId.@reference", "Listing Agent Reference");
-        
+
         // Custom and other fields
         FIELD_MAPPINGS.put("customFields", "Custom Fields");
         FIELD_MAPPINGS.put("additionalInfo", "Additional Info");
         FIELD_MAPPINGS.put("notes", "Notes");
         FIELD_MAPPINGS.put("internalNotes", "Internal Notes");
     }
-    
+
     /**
      * Get business-readable name for a MongoDB field path
      * FIXED: Clean technical markers before mapping
+     *
      * @param fieldPath MongoDB dot-notation field path
      * @return Business-readable column name
      */
-    public static String getBusinessName(String fieldPath) {
+    public static String getBusinessName(String fieldPath)
+    {
         // CRITICAL FIX: Clean up technical markers FIRST
-        String cleanPath = fieldPath
-            .replace(".@expanded", "")
-            .replace("_expanded", "")
-            .replace(".@reference", "")
-            .replaceAll("\\[\\d+\\]", "[]"); // Also handle array indices
-        
+        String cleanPath = fieldPath.replace(".@expanded", "").replace("_expanded", "").replace(".@reference", "").replaceAll("\\[\\d+\\]", "[]"); // Also handle array indices
+
         // Check for direct mapping with clean path
-        if (FIELD_MAPPINGS.containsKey(cleanPath)) {
+        if (FIELD_MAPPINGS.containsKey(cleanPath))
+        {
             return FIELD_MAPPINGS.get(cleanPath);
         }
-        
+
         // Handle array notation for the cleaned path
         String normalizedPath = cleanPath.replaceAll("\\[\\]", "");
-        if (FIELD_MAPPINGS.containsKey(normalizedPath)) {
+        if (FIELD_MAPPINGS.containsKey(normalizedPath))
+        {
             return FIELD_MAPPINGS.get(normalizedPath) + " (List)";
         }
-        
+
         // Handle nested fields by checking parent paths
-        if (fieldPath.contains(".")) {
+        if (fieldPath.contains("."))
+        {
             String[] parts = fieldPath.split("\\.");
-            
+
             // Try to build a readable name from parts
             StringBuilder readableName = new StringBuilder();
-            for (String part : parts) {
+            for (String part : parts)
+            {
                 // Skip array indices
                 if (part.matches("\\d+")) continue;
-                
+
                 // Clean up array notation
                 part = part.replaceAll("\\[.*?\\]", "");
-                
+
                 // Skip certain technical fields
-                if (part.equals("@reference") || part.equals("_id")) {
+                if (part.equals("@reference") || part.equals("_id"))
+                {
                     continue;
                 }
-                
+
                 // Capitalize first letter and add to name
-                if (readableName.length() > 0) {
+                if (!readableName.isEmpty())
+                {
                     readableName.append(" ");
                 }
                 readableName.append(capitalizeFirst(camelToWords(part)));
             }
-            
-            if (readableName.length() > 0) {
+
+            if (!readableName.isEmpty())
+            {
                 return readableName.toString();
             }
         }
-        
+
         // Default: convert camelCase to readable format
         return capitalizeFirst(camelToWords(fieldPath));
     }
-    
+
     /**
      * Convert camelCase to space-separated words
      */
-    private static String camelToWords(String camelCase) {
-        if (camelCase == null || camelCase.isEmpty()) {
+    private static String camelToWords(String camelCase)
+    {
+        if (camelCase == null || camelCase.isEmpty())
+        {
             return camelCase;
         }
-        
+
         // Handle special cases
         camelCase = camelCase.replace("_id", "ID");
         camelCase = camelCase.replace("__v", "Version");
-        
+
         // Insert spaces before capitals
         String result = camelCase.replaceAll("([a-z])([A-Z])", "$1 $2");
-        
+
         // Handle acronyms
         result = result.replaceAll("([A-Z]+)([A-Z][a-z])", "$1 $2");
-        
+
         return result;
     }
-    
+
     /**
      * Capitalize first letter of a string
      */
-    private static String capitalizeFirst(String str) {
-        if (str == null || str.isEmpty()) {
+    private static String capitalizeFirst(String str)
+    {
+        if (str == null || str.isEmpty())
+        {
             return str;
         }
         return str.substring(0, 1).toUpperCase() + str.substring(1);
     }
-    
+
     /**
      * Add a custom field mapping
      */
-    public static void addMapping(String fieldPath, String businessName) {
+    public static void addMapping(String fieldPath, String businessName)
+    {
         FIELD_MAPPINGS.put(fieldPath, businessName);
     }
-    
+
     /**
      * Check if a field path has a mapping
      */
-    public static boolean hasMapping(String fieldPath) {
-        return FIELD_MAPPINGS.containsKey(fieldPath) || 
-               FIELD_MAPPINGS.containsKey(fieldPath.replaceAll("\\[\\d+\\]", "[]"));
+    public static boolean hasMapping(String fieldPath)
+    {
+        return FIELD_MAPPINGS.containsKey(fieldPath) || FIELD_MAPPINGS.containsKey(fieldPath.replaceAll("\\[\\d+\\]", "[]"));
     }
 }
