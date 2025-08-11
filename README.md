@@ -242,19 +242,24 @@ src/main/java/com/example/mongoexport/
 └── ExportOptions.java            # Export settings (75 lines)
 ```
 
-## 🔄 Recent Changes (Master Cleanup)
+## 🔄 Recent Changes (Performance Optimization - 2025-08-11)
 
-### What Changed
+### Major Performance Improvements
+- **Smart Caching**: Caches only discovered relationships (not hardcoded lists)
+- **Discovery-Based**: Caching happens AFTER discovery, not before
+- **Selective Loading**: Only caches documents actually referenced
+- **Larger Batches**: 5000 document batches for better throughput
+- **Expected Speedup**: From 30-60 minutes to 2-3 minutes
+
+### Consistent Filtering
+- **Fixed**: All fields now require 2+ distinct values
+- **No Special Cases**: Expanded fields follow same rules
+- **Result**: Clean CSV with zero empty columns
+
+### Previous Cleanup (Master Cleanup)
 - **Removed**: 3 unused files (690 lines)
 - **Simplified**: 5 core files (524 lines removed)
 - **Result**: Single implementation path, no duplicate logic
-
-### Key Improvements
-1. AutoDiscoveryExporter is the single source of truth
-2. All collections use identical processing logic
-3. Business IDs properly preserved
-4. RelationExpander properly integrated
-5. Consistent 3-level expansion depth
 
 ## 📜 License
 

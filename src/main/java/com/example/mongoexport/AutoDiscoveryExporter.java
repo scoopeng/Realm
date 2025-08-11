@@ -2,6 +2,8 @@ package com.example.mongoexport;
 
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoCursor;
+import com.mongodb.client.model.Filters;
+import com.mongodb.client.model.Projections;
 import com.opencsv.CSVWriter;
 import org.bson.Document;
 import org.bson.types.ObjectId;
@@ -42,6 +44,9 @@ public class AutoDiscoveryExporter extends AbstractUltraExporter {
     private final boolean useBusinessNames = true; // Use readable business names
     private final Set<String> includedFieldPaths = new LinkedHashSet<>(); // Fields that meet criteria
     
+    // Track discovered foreign key fields and their target collections
+    private final Map<String, String> discoveredRelationships = new ConcurrentHashMap<>();
+    
     public AutoDiscoveryExporter(String collectionName, ExportOptions options) {
         super(options != null ? options : ExportOptions.builder()
             .enableFieldStatistics(true)
@@ -79,10 +84,6 @@ public class AutoDiscoveryExporter extends AbstractUltraExporter {
         logger.info("  - Expand relationships: {}", autoExpandRelations);
         logger.info("This will automatically discover fields and export only those with meaningful data");
         
-        // Phase 0: Pre-cache collections for fast lookups
-        logger.info("\n=== PHASE 0: PRE-CACHING COLLECTIONS ===");
-        loadCollectionsIntoMemory();
-        
         // Phase 1: Discovery
         logger.info("\n=== PHASE 1: FIELD DISCOVERY ===");
         discoverAllFields();
@@ -91,9 +92,10 @@ public class AutoDiscoveryExporter extends AbstractUltraExporter {
         logger.info("\n=== PHASE 2: RELATIONSHIP DISCOVERY ===");
         discoverRelationships();
         
-        // Phase 2.5: Filter fields based on distinct values
-        logger.info("\n=== PHASE 2.5: FIELD FILTERING ===");
+        // Phase 2.5: Filter fields AND cache discovered relationships
+        logger.info("\n=== PHASE 2.5: FIELD FILTERING AND SMART CACHING ===");
         filterFieldsByDistinctValues();
+        loadCollectionsBasedOnDiscovery(); // Smart caching based on discovered relationships
         
         // Phase 3: Export with filtered fields
         logger.info("\n=== PHASE 3: EXPORT WITH FILTERED FIELDS ===");
@@ -166,7 +168,9 @@ public class AutoDiscoveryExporter extends AbstractUltraExporter {
                 fieldPathCounts.merge(fieldPath, 1, Integer::sum);
                 
                 // Track sample values and nulls - FIXED to prevent memory bloat
-                if (fieldValue == null || fieldValue.toString().isEmpty()) {
+                if (fieldValue == null || 
+                    (fieldValue instanceof String && ((String) fieldValue).trim().isEmpty()) ||
+                    "null".equalsIgnoreCase(String.valueOf(fieldValue))) {
                     fieldPathNullCounts.merge(fieldPath, 1, Integer::sum);
                 } else if (!(fieldValue instanceof Document) && !(fieldValue instanceof List)) {
                     Set<String> samples = fieldPathValues.computeIfAbsent(fieldPath, k -> new HashSet<>());
@@ -284,6 +288,7 @@ public class AutoDiscoveryExporter extends AbstractUltraExporter {
         // If we found a target collection, expand it
         if (targetCollection != null) {
             logger.info("  {} -> {} (expanding)", fieldPath, targetCollection);
+            discoveredRelationships.put(fieldPath, targetCollection); // Track discovered relationship
             expandRelationFields(fieldPath, targetCollection);
         } else {
             logger.debug("  {} -> unknown collection (skipping)", fieldPath);
@@ -334,27 +339,31 @@ public class AutoDiscoveryExporter extends AbstractUltraExporter {
         exportWithStatistics(csvWriter -> {
             MongoCollection<Document> collection = database.getCollection(collectionName);
             long totalDocs = collection.countDocuments();
-            logger.info("Exporting {} documents with {} discovered fields", 
-                totalDocs, discoveredFieldPaths.size());
+            logger.info("Exporting {} documents with {} fields", totalDocs, includedFieldPaths.size());
             
             int processedCount = 0;
             long startTime = System.currentTimeMillis();
             
-            try (MongoCursor<Document> cursor = collection.find().iterator()) {
-                List<Document> batch = new ArrayList<>();
+            // Process in larger batches for efficiency
+            int batchSize = 5000; // Increased from 1000
+            
+            try (MongoCursor<Document> cursor = collection.find().batchSize(batchSize).iterator()) {
+                List<Document> batch = new ArrayList<>(batchSize);
                 
                 while (cursor.hasNext()) {
                     batch.add(cursor.next());
                     
-                    if (batch.size() >= 1000 || !cursor.hasNext()) {
+                    if (batch.size() >= batchSize || !cursor.hasNext()) {
                         processBatch(batch, csvWriter);
                         processedCount += batch.size();
                         
-                        if (processedCount % 5000 == 0) {
+                        // Progress logging
+                        if (processedCount % 10000 == 0) {
                             long elapsed = System.currentTimeMillis() - startTime;
                             double rate = processedCount / (elapsed / 1000.0);
-                            logger.info("Processed {} / {} documents ({} docs/sec)", 
-                                processedCount, totalDocs, String.format("%.0f", rate));
+                            long eta = (long)((totalDocs - processedCount) / rate);
+                            logger.info("Progress: {} / {} documents ({} docs/sec, ETA: {}s)", 
+                                processedCount, totalDocs, String.format("%.0f", rate), eta);
                         }
                         
                         batch.clear();
@@ -440,6 +449,7 @@ public class AutoDiscoveryExporter extends AbstractUltraExporter {
         
         includedFieldPaths.clear();
         int excluded = 0;
+        int alwaysEmpty = 0;
         int binary = 0;
         int multiValue = 0;
         int expandedIncluded = 0;
@@ -450,6 +460,17 @@ public class AutoDiscoveryExporter extends AbstractUltraExporter {
             int distinctNonNullCount = (values != null) ? values.size() : 0;
             int nullCount = fieldPathNullCounts.getOrDefault(fieldPath, 0);
             int totalOccurrences = fieldPathCounts.getOrDefault(fieldPath, 0);
+            
+            // Calculate actual non-null occurrences
+            int nonNullOccurrences = totalOccurrences - nullCount;
+            
+            // Skip fields that are always empty
+            if (nonNullOccurrences == 0) {
+                alwaysEmpty++;
+                excluded++;
+                logger.debug("Excluding always-empty field: {}", fieldPath);
+                continue;
+            }
             
             // Extract just the field name for business ID checking
             String fieldName = fieldPath.contains(".") ? 
@@ -474,24 +495,15 @@ public class AutoDiscoveryExporter extends AbstractUltraExporter {
                 include = false;
                 reason = "technical ID excluded";
             }
-            // Always include certain important fields (but not IDs)
-            else if (fieldPath.contains("Date") ||
+            // Always include certain important fields (IF they have 2+ distinct values)
+            else if ((fieldPath.contains("Date") ||
                      fieldPath.contains("Price") ||
-                     fieldPath.contains("Amount")) {
+                     fieldPath.contains("Amount")) && distinctNonNullCount >= minDistinctNonNullValues) {
                 include = true;
                 reason = "important field";
             }
-            // Be more lenient with expanded fields - they may have limited samples
-            else if (fieldPath.contains("@expanded")) {
-                // For expanded fields, include if they have ANY non-null values
-                // These are relationship data that we explicitly expanded
-                if (distinctNonNullCount >= 1 || totalOccurrences > 0) {
-                    include = true;
-                    expandedIncluded++;
-                    reason = "expanded field";
-                }
-            }
-            // Include if field has 2+ distinct non-null values (includes binary fields)
+            // CONSISTENT RULE: Include ANY field with 2+ distinct non-null values
+            // No special treatment for expanded fields - they follow the same rule
             else if (distinctNonNullCount >= minDistinctNonNullValues) {
                 include = true;
                 if (distinctNonNullCount == 2) {
@@ -501,11 +513,15 @@ public class AutoDiscoveryExporter extends AbstractUltraExporter {
                     multiValue++;
                     reason = "multi-value field";
                 }
+                // Track if it's an expanded field for statistics
+                if (fieldPath.contains("@expanded")) {
+                    expandedIncluded++;
+                }
             }
             // Exclude if field has 0 or 1 distinct non-null values
             else {
                 include = false;
-                reason = "single/no value";
+                reason = distinctNonNullCount == 0 ? "no values" : "single value";
             }
             
             if (include) {
@@ -519,8 +535,8 @@ public class AutoDiscoveryExporter extends AbstractUltraExporter {
             }
         }
         
-        logger.info("Field filtering complete: {} included ({} business IDs, {} binary, {} multi-value, {} expanded), {} excluded (from {} total)", 
-            includedFieldPaths.size(), businessIdsKept, binary, multiValue, expandedIncluded, excluded, discoveredFieldPaths.size());
+        logger.info("Field filtering complete: {} included ({} business IDs, {} binary, {} multi-value, {} expanded), {} excluded ({} always-empty) from {} total", 
+            includedFieldPaths.size(), businessIdsKept, binary, multiValue, expandedIncluded, excluded, alwaysEmpty, discoveredFieldPaths.size());
     }
     
     /**
@@ -743,119 +759,137 @@ public class AutoDiscoveryExporter extends AbstractUltraExporter {
     
     @Override
     protected void loadCollectionsIntoMemory() {
-        logger.info("Pre-caching collections for fast lookups...");
-        
-        // CRITICAL FIX: Use RelationExpander's preloading when available
-        if (relationExpander != null) {
-            Set<String> toPreload = relationExpander.getPreloadCollections(collectionName);
-            if (!toPreload.isEmpty()) {
-                logger.info("Using RelationExpander to preload related collections: {}", toPreload);
-                relationExpander.preloadCollections(toPreload);
-                // The RelationExpander now handles the caching, but we still do our own
-                // for fields it might not know about
-            }
-        }
-        
-        // Pre-cache the most common collections that are likely to be referenced
-        String[] commonCollections = {
-            "properties", "agents", "currentAgents", "people", 
-            "brokerages", "transactions", "teams", "awards",
-            "residences", "agentclients", "marketProfiles"
-        };
-        
-        for (String collName : commonCollections) {
-            try {
-                MongoCollection<Document> collection = database.getCollection(collName);
-                long count = collection.estimatedDocumentCount();
-                
-                // Only cache collections under 1M documents
-                if (count > 0 && count < 1000000) {
-                    logger.info("Caching {} collection (~{} docs)...", collName, count);
-                    Map<ObjectId, Document> cache = new HashMap<>();
-                    
-                    long loaded = 0;
-                    long startTime = System.currentTimeMillis();
-                    
-                    for (Document doc : collection.find()) {
-                        ObjectId id = doc.getObjectId("_id");
-                        if (id != null) {
-                            cache.put(id, doc);
-                            idToCollectionMap.put(id, collName); // Track which collection this ID belongs to
-                            loaded++;
-                            
-                            if (loaded % 10000 == 0) {
-                                double rate = loaded / ((System.currentTimeMillis() - startTime) / 1000.0);
-                                logger.info("  {} - Loaded {} / {} ({} docs/sec)", 
-                                    collName, loaded, count, String.format("%.0f", rate));
-                            }
-                        }
-                    }
-                    
-                    collectionCache.put(collName, cache);
-                    logger.info("Cached {} {} documents", cache.size(), collName);
-                } else if (count >= 1000000) {
-                    logger.info("Skipping {} (too large: {} docs)", collName, count);
-                }
-            } catch (Exception e) {
-                logger.debug("Collection {} not found or accessible", collName);
-            }
-        }
-        
-        // MEMORY FIX: Special handling for properties collection (1.9M docs)
-        // Only cache the specific properties that are actually referenced by listings
-        // This prevents OutOfMemoryError while still enabling fast lookups
-        if ("listings".equals(collectionName)) {
-            cacheReferencedProperties();
-        }
-        
-        logger.info("Pre-caching complete. Cached {} collections", collectionCache.size());
+        // This method is now replaced by loadCollectionsBasedOnDiscovery()
+        // which is called AFTER discovery and relationship detection
+        // Left empty to satisfy abstract class requirement
+        logger.debug("loadCollectionsIntoMemory() stub - smart caching happens after discovery");
     }
     
-    private void cacheReferencedProperties() {
-        logger.info("Caching properties referenced by listings...");
-        
-        MongoCollection<Document> listings = database.getCollection("listings");
-        MongoCollection<Document> properties = database.getCollection("properties");
-        
-        // Collect all property IDs from listings
-        Set<ObjectId> propertyIds = new HashSet<>();
-        for (Document listing : listings.find().projection(new Document("property", 1))) {
-            Object propertyRef = listing.get("property");
-            if (propertyRef instanceof ObjectId) {
-                propertyIds.add((ObjectId) propertyRef);
-                idToCollectionMap.put((ObjectId) propertyRef, "properties"); // Track that this ID is from properties
-            }
+    /**
+     * Smart caching based on discovered relationships - loads only what's needed
+     */
+    private void loadCollectionsBasedOnDiscovery() {
+        if (discoveredRelationships.isEmpty()) {
+            logger.info("No relationships discovered, skipping smart caching");
+            return;
         }
         
-        logger.info("Found {} unique properties to cache", propertyIds.size());
+        logger.info("Smart caching based on {} discovered relationships", discoveredRelationships.size());
         
-        // Load properties in batches
-        Map<ObjectId, Document> propertyCache = new HashMap<>();
-        List<ObjectId> batch = new ArrayList<>();
-        int loaded = 0;
+        // Step 1: Scan collection to find all unique foreign key values
+        Map<String, Set<ObjectId>> uniqueRefsPerCollection = new HashMap<>();
+        MongoCollection<Document> collection = database.getCollection(collectionName);
         
-        for (ObjectId id : propertyIds) {
-            batch.add(id);
+        // Build projection for discovered relationship fields only
+        List<String> projectionFields = new ArrayList<>(discoveredRelationships.keySet());
+        projectionFields.add("_id");
+        
+        Document projection = new Document();
+        for (String field : projectionFields) {
+            projection.append(field, 1);
+        }
+        
+        logger.info("Scanning {} documents to identify unique foreign keys...", collectionName);
+        long startTime = System.currentTimeMillis();
+        int scanned = 0;
+        
+        for (Document doc : collection.find().projection(projection)) {
+            for (Map.Entry<String, String> rel : discoveredRelationships.entrySet()) {
+                String fieldPath = rel.getKey();
+                String targetCollection = rel.getValue();
+                
+                Object value = getValueByPath(doc, fieldPath);
+                if (value instanceof ObjectId) {
+                    uniqueRefsPerCollection
+                        .computeIfAbsent(targetCollection, k -> new HashSet<>())
+                        .add((ObjectId) value);
+                } else if (value instanceof List) {
+                    for (Object item : (List<?>) value) {
+                        if (item instanceof ObjectId) {
+                            uniqueRefsPerCollection
+                                .computeIfAbsent(targetCollection, k -> new HashSet<>())
+                                .add((ObjectId) item);
+                        }
+                    }
+                }
+            }
             
-            if (batch.size() >= 1000 || loaded + batch.size() == propertyIds.size()) {
-                Document query = new Document("_id", new Document("$in", batch));
-                for (Document prop : properties.find(query)) {
-                    ObjectId propId = prop.getObjectId("_id");
-                    propertyCache.put(propId, prop);
-                    idToCollectionMap.put(propId, "properties"); // Track collection for this ID
-                    loaded++;
-                }
-                
-                if (loaded % 10000 == 0) {
-                    logger.info("  Cached {} / {} properties", loaded, propertyIds.size());
-                }
-                
-                batch.clear();
+            scanned++;
+            if (scanned % 10000 == 0) {
+                logger.info("  Scanned {} documents...", scanned);
             }
         }
         
-        collectionCache.put("properties", propertyCache);
-        logger.info("Cached {} properties", propertyCache.size());
+        long scanTime = System.currentTimeMillis() - startTime;
+        logger.info("Identified unique references in {} seconds:", scanTime / 1000);
+        uniqueRefsPerCollection.forEach((coll, ids) -> 
+            logger.info("  {} -> {} unique documents", coll, ids.size()));
+        
+        // Step 2: Use RelationExpander to cache these collections
+        if (relationExpander != null) {
+            // For small collections, cache everything
+            Set<String> smallCollections = uniqueRefsPerCollection.entrySet().stream()
+                .filter(e -> e.getValue().size() < 10000)
+                .map(Map.Entry::getKey)
+                .collect(Collectors.toSet());
+            
+            if (!smallCollections.isEmpty()) {
+                logger.info("Pre-loading small collections: {}", smallCollections);
+                relationExpander.preloadCollections(smallCollections);
+            }
+            
+            // For large collections, cache specific documents
+            uniqueRefsPerCollection.entrySet().stream()
+                .filter(e -> !smallCollections.contains(e.getKey()))
+                .forEach(e -> {
+                    String collName = e.getKey();
+                    Set<ObjectId> ids = e.getValue();
+                    logger.info("Caching {} specific documents from {}", ids.size(), collName);
+                    cacheSpecificDocuments(collName, ids);
+                });
+        } else {
+            // Fallback if no RelationExpander
+            uniqueRefsPerCollection.forEach((collName, ids) -> {
+                if (ids.size() < 100000) {
+                    logger.info("Caching {} specific documents from {}", ids.size(), collName);
+                    cacheSpecificDocuments(collName, ids);
+                }
+            });
+        }
+        
+        logger.info("Smart caching complete - ready for fast export");
+    }
+    
+    /**
+     * Cache specific documents by their IDs
+     */
+    private void cacheSpecificDocuments(String collectionName, Set<ObjectId> ids) {
+        Map<ObjectId, Document> cache = collectionCache.computeIfAbsent(collectionName, k -> new HashMap<>());
+        MongoCollection<Document> collection = database.getCollection(collectionName);
+        
+        List<ObjectId> idList = new ArrayList<>(ids);
+        int batchSize = 1000;
+        int cached = 0;
+        
+        for (int i = 0; i < idList.size(); i += batchSize) {
+            List<ObjectId> batch = idList.subList(i, Math.min(i + batchSize, idList.size()));
+            Document query = new Document("_id", new Document("$in", batch));
+            
+            for (Document doc : collection.find(query)) {
+                ObjectId id = doc.getObjectId("_id");
+                if (id != null) {
+                    cache.put(id, doc);
+                    idToCollectionMap.put(id, collectionName);
+                    cached++;
+                }
+            }
+            
+            if ((i + batchSize) % 10000 == 0 || i + batchSize >= idList.size()) {
+                logger.debug("  Cached {} / {} documents from {}", cached, ids.size(), collectionName);
+            }
+        }
+        
+        logger.info("Cached {} documents from {}", cache.size(), collectionName);
     }
     
     // Process a document for export
