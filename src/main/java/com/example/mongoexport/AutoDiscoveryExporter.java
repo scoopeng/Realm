@@ -359,14 +359,21 @@ public class AutoDiscoveryExporter extends AbstractUltraExporter {
      */
     private void expandRelationFields(String fieldPath, String targetCollection) {
         try {
-            MongoCollection<Document> collection = database.getCollection(targetCollection);
+            // USE THE CACHE! Don't hit the database!
+            Map<ObjectId, Document> cache = collectionCache.get(targetCollection);
+            if (cache == null || cache.isEmpty()) {
+                logger.warn("Collection {} not in cache for expansion!", targetCollection);
+                return;
+            }
             
-            // Sample MULTIPLE documents from the target collection to discover all fields
-            // This fixes CRITICAL ISSUE 1 - was only sampling 1 document
-            int sampleSize = Math.min(100, (int) collection.countDocuments());
+            // Sample from CACHE, not database
+            int sampleSize = Math.min(100, cache.size());
             Set<String> expandedFields = new HashSet<>();
             
-            for (Document sample : collection.find().limit(sampleSize)) {
+            int sampled = 0;
+            for (Document sample : cache.values()) {
+                if (sampled >= sampleSize) break;
+                
                 if (sample != null) {
                     // Discover fields in the related document
                     String expandedPrefix = fieldPath + ".@expanded";
@@ -382,10 +389,11 @@ public class AutoDiscoveryExporter extends AbstractUltraExporter {
                         );
                     }
                 }
+                sampled++;
             }
             
-            logger.debug("    Added {} expanded fields from {} (sampled {} docs)", 
-                expandedFields.size(), targetCollection, sampleSize);
+            logger.debug("    Added {} expanded fields from {} (sampled {} docs from cache)", 
+                expandedFields.size(), targetCollection, sampled);
         } catch (Exception e) {
             logger.debug("Could not expand {}: {}", targetCollection, e.getMessage());
         }
