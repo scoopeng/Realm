@@ -111,7 +111,7 @@ The project provides intelligent field filtering, relationship expansion, and co
 
 ## BUILD AND RUN COMMANDS
 
-### Primary Workflow (NEW)
+### Two-Phase Workflow
 ```bash
 # Step 1: Discover fields and create configuration
 ./gradlew discover -Pcollection=listings
@@ -121,12 +121,6 @@ vi config/listings_fields.json
 
 # Step 3: Export using configuration
 ./gradlew configExport -Pcollection=listings
-```
-
-### Legacy All-in-One (Still Available)
-```bash
-# Original auto-discovery export
-./gradlew autoDiscover -Pcollection=listings
 ```
 
 ### Available Collections
@@ -158,8 +152,6 @@ vi config/listings_fields.json
 - `FieldNameMapper.java` - Maps technical names to business names
 - `ExportConfig.java` - Database connection configuration
 
-### Legacy Components
-- `AutoDiscoveryExporter.java` - Original all-in-one exporter (still functional)
 
 ## CONFIGURATION
 
@@ -222,7 +214,6 @@ output.directory=./output
 - ✅ Implemented array field configuration
 - ✅ Added automatic field extraction for arrays
 - ✅ Integrated collection caching in export phase
-- ✅ Maintained backward compatibility with legacy exporter
 
 ### Key Improvements
 - **Separation of Concerns**: Discovery and export are independent

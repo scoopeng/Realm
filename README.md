@@ -64,12 +64,6 @@ vi config/listings_fields.json
 ./gradlew configExport -Pcollection=agents
 ```
 
-### Legacy All-in-One Mode
-
-```bash
-# Original single-phase export (still available)
-./gradlew autoDiscover -Pcollection=listings
-```
 
 ## 📄 Configuration File
 
@@ -191,7 +185,6 @@ vi config/listings_fields.json
 
 ### Advanced Testing
 - [ ] Test with all collections (listings, transactions, agents)
-- [ ] Compare with legacy autoDiscover output
 - [ ] Test with sparse collections
 - [ ] Verify relationship expansion
 - [ ] Check array field handling
@@ -255,13 +248,9 @@ output/                            # Export results
 ### v2.0 (Current) - Two-Phase Workflow
 - Separated discovery and export phases
 - Human-editable JSON configuration
-- Enhanced array field handling
+- Enhanced array field handling with reference lookups
 - Improved collection caching
-
-### v1.0 - Auto-Discovery
-- Single-phase automatic discovery and export
-- Intelligent field filtering
-- Relationship expansion
+- Shows available fields for user configuration
 
 ## 📝 License
 

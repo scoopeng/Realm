@@ -305,7 +305,7 @@ public abstract class AbstractUltraExporter {
     // Helper method for collecting row statistics
     protected void collectRowStatistics(String[] row, String[] headers) {
         // Field statistics collection disabled in clean implementation
-        // This is handled by AutoDiscoveryExporter directly
+        // This is handled by ConfigurationBasedExporter directly
     }
     
     // Save basic summary when field statistics are not enabled

@@ -22,7 +22,7 @@ dependencies {
 }
 
 application {
-    mainClass = 'com.example.mongoexport.AutoDiscoveryExporter'
+    mainClass = 'com.example.mongoexport.DiscoveryRunner'
 }
 
 test {
@@ -36,7 +36,7 @@ java {
 }
 
 // ============================================
-// TWO-PHASE EXPORT WORKFLOW - NEW!
+// TWO-PHASE EXPORT WORKFLOW
 // ============================================
 
 // Phase 1: Discovery - Creates JSON configuration file
@@ -48,7 +48,7 @@ task discover(type: JavaExec) {
         def collection = project.hasProperty('collection') ? project.property('collection') : 'listings'
         args = [collection]
     }
-    description = '★ NEW Phase 1: Discovers all fields and creates editable JSON configuration in config/'
+    description = 'Phase 1: Discovers all fields and creates editable JSON configuration in config/'
 }
 
 // Phase 2: Configuration-based Export
@@ -60,50 +60,10 @@ task configExport(type: JavaExec) {
         def collection = project.hasProperty('collection') ? project.property('collection') : 'listings'
         args = [collection]
     }
-    description = '★ NEW Phase 2: Exports using JSON configuration from config/ directory'
+    description = 'Phase 2: Exports using JSON configuration from config/ directory'
 }
 
-// ============================================
-// LEGACY EXPORT TASKS - STILL AVAILABLE
-// ============================================
 
-// Original Auto-Discovery Export (All-in-one)
-task autoDiscover(type: JavaExec) {
-    classpath = sourceSets.main.runtimeClasspath
-    mainClass = 'com.example.mongoexport.AutoDiscoveryExporter'
-    jvmArgs = ['-Xmx24g', '-Xms16g']
-    doFirst {
-        def collection = project.hasProperty('collection') ? project.property('collection') : 'listings'
-        args = [collection]
-    }
-    description = 'LEGACY: Original all-in-one discovery and export (use discover + configExport instead)'
-}
-
-// Legacy aliases
-task filteredExport(dependsOn: autoDiscover) {
-    description = 'LEGACY: Alias for autoDiscover'
-}
-
-task fullExport(dependsOn: autoDiscover) {
-    description = 'LEGACY: Alias for autoDiscover'
-}
-
-task analyzeFields(dependsOn: autoDiscover) {
-    description = 'LEGACY: Alias for autoDiscover'
-}
-
-// ============================================
-// UTILITY TASKS
-// ============================================
-// All legacy tasks removed - use autoDiscover instead
-
-// ============================================
-// CONVENIENCE ALIASES
-// ============================================
-
-task export(dependsOn: autoDiscover) {
-    description = 'LEGACY: Alias for autoDiscover'
-}
 
 // ============================================
 // HELP TASK
@@ -116,8 +76,8 @@ task showHelp {
 ║                    REALM MONGODB EXPORTER v2.0                       ║
 ╚══════════════════════════════════════════════════════════════════════╝
 
-NEW TWO-PHASE WORKFLOW (Recommended):
-─────────────────────────────────────
+TWO-PHASE WORKFLOW:
+───────────────────
   Phase 1: Discovery
   ./gradlew discover -Pcollection=listings
     ★ Discovers all fields and creates an editable JSON configuration
@@ -127,11 +87,6 @@ NEW TWO-PHASE WORKFLOW (Recommended):
   ./gradlew configExport -Pcollection=listings  
     ★ Exports data using the JSON configuration from Phase 1
     (You can manually edit the JSON between phases!)
-
-LEGACY ALL-IN-ONE COMMANDS:
-───────────────────────────
-  ./gradlew autoDiscover -Pcollection=listings
-    Original single-phase discovery and export (still works)
 
 COLLECTION OPTIONS:
 ──────────────────
@@ -143,19 +98,18 @@ COLLECTION OPTIONS:
 
 EXAMPLES:
 ─────────
-  # NEW two-phase workflow:
+  # Two-phase workflow:
   ./gradlew discover -Pcollection=listings
   # Edit config/listings_fields.json if needed
   ./gradlew configExport -Pcollection=listings
   
-  # Legacy all-in-one:
-  ./gradlew autoDiscover -Pcollection=transactions
-  
-  # Analyze agents collection:
-  ./gradlew analyzeFields -Pcollection=agents
+  # Export transactions:
+  ./gradlew discover -Pcollection=transactions
+  ./gradlew configExport -Pcollection=transactions
   
   # Export all collections:
-  ./gradlew autoDiscover -Pcollection=all
+  ./gradlew discover -Pcollection=all
+  ./gradlew configExport -Pcollection=all
 
 KEY FEATURES:
 ────────────
