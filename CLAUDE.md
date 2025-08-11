@@ -228,6 +228,8 @@ output.directory=./output
 - ✅ Ensured RFC 4180 compliant CSV output with proper quote escaping
 - ✅ Implemented batch loading for ObjectId references (100x performance improvement)
 - ✅ Added smart ObjectId resolution to display meaningful values instead of IDs
+- ✅ Fixed RelationExpander field mappings (listingBrokerage, not listingBrokerageId)
+- ✅ Fixed FieldNameMapper to generate clean business names without "_expanded"
 
 ### Key Improvements
 - **Separation of Concerns**: Discovery and export are independent
@@ -247,9 +249,17 @@ output.directory=./output
 - Main branch: master
 - Current version: 2.0-SNAPSHOT
 
-## NEXT STEPS
-1. Complete testing of two-phase workflow
-2. Optimize collection caching for large datasets
+## KNOWN ISSUES & NEXT STEPS
+
+### Known Issues
+1. **Hardcoded Relationships**: RelationExpander has hardcoded field-to-collection mappings
+   - Currently requires manual updates when schema changes
+   - Should auto-discover relationships based on field names and ObjectId patterns
+
+### Next Steps
+1. ✅ Complete testing of two-phase workflow
+2. Implement auto-discovery of relationships (remove hardcoding)
 3. Add configuration validation
 4. Create configuration templates
 5. Add configuration merge capabilities
+6. Optimize collection caching for very large datasets (>1M docs)
