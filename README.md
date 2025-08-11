@@ -96,12 +96,15 @@ The discovery phase creates a JSON configuration file with this structure:
       }
     },
     {
-      "fieldPath": "openHouses[]",
-      "businessName": "Open Houses",
+      "fieldPath": "listingAgents",
+      "businessName": "Listing Agents",
       "dataType": "array",
       "include": true,
       "arrayConfig": {
-        "extractField": "dateTime",
+        "objectType": "objectId",
+        "referenceCollection": "agents",
+        "extractField": "fullName",
+        "availableFields": ["createdAt", "fullName", "lastUpdated", "privateURL"],
         "displayMode": "comma_separated",
         "sortOrder": "alphanumeric"
       }
@@ -120,7 +123,8 @@ The discovery phase creates a JSON configuration file with this structure:
 - **Exclude a field**: Set `"include": false`
 - **Change column name**: Edit `"businessName"`
 - **Array display**: Change `"displayMode"` to `"first"` or `"comma_separated"`
-- **Array field extraction**: Modify `"extractField"` to extract different field from objects
+- **Array field extraction**: Change `"extractField"` to any value from `"availableFields"`
+- **See available options**: Check `"availableFields"` array to see all possible fields you can extract
 
 ## 🔧 Installation
 

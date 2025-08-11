@@ -47,18 +47,35 @@ The project provides intelligent field filtering, relationship expansion, and co
       }
     },
     {
-      "fieldPath": "openHouses[]",
-      "businessName": "Open Houses",
+      "fieldPath": "listingAgents",
+      "businessName": "Listing Agents",
       "dataType": "array",
       "include": true,
       "arrayConfig": {
-        "extractField": "dateTime",
+        "objectType": "objectId",
+        "referenceCollection": "agents",
+        "extractField": "fullName",
+        "availableFields": ["createdAt", "fullName", "lastUpdated", "privateURL"],
         "displayMode": "comma_separated",
         "sortOrder": "alphanumeric"
       }
+    },
+    {
+      "fieldPath": "realmData.lifestyles",
+      "businessName": "Lifestyles",
+      "dataType": "array",
+      "include": true,
+      "arrayConfig": {
+        "objectType": "object",
+        "referenceField": "lifestyle",
+        "referenceCollection": "lifestyles",
+        "extractField": "lifestyleName",
+        "availableFields": ["lifestyleName", "category", "description"],
+        "displayMode": "comma_separated"
+      }
     }
   ],
-  "requiredCollections": ["properties", "agents"],
+  "requiredCollections": ["agents", "lifestyles"],
   "exportSettings": {
     "batchSize": 5000,
     "useBusinessNames": true
@@ -69,10 +86,12 @@ The project provides intelligent field filtering, relationship expansion, and co
 ### Key Features of New Architecture
 - **Editable Configuration**: JSON can be manually edited between phases
 - **Field-Level Control**: Include/exclude specific fields
-- **Array Handling**: Configure how arrays are displayed (first value vs comma-separated)
+- **Array Reference Resolution**: Automatically looks up ObjectIds in referenced collections
+- **Available Fields Display**: Shows all possible fields you can extract from referenced collections
+- **Smart Field Selection**: Auto-selects best display field (name, fullName, title, etc.)
+- **Flexible Array Display**: Choose between first value or comma-separated list
 - **Automatic Sorting**: Arrays sorted alphanumerically by default
-- **Smart Field Selection**: Auto-selects first meaningful non-ID string field for array objects
-- **Collection Caching**: Automatically caches required collections for relationships
+- **Collection Caching**: Automatically caches required collections for fast lookups
 
 ## CORE DESIGN PRINCIPLES
 
