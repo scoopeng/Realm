@@ -2,7 +2,7 @@
 FIELD EXPANSION AUDIT TREE
 =================================================================
 Collection: listings
-Generated: Mon Aug 11 08:43:24 UTC 2025
+Generated: Mon Aug 11 22:54:53 UTC 2025
 Total Fields: 139
 Included Fields: 51
 Expansion Depth: 3
@@ -80,8 +80,8 @@ listingUrl [string] - 100 distinct values
 livingArea [integer] - 100 distinct values
 livingAreaMain [integer] - 100 distinct values
 livingAreaUpper [integer] - 100 distinct values
-lotSize [string] - 100 distinct values
-mlsArea [string] - 10 distinct values
+lotSize [number] - 100 distinct values
+mlsArea [integer] - 10 distinct values
 mlsId [string] (EXCLUDED) - 100 distinct values
 mlsName [string] (EXCLUDED) - 1 distinct values
 neighborhood [object] (EXCLUDED) - 0 distinct values
@@ -113,7 +113,7 @@ property [objectId] - 100 distinct values -> properties
     property_expanded.streetAddress [string] - 82 distinct values
     property_expanded.taxes [null] (EXCLUDED) - 0 distinct values
     property_expanded.updatedAt [date] (EXCLUDED) - 2 distinct values
-    property_expanded.zipcode [string] - 24 distinct values
+    property_expanded.zipcode [integer] - 24 distinct values
 propertyAdjacentTo [string] (EXCLUDED) - 28 distinct values
 propertyName [string] (EXCLUDED) - 100 distinct values
 propertyType [string] - 74 distinct values
@@ -144,7 +144,7 @@ title [object] (EXCLUDED) - 0 distinct values
   title.en [string] - 100 distinct values
 unitFloor [string] (EXCLUDED) - 17 distinct values
 unitLocation [string] (EXCLUDED) - 10 distinct values
-updatedAt [date] (EXCLUDED) - 3 distinct values
+updatedAt [date] (EXCLUDED) - 4 distinct values
 viewTypes [array] (EXCLUDED) - 4 distinct values
 virtualTourURL [string] (EXCLUDED) - 100 distinct values
 waterFeatures [string] (EXCLUDED) - 71 distinct values

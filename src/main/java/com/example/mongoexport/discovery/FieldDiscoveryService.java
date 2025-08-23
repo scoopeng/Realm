@@ -15,6 +15,9 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.io.IOException;
 import java.util.*;
+import java.util.concurrent.*;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
@@ -31,7 +34,7 @@ public class FieldDiscoveryService
     private final int sampleSize;
     private final int expansionDepth;
     private final int minDistinctNonNullValues;
-    private final double sparseFieldThreshold;  // Minimum percentage of non-null values (0.1 = 10%)
+    private final double sparseFieldThreshold;  // Minimum percentage of non-null values (0.05 = 5%)
 
     // Discovery tracking
     private final Map<String, FieldMetadata> fieldMetadataMap = new ConcurrentHashMap<>();
@@ -45,6 +48,12 @@ public class FieldDiscoveryService
 
     // Track actual documents scanned for sparse field calculation
     private int actualDocumentsScanned = 0;
+    
+    // Relationship discovery - NO HARDCODING
+    private final RelationshipDiscovery relationshipDiscovery;
+    
+    // Statistics field generator
+    private StatisticsFieldGenerator statisticsGenerator;
 
     // Business IDs that should always be included
     private static final Set<String> BUSINESS_IDS = new HashSet<>(Arrays.asList("mlsNumber", "listingId", "transactionId", "orderId", "contractNumber", "referenceNumber", "confirmationNumber", "invoiceNumber", "accountNumber", "caseNumber", "ticketId", "agentId"));
@@ -66,7 +75,7 @@ public class FieldDiscoveryService
         String arrayObjectType;
 
         // Compound sparsity for expanded fields
-        Double compoundSparsity;
+        Double expandedFieldSparsity;  // Actual sparsity based on expansion, not random sampling
         Integer adjustedOccurrences;
 
         double getAvgArrayLength()
@@ -96,12 +105,12 @@ public class FieldDiscoveryService
 
     public FieldDiscoveryService(MongoDatabase database, String collectionName)
     {
-        this(database, collectionName, 10000, 3, 2, 0.1);  // Default: 10% sparse threshold
+        this(database, collectionName, 10000, 3, 2, 0.05);  // Default: 5% sparse threshold
     }
 
     public FieldDiscoveryService(MongoDatabase database, String collectionName, int sampleSize, int expansionDepth, int minDistinctNonNullValues)
     {
-        this(database, collectionName, sampleSize, expansionDepth, minDistinctNonNullValues, 0.1);  // Default: 10% sparse threshold
+        this(database, collectionName, sampleSize, expansionDepth, minDistinctNonNullValues, 0.05);  // Default: 5% sparse threshold
     }
 
     public FieldDiscoveryService(MongoDatabase database, String collectionName, int sampleSize, int expansionDepth, int minDistinctNonNullValues, double sparseFieldThreshold)
@@ -112,6 +121,7 @@ public class FieldDiscoveryService
         this.expansionDepth = expansionDepth;
         this.minDistinctNonNullValues = minDistinctNonNullValues;
         this.sparseFieldThreshold = sparseFieldThreshold;
+        this.relationshipDiscovery = new RelationshipDiscovery(database);
     }
 
     /**
@@ -262,7 +272,7 @@ public class FieldDiscoveryService
                 } else if (fieldValue instanceof ObjectId)
                 {
                     metadata.dataType = "objectId";
-                    metadata.relationshipTarget = guessCollectionFromFieldName(fieldName);
+                    // Don't guess - we'll discover the actual relationship later
                     trackSampleValue(metadata, fieldValue.toString());
                 } else
                 {
@@ -292,7 +302,7 @@ public class FieldDiscoveryService
         {
             // Pattern 1: Direct array of ObjectIds
             internals.hasDirectObjectIds = true;
-            internals.targetCollection = guessCollectionFromFieldName(getLastSegment(arrayPath));
+            // Don't guess - we'll discover the actual relationship later
             arrayMeta.arrayObjectType = "objectId";
 
             // Collect sample IDs
@@ -332,7 +342,7 @@ public class FieldDiscoveryService
                     if (internals.objectIdField == null || isLikelyReferenceField(fieldName))
                     {
                         internals.objectIdField = fieldName;
-                        internals.targetCollection = guessCollectionFromFieldName(fieldName);
+                        // Don't guess - we'll discover the actual relationship later
 
                         // Collect sample IDs from array
                         for (Object item : list)
@@ -423,7 +433,8 @@ public class FieldDiscoveryService
      */
     private void trackSampleValue(FieldMetadata metadata, String value)
     {
-        if (value != null && value.length() <= 200 && metadata.sampleValues.size() < 100)
+        // No limit on sample values - we have plenty of memory and need accurate statistics
+        if (value != null && value.length() <= 200)
         {
             metadata.sampleValues.add(value);
         }
@@ -454,30 +465,84 @@ public class FieldDiscoveryService
     {
         logger.info("Analyzing {} arrays for references", arrayInternalsMap.size());
 
-        // Process arrays that contain references
+        // Process arrays that contain references - discover actual relationships
         for (ArrayInternals internals : arrayInternalsMap.values())
         {
-            if (internals.targetCollection != null && !internals.sampleIds.isEmpty())
+            if (!internals.sampleIds.isEmpty())
             {
-                logger.info("  Array {} references {} collection", internals.arrayPath, internals.targetCollection);
-
-                // Cache the target collection and discover its fields
-                cacheAndAnalyzeCollection(internals.targetCollection, internals.sampleIds);
+                // Discover which collection these IDs actually reference
+                String targetCollection = null;
+                
+                if (internals.hasDirectObjectIds)
+                {
+                    // Array of ObjectIds - discover target
+                    targetCollection = relationshipDiscovery.discoverTargetCollection(
+                        internals.arrayPath, internals.sampleIds);
+                }
+                else if (internals.objectIdField != null)
+                {
+                    // Array of documents with ObjectId field - discover target
+                    targetCollection = relationshipDiscovery.discoverArrayRelationship(
+                        internals.arrayPath, internals.objectIdField, internals.sampleIds);
+                }
+                
+                if (targetCollection != null)
+                {
+                    internals.targetCollection = targetCollection;
+                    logger.info("  Array {} references {} collection", internals.arrayPath, targetCollection);
+                    
+                    // Cache the target collection and discover its fields
+                    cacheAndAnalyzeCollection(targetCollection, internals.sampleIds);
+                }
             }
         }
 
         // Also handle direct ObjectId fields (non-array references)
-        Set<String> objectIdFields = fieldMetadataMap.entrySet().stream().filter(e -> "objectId".equals(e.getValue().dataType)).map(Map.Entry::getKey).collect(Collectors.toSet());
+        Set<String> objectIdFields = fieldMetadataMap.entrySet().stream()
+            .filter(e -> "objectId".equals(e.getValue().dataType))
+            .map(Map.Entry::getKey)
+            .collect(Collectors.toSet());
 
         logger.info("Found {} direct ObjectId reference fields", objectIdFields.size());
 
         for (String fieldPath : objectIdFields)
         {
-            FieldMetadata metadata = fieldMetadataMap.get(fieldPath);
-            if (metadata.relationshipTarget != null)
+            // Skip the _id field - it always refers to the current collection
+            if ("_id".equals(fieldPath))
             {
-                logger.info("  {} -> {}", fieldPath, metadata.relationshipTarget);
-                cacheCollectionIfNeeded(metadata.relationshipTarget);
+                logger.debug("  Skipping _id field (always refers to current collection)");
+                continue;
+            }
+            
+            FieldMetadata metadata = fieldMetadataMap.get(fieldPath);
+            
+            // Collect sample ObjectIds from this field
+            Set<ObjectId> sampleIds = new HashSet<>();
+            for (String sampleValue : metadata.sampleValues)
+            {
+                try {
+                    sampleIds.add(new ObjectId(sampleValue));
+                    if (sampleIds.size() >= 5) break;
+                } catch (Exception e) {
+                    // Skip invalid ObjectIds
+                }
+            }
+            
+            if (!sampleIds.isEmpty())
+            {
+                // Discover the target collection
+                String targetCollection = relationshipDiscovery.discoverTargetCollection(fieldPath, sampleIds);
+                if (targetCollection != null && !targetCollection.equals(collectionName))
+                {
+                    // Only set relationship if it's not self-referential
+                    metadata.relationshipTarget = targetCollection;
+                    logger.info("  {} -> {}", fieldPath, targetCollection);
+                    cacheCollectionIfNeeded(targetCollection);
+                }
+                else if (targetCollection != null && targetCollection.equals(collectionName))
+                {
+                    logger.debug("  Skipping self-referential relationship: {} -> {}", fieldPath, targetCollection);
+                }
             }
         }
 
@@ -506,7 +571,8 @@ public class FieldDiscoveryService
         MongoCollection<Document> collection = database.getCollection(collectionName);
         long count = collection.estimatedDocumentCount();
 
-        if (count <= 100000)
+        // Cache collections up to 600K documents (includes people_meta at 552K)
+        if (count <= 600000)
         {
             logger.info("Caching and analyzing collection {} ({} documents)", collectionName, count);
             Map<ObjectId, Document> cache = new HashMap<>();
@@ -651,51 +717,182 @@ public class FieldDiscoveryService
     }
 
     /**
-     * Phase 3: Discover expanded fields from relationships
+     * Phase 3: Discover expanded fields from relationships (PARALLEL VERSION)
      */
     private void discoverExpandedFields()
     {
         // Use RelationExpander to discover expanded field structure
         RelationExpander expander = new RelationExpander(database);
+        
+        // CRITICAL: Pass our cache to the expander so it uses memory lookups instead of database queries
+        expander.setCache(collectionCache);
 
         // Sample some documents to discover expanded structure
         MongoCollection<Document> collection = database.getCollection(collectionName);
-        int sampleCount = Math.min(100, sampleSize / 10);
+        int sampleCount = sampleSize;
 
-        logger.info("Sampling {} documents to discover expanded field structure", sampleCount);
-
+        logger.info("Sampling {} documents to discover expanded field structure (PARALLEL)", sampleCount);
+        
+        long startTime = System.currentTimeMillis();
+        
+        // Load all documents into memory first (they're just samples)
+        List<Document> documents = new ArrayList<>();
         try (MongoCursor<Document> cursor = collection.find().limit(sampleCount).iterator())
         {
             while (cursor.hasNext())
             {
-                Document doc = cursor.next();
-                Document expanded = expander.expandDocument(doc, collectionName, 1);
-
-                // Reset field tracking for this document to avoid double-counting
-                currentDocumentFields = new HashSet<>();
-                // Discover fields in expanded document
-                discoverFieldsInDocument(expanded, "", collectionName, 0);
+                documents.add(cursor.next());
             }
         }
+        logger.info("Loaded {} documents into memory for parallel processing", documents.size());
+        
+        // Use parallel processing with ForkJoinPool
+        int parallelism = Runtime.getRuntime().availableProcessors();
+        ForkJoinPool customThreadPool = new ForkJoinPool(parallelism);
+        logger.info("Using {} threads for parallel expansion", parallelism);
+        
+        try
+        {
+            // Process documents in parallel
+            AtomicInteger processedCount = new AtomicInteger(0);
+            AtomicLong lastLogTime = new AtomicLong(startTime);
+            
+            customThreadPool.submit(() ->
+                documents.parallelStream().forEach(doc -> {
+                    try {
+                        // Each thread needs its own expander to avoid thread safety issues
+                        RelationExpander threadExpander = new RelationExpander(database);
+                        threadExpander.setCache(collectionCache);
+                        
+                        Document expanded = threadExpander.expandDocument(doc, collectionName, 1);
+                        
+                        // Synchronize field discovery to avoid race conditions
+                        synchronized (fieldMetadataMap)
+                        {
+                            Set<String> docFields = new HashSet<>();
+                            discoverFieldsInDocumentThreadSafe(expanded, "", collectionName, 0, docFields);
+                        }
+                        
+                        int count = processedCount.incrementAndGet();
+                        
+                        // Progress logging every 1000 documents
+                        if (count % 1000 == 0)
+                        {
+                            long now = System.currentTimeMillis();
+                            long elapsed = now - startTime;
+                            long sinceLastLog = now - lastLogTime.getAndSet(now);
+                            double docsPerSec = 1000.0 / (sinceLastLog / 1000.0);
+                            double overallDocsPerSec = (double) count / (elapsed / 1000.0);
+                            logger.info("  Processed {} / {} documents ({} docs/sec, overall: {} docs/sec)", 
+                                count, sampleCount, 
+                                String.format("%.1f", docsPerSec), 
+                                String.format("%.1f", overallDocsPerSec));
+                        }
+                    } catch (Exception e) {
+                        logger.error("Error processing document: {}", e.getMessage());
+                    }
+                })
+            ).get(); // Wait for completion
+            
+        } catch (Exception e) {
+            logger.error("Error in parallel processing", e);
+        } finally {
+            customThreadPool.shutdown();
+        }
+        
+        long totalTime = System.currentTimeMillis() - startTime;
+        logger.info("Phase 3 expansion took {} seconds for {} documents", totalTime / 1000, sampleCount);
 
-        // Calculate compound sparsity for expanded fields
-        calculateCompoundSparsityForExpandedFields();
+        // Calculate actual sparsity for expanded fields based on expansion results
+        calculateExpandedFieldSparsity();
 
         logger.info("Expanded field discovery complete");
     }
+    
+    /**
+     * Thread-safe version of discoverFieldsInDocument
+     */
+    private void discoverFieldsInDocumentThreadSafe(Object value, String prefix, String sourceCollection, 
+                                                    int depth, Set<String> docFields)
+    {
+        if (value == null || depth > 5)
+        {
+            return;
+        }
+
+        if (value instanceof Document)
+        {
+            Document doc = (Document) value;
+            for (Map.Entry<String, Object> entry : doc.entrySet())
+            {
+                String fieldName = entry.getKey();
+                String fieldPath = prefix.isEmpty() ? fieldName : prefix + "." + fieldName;
+                Object fieldValue = entry.getValue();
+
+                // Skip if we've already processed this field in this document
+                if (!docFields.add(fieldPath))
+                {
+                    continue;
+                }
+
+                // Get or create metadata (thread-safe with ConcurrentHashMap)
+                FieldMetadata metadata = fieldMetadataMap.computeIfAbsent(fieldPath, k -> {
+                    FieldMetadata m = new FieldMetadata();
+                    m.fieldPath = k;
+                    m.sourceCollection = sourceCollection;
+                    return m;
+                });
+
+                // Update metadata (synchronized on the specific metadata object)
+                synchronized (metadata)
+                {
+                    metadata.totalOccurrences++;
+
+                    if (isEmptyValue(fieldValue))
+                    {
+                        metadata.nullCount++;
+                    }
+                    else if (fieldValue instanceof Document)
+                    {
+                        metadata.dataType = "object";
+                    }
+                    else if (fieldValue instanceof List)
+                    {
+                        metadata.dataType = "array";
+                        List<?> list = (List<?>) fieldValue;
+                        metadata.arrayLengths.add(list.size());
+                        // Array analysis is already done in Phase 2, skip here for performance
+                    }
+                    else if (fieldValue instanceof ObjectId)
+                    {
+                        metadata.dataType = "objectId";
+                        trackSampleValue(metadata, ((ObjectId) fieldValue).toHexString());
+                    }
+                    else
+                    {
+                        metadata.dataType = fieldValue.getClass().getSimpleName().toLowerCase();
+                        trackSampleValue(metadata, String.valueOf(fieldValue));
+                    }
+                }
+
+                // Recurse for nested documents
+                if (fieldValue instanceof Document)
+                {
+                    discoverFieldsInDocumentThreadSafe(fieldValue, fieldPath, sourceCollection, depth + 1, docFields);
+                }
+            }
+        }
+    }
 
     /**
-     * Calculate compound sparsity for expanded fields
-     * This samples referenced collections to understand how often fields exist
+     * Calculate actual sparsity for expanded fields based on expansion results
+     * Uses the actual occurrences from the cached expansion, not random sampling
      */
-    private void calculateCompoundSparsityForExpandedFields()
+    private void calculateExpandedFieldSparsity()
     {
-        logger.info("Calculating compound sparsity for expanded fields");
+        logger.info("Calculating expanded field sparsity from actual expansion results");
 
-        // Track parent field statistics
-        Map<String, ParentFieldStats> parentFieldStats = new HashMap<>();
-
-        // First, collect statistics about parent fields
+        // For each expanded field, calculate its actual sparsity
         for (Map.Entry<String, FieldMetadata> entry : fieldMetadataMap.entrySet())
         {
             String fieldPath = entry.getKey();
@@ -704,181 +901,24 @@ public class FieldDiscoveryService
             // Check if this is an expanded field
             if (fieldPath.contains("_expanded"))
             {
-                // Extract parent field name (e.g., "property" from "property_expanded.city")
-                String parentField = fieldPath.substring(0, fieldPath.indexOf("_expanded"));
-
-                // Get or create parent stats
-                ParentFieldStats parentStats = parentFieldStats.computeIfAbsent(parentField, k ->
+                // Calculate the actual field sparsity based on how many documents it appeared in
+                // during the actual expansion (not a random sample)
+                double actualSparsity = (double) metadata.totalOccurrences / actualDocumentsScanned;
+                
+                metadata.expandedFieldSparsity = actualSparsity;
+                
+                if (actualSparsity < sparseFieldThreshold)
                 {
-                    ParentFieldStats stats = new ParentFieldStats();
-                    stats.parentField = k;
-
-                    // Get parent field metadata to understand its presence
-                    FieldMetadata parentMeta = fieldMetadataMap.get(k);
-                    if (parentMeta != null)
-                    {
-                        stats.parentOccurrences = parentMeta.totalOccurrences;
-                        stats.targetCollection = parentMeta.relationshipTarget;
-                    }
-                    return stats;
-                });
-
-                // Add this expanded field to the parent's list
-                parentStats.expandedFields.add(fieldPath);
-            }
-        }
-
-        // Now sample referenced collections to understand field sparsity
-        for (ParentFieldStats parentStats : parentFieldStats.values())
-        {
-            if (parentStats.targetCollection == null || parentStats.targetCollection.isEmpty())
-            {
-                // Try to guess the collection
-                parentStats.targetCollection = guessCollectionFromFieldName(parentStats.parentField);
-            }
-
-            if (parentStats.targetCollection != null)
-            {
-                sampleReferencedCollection(parentStats);
-            }
-        }
-
-        // Apply compound sparsity to expanded field metadata
-        for (ParentFieldStats parentStats : parentFieldStats.values())
-        {
-            double parentPresence = (double) parentStats.parentOccurrences / actualDocumentsScanned;
-
-            for (String expandedField : parentStats.expandedFields)
-            {
-                FieldMetadata expandedMeta = fieldMetadataMap.get(expandedField);
-                if (expandedMeta != null)
-                {
-                    // Extract the nested field path (e.g., "city" from "property_expanded.city")
-                    String nestedPath = expandedField.substring(expandedField.indexOf("_expanded.") + "_expanded.".length());
-
-                    // Get field presence in referenced collection
-                    Double fieldPresence = parentStats.fieldPresenceMap.get(nestedPath);
-                    if (fieldPresence == null)
-                    {
-                        fieldPresence = 0.0;  // Field not found in sample
-                    }
-
-                    // Calculate compound sparsity
-                    double compoundSparsity = parentPresence * fieldPresence;
-
-                    // Update the metadata with compound statistics
-                    // We'll adjust totalOccurrences to reflect actual expected presence
-                    expandedMeta.compoundSparsity = compoundSparsity;
-                    expandedMeta.adjustedOccurrences = (int) (actualDocumentsScanned * compoundSparsity);
-
-                    if (compoundSparsity < sparseFieldThreshold)
-                    {
-                        logger.debug("Expanded field '{}' has compound sparsity {}% (parent: {}%, field: {}%)",
-                                expandedField, String.format("%.2f", compoundSparsity * 100),
-                                String.format("%.2f", parentPresence * 100),
-                                String.format("%.2f", fieldPresence * 100));
-                    }
+                    logger.debug("Expanded field '{}' has sparsity {}% based on actual expansion (occurrences: {}/{})",
+                            fieldPath, String.format("%.2f", actualSparsity * 100),
+                            metadata.totalOccurrences, actualDocumentsScanned);
                 }
             }
         }
     }
 
-    /**
-     * Sample a referenced collection to understand field sparsity
-     */
-    private void sampleReferencedCollection(ParentFieldStats parentStats)
-    {
-        try
-        {
-            MongoCollection<Document> refCollection = database.getCollection(parentStats.targetCollection);
-
-            // Sample a subset of documents
-            int sampleSize = 1000;
-            long totalDocs = refCollection.estimatedDocumentCount();
-
-            if (totalDocs == 0)
-            {
-                logger.warn("Referenced collection '{}' is empty", parentStats.targetCollection);
-                return;
-            }
-
-            logger.debug("Sampling {} documents from {} (total: {})",
-                    Math.min(sampleSize, totalDocs), parentStats.targetCollection, totalDocs);
-
-            Map<String, Integer> fieldCounts = new HashMap<>();
-            int docsScanned = 0;
-
-            try (MongoCursor<Document> cursor = refCollection.find().limit(sampleSize).iterator())
-            {
-                while (cursor.hasNext())
-                {
-                    Document doc = cursor.next();
-                    docsScanned++;
-
-                    // Count field presence
-                    countFieldsInDocument(doc, "", fieldCounts);
-                }
-            }
-
-            // Calculate field presence percentages
-            for (Map.Entry<String, Integer> entry : fieldCounts.entrySet())
-            {
-                String fieldPath = entry.getKey();
-                int count = entry.getValue();
-                double presence = (double) count / docsScanned;
-                parentStats.fieldPresenceMap.put(fieldPath, presence);
-            }
-
-            logger.debug("Sampled {} documents from {}, found {} unique fields",
-                    docsScanned, parentStats.targetCollection, fieldCounts.size());
-        } catch (Exception e)
-        {
-            logger.warn("Failed to sample collection '{}': {}", parentStats.targetCollection, e.getMessage());
-        }
-    }
-
-    /**
-     * Recursively count field presence in a document
-     */
-    private void countFieldsInDocument(Document doc, String prefix, Map<String, Integer> fieldCounts)
-    {
-        for (Map.Entry<String, Object> entry : doc.entrySet())
-        {
-            String fieldName = entry.getKey();
-            Object value = entry.getValue();
-
-            // Skip technical fields
-            if (fieldName.equals("_id") || fieldName.equals("__v"))
-            {
-                continue;
-            }
-
-            String fieldPath = prefix.isEmpty() ? fieldName : prefix + "." + fieldName;
-
-            if (value != null && !isEmptyValue(value))
-            {
-                fieldCounts.merge(fieldPath, 1, Integer::sum);
-
-                // Recurse into nested documents
-                if (value instanceof Document)
-                {
-                    countFieldsInDocument((Document) value, fieldPath, fieldCounts);
-                }
-            }
-        }
-    }
-
-    /**
-     * Helper class to track parent field statistics
-     */
-    private static class ParentFieldStats
-    {
-        String parentField;
-        String targetCollection;
-        int parentOccurrences;
-        List<String> expandedFields = new ArrayList<>();
-        Map<String, Double> fieldPresenceMap = new HashMap<>();  // field path -> presence percentage
-    }
+    // Removed dead code: sampleReferencedCollection, countFieldsInDocument, and ParentFieldStats
+    // These were used for random sampling which is unnecessary when we have full cache
 
     /**
      * Phase 4: Build configuration from metadata
@@ -934,6 +974,29 @@ public class FieldDiscoveryService
                 {
                     config.addRequiredCollection(arrayConfig.getReferenceCollection());
                 }
+                
+                // Generate additional primary mode fields for important arrays
+                generatePrimaryModeFields(config, fieldPath, metadata, arrayConfig);
+                
+                // Generate statistics fields for transaction-like arrays
+                generateStatisticsFields(config, fieldPath, metadata, arrayConfig);
+                
+                // Check if this array produces human-readable output
+                // Arrays of embedded documents without a good extractField will show as "Document{...}"
+                // which is not useful for end users
+                if ("object".equals(arrayConfig.getObjectType()) && 
+                    (arrayConfig.getExtractField() == null || arrayConfig.getExtractField().isEmpty()))
+                {
+                    // This would produce non-readable Document output, exclude it
+                    fieldConfig.setInclude(false);
+                }
+                // Also exclude arrays that we can't properly resolve
+                else if (arrayConfig.getReferenceCollection() != null && 
+                         (arrayConfig.getExtractField() == null || arrayConfig.getExtractField().isEmpty()))
+                {
+                    // Can't extract meaningful values from references, exclude
+                    fieldConfig.setInclude(false);
+                }
             }
 
             fieldConfig.setStatistics(stats);
@@ -950,6 +1013,250 @@ public class FieldDiscoveryService
         config.getFields().sort(Comparator.comparing(FieldConfiguration::getFieldPath));
     }
 
+    /**
+     * Generate statistics fields for arrays that reference transaction-like collections
+     */
+    private void generateStatisticsFields(DiscoveryConfiguration config, String arrayPath,
+                                         FieldMetadata metadata, FieldConfiguration.ArrayConfiguration arrayConfig)
+    {
+        // Only generate statistics for arrays that reference other collections
+        if (arrayConfig == null || arrayConfig.getReferenceCollection() == null)
+        {
+            return;
+        }
+        
+        // Check if we should generate statistics for this array
+        // For now, we'll be selective and only do it for specific patterns
+        String targetCollection = arrayConfig.getReferenceCollection();
+        
+        // TEMPORARY: Only generate statistics for transactions-related collections
+        // to avoid performance issues during testing
+        if (!targetCollection.contains("transaction"))
+        {
+            logger.debug("Skipping statistics for {} -> {} (not transaction-related)", 
+                arrayPath, targetCollection);
+            return;
+        }
+        
+        // Initialize statistics generator if not already done
+        if (statisticsGenerator == null)
+        {
+            statisticsGenerator = new StatisticsFieldGenerator(database);
+        }
+        
+        // Determine the reference field (how the target collection references back)
+        String referenceField = determineReferenceField(arrayPath, targetCollection);
+        
+        // Generate statistics fields
+        List<FieldConfiguration> statsFields = statisticsGenerator.generateStatisticsFields(
+            arrayPath, 
+            metadata.sourceCollection,
+            targetCollection,
+            referenceField
+        );
+        
+        // Add generated statistics fields to configuration
+        for (FieldConfiguration statsField : statsFields)
+        {
+            config.getFields().add(statsField);
+            logger.debug("Added statistics field: {}", statsField.getFieldPath());
+        }
+    }
+    
+    /**
+     * Determines how the target collection references back to the source
+     * This is needed for the aggregation pipeline to match documents
+     */
+    private String determineReferenceField(String arrayPath, String targetCollection)
+    {
+        // Common patterns for reference fields
+        // If arrayPath is "transactions", target might have "agentId", "clientId", etc.
+        
+        // For now, use simple heuristics based on collection names
+        // This should be made more intelligent based on actual schema analysis
+        
+        if (targetCollection.contains("transaction"))
+        {
+            // Transactions might reference agents, clients, properties
+            if (collectionName.equals("agents"))
+            {
+                return "listingAgents"; // or "sellingAgents", "buyerAgents"
+            }
+            else if (collectionName.equals("agentclients"))
+            {
+                return "client"; // transactions reference clients
+            }
+            else if (collectionName.equals("properties"))
+            {
+                return "property";
+            }
+        }
+        
+        // Default: assume the reference field is the singular form of the source collection
+        // e.g., "agents" -> "agent", "clients" -> "client"
+        if (collectionName.endsWith("s"))
+        {
+            return collectionName.substring(0, collectionName.length() - 1);
+        }
+        
+        return collectionName + "Id";
+    }
+    
+    /**
+     * Generate additional primary mode fields for arrays
+     * This creates separate field configurations for extracting specific values from the first element
+     * Works generically for ANY collection by analyzing the array structure
+     */
+    private void generatePrimaryModeFields(DiscoveryConfiguration config, String arrayPath, 
+                                          FieldMetadata metadata, FieldConfiguration.ArrayConfiguration arrayConfig)
+    {
+        // Always generate count field for arrays with multiple items
+        if (metadata.getAvgArrayLength() > 0)
+        {
+            FieldConfiguration countField = new FieldConfiguration(arrayPath + "[count]");
+            countField.setSourceCollection(metadata.sourceCollection);
+            countField.setDataType("integer");
+            countField.setBusinessName(FieldNameMapper.getBusinessName(arrayPath) + " Count");
+            countField.setInclude(false);  // Let user decide if they want counts
+            countField.setExtractionMode("count");
+            countField.setSourceField(arrayPath);
+            
+            // Set statistics for count field
+            FieldConfiguration.FieldStatistics countStats = new FieldConfiguration.FieldStatistics();
+            countStats.setDistinctNonNullValues(metadata.sampleValues.size());
+            countStats.setNullCount(metadata.nullCount);
+            countField.setStatistics(countStats);
+            
+            config.getFields().add(countField);
+        }
+        
+        // Determine which fields to extract based on array content
+        List<String> fieldsToExtract = new ArrayList<>();
+        
+        // For arrays of ObjectIds that reference another collection
+        if (arrayConfig.getReferenceCollection() != null)
+        {
+            Map<ObjectId, Document> cache = collectionCache.get(arrayConfig.getReferenceCollection());
+            if (cache != null && !cache.isEmpty())
+            {
+                // Sample a few documents to find common meaningful fields
+                List<Document> samples = cache.values().stream().limit(5).collect(java.util.stream.Collectors.toList());
+                Set<String> commonFields = new HashSet<>();
+                
+                // Find fields that exist in all samples
+                boolean first = true;
+                for (Document doc : samples)
+                {
+                    if (first)
+                    {
+                        commonFields.addAll(doc.keySet());
+                        first = false;
+                    }
+                    else
+                    {
+                        commonFields.retainAll(doc.keySet());
+                    }
+                }
+                
+                // Prioritize fields that are likely to be useful for display
+                for (String field : commonFields)
+                {
+                    if (isUsefulPrimaryField(field))
+                    {
+                        fieldsToExtract.add(field);
+                        if (fieldsToExtract.size() >= 4) break;  // Limit to 4 primary fields
+                    }
+                }
+            }
+        }
+        // For arrays of embedded documents
+        else if ("object".equals(metadata.arrayObjectType))
+        {
+            ArrayInternals internals = arrayInternalsMap.get(arrayPath);
+            if (internals != null && internals.internalFields != null)
+            {
+                // Extract the most useful fields from the embedded documents
+                for (String field : internals.internalFields)
+                {
+                    if (isUsefulPrimaryField(field))
+                    {
+                        fieldsToExtract.add(field);
+                        if (fieldsToExtract.size() >= 4) break;  // Limit to 4 primary fields
+                    }
+                }
+            }
+        }
+        
+        // Only generate primary fields if we found useful fields to extract
+        if (fieldsToExtract.isEmpty())
+        {
+            return;
+        }
+        
+        // Generate primary fields for each field to extract
+        for (String fieldName : fieldsToExtract)
+        {
+            String primaryFieldPath = arrayPath + "[primary]." + fieldName;
+            
+            FieldConfiguration primaryField = new FieldConfiguration(primaryFieldPath);
+            primaryField.setSourceCollection(metadata.sourceCollection);
+            primaryField.setDataType("string");  // Default to string, could be smarter later
+            
+            // Generate a clean business name
+            String arrayName = arrayPath.substring(arrayPath.lastIndexOf('.') + 1);
+            String cleanFieldName = FieldNameMapper.getBusinessName(fieldName);
+            primaryField.setBusinessName("Primary " + FieldNameMapper.getBusinessName(arrayName) + " " + cleanFieldName);
+            
+            primaryField.setInclude(false);  // Don't include by default, let user choose
+            primaryField.setExtractionMode("primary");
+            primaryField.setSourceField(arrayPath);
+            primaryField.setExtractionIndex(0);  // Extract from first element
+            
+            // Set statistics (inherit from parent array)
+            FieldConfiguration.FieldStatistics primaryStats = new FieldConfiguration.FieldStatistics();
+            primaryStats.setDistinctNonNullValues(metadata.sampleValues.size()); // No limit!
+            primaryStats.setNullCount(metadata.nullCount);
+            primaryField.setStatistics(primaryStats);
+            
+            config.getFields().add(primaryField);
+        }
+    }
+    
+    /**
+     * Determine if a field is useful for primary extraction
+     * Prioritizes fields that are likely to contain meaningful display information
+     */
+    private boolean isUsefulPrimaryField(String fieldName)
+    {
+        // Skip internal/technical fields
+        if (fieldName.startsWith("_") || fieldName.startsWith("__"))
+        {
+            return false;
+        }
+        
+        String lower = fieldName.toLowerCase();
+        
+        // High priority fields - commonly useful across all collections
+        if (lower.contains("name") || lower.contains("title") || lower.contains("label") ||
+            lower.contains("email") || lower.contains("phone") || lower.contains("address") ||
+            lower.contains("description") || lower.contains("status") || lower.contains("type") ||
+            lower.contains("category") || lower.contains("url") || lower.contains("number") ||
+            lower.contains("code") || lower.contains("identifier") || lower.contains("value"))
+        {
+            return true;
+        }
+        
+        // Medium priority - dates and amounts
+        if (lower.contains("date") || lower.contains("time") || lower.contains("amount") ||
+            lower.contains("price") || lower.contains("cost") || lower.contains("total"))
+        {
+            return true;
+        }
+        
+        // Default: include if it's not obviously technical
+        return !lower.contains("id") || lower.contains("businessid") || lower.contains("externalid");
+    }
+    
     /**
      * Configure array based on its internal structure
      */
@@ -1093,19 +1400,19 @@ public class FieldDiscoveryService
                         // Check sparse field threshold based on actual documents scanned
                         Integer totalOccurrences = stats.getTotalOccurrences();
 
-                        // For expanded fields, check if we have compound sparsity calculated
+                        // For expanded fields, use the actual expansion sparsity
                         if (fieldPath.contains("_expanded"))
                         {
                             FieldMetadata metadata = fieldMetadataMap.get(fieldPath);
-                            if (metadata != null && metadata.compoundSparsity != null)
+                            if (metadata != null && metadata.expandedFieldSparsity != null)
                             {
-                                // Use compound sparsity for expanded fields
-                                if (metadata.compoundSparsity < sparseFieldThreshold)
+                                // Use actual sparsity from expansion results
+                                if (metadata.expandedFieldSparsity < sparseFieldThreshold)
                                 {
                                     shouldInclude = false;
                                     sparseFieldsExcluded++;
-                                    logger.debug("Excluding sparse expanded field '{}': compound sparsity {}% (threshold: {}%)",
-                                            fieldPath, String.format("%.2f", metadata.compoundSparsity * 100),
+                                    logger.debug("Excluding sparse expanded field '{}': actual sparsity {}% (threshold: {}%)",
+                                            fieldPath, String.format("%.2f", metadata.expandedFieldSparsity * 100),
                                             String.format("%.0f", sparseFieldThreshold * 100));
                                 } else
                                 {
@@ -1204,47 +1511,6 @@ public class FieldDiscoveryService
     }
 
     /**
-     * Guess collection name from field name
-     */
-    private String guessCollectionFromFieldName(String fieldName)
-    {
-        Map<String, String> mappings = new HashMap<>();
-        mappings.put("property", "properties");
-        mappings.put("listing", "listings");
-        mappings.put("agent", "agents");
-        mappings.put("listingagent", "agents");
-        mappings.put("buyeragent", "agents");
-        mappings.put("selleragent", "agents");
-        mappings.put("person", "people");
-        mappings.put("buyer", "people");
-        mappings.put("seller", "people");
-        mappings.put("brokerage", "brokerages");
-        mappings.put("transaction", "transactions");
-        mappings.put("openhouse", "openHouses");
-        mappings.put("showing", "showings");
-        mappings.put("lifestyle", "lifestyles");
-        mappings.put("tag", "tags");
-
-        String normalized = fieldName.toLowerCase().replace("id", "").replace("_", "");
-
-        for (Map.Entry<String, String> entry : mappings.entrySet())
-        {
-            if (normalized.contains(entry.getKey()))
-            {
-                return entry.getValue();
-            }
-        }
-
-        // Try pluralizing
-        if (!normalized.endsWith("s"))
-        {
-            return normalized + "s";
-        }
-
-        return normalized;
-    }
-
-    /**
      * Generate an audit tree file showing the field expansion hierarchy
      */
     private void generateAuditTree(DiscoveryConfiguration config)
@@ -1294,7 +1560,17 @@ public class FieldDiscoveryService
                 if (field.getFieldPath().contains("_expanded"))
                 {
                     String originalField = field.getFieldPath().split("_expanded")[0];
-                    String relationship = originalField + " -> " + field.getSourceCollection();
+                    // Find the original field to get its relationship target
+                    String targetCollection = "unknown";
+                    for (FieldConfiguration origField : config.getFields())
+                    {
+                        if (origField.getFieldPath().equals(originalField) && origField.getRelationshipTarget() != null)
+                        {
+                            targetCollection = origField.getRelationshipTarget();
+                            break;
+                        }
+                    }
+                    String relationship = originalField + " -> " + targetCollection;
                     if (expandedRelationships.add(relationship))
                     {
                         audit.append("  - ").append(relationship).append("\n");
@@ -1368,19 +1644,28 @@ public class FieldDiscoveryService
         audit.append(indent).append(field.getFieldPath());
         audit.append(" [").append(field.getDataType()).append("]");
 
-        // Include status
-        if (!field.isInclude())
+        // Include status - show for ALL fields
+        if (field.isInclude())
+        {
+            audit.append(" (INCLUDED)");
+        }
+        else
         {
             audit.append(" (EXCLUDED)");
         }
 
-        // Statistics
+        // Statistics - always show for transparency
         if (field.getStatistics() != null)
         {
             Integer distinctValues = field.getStatistics().getDistinctNonNullValues();
+            Integer nullCount = field.getStatistics().getNullCount();
             if (distinctValues != null)
             {
                 audit.append(" - ").append(distinctValues).append(" distinct values");
+                if (nullCount != null && nullCount > 0)
+                {
+                    audit.append(", ").append(nullCount).append(" nulls");
+                }
             }
         }
 

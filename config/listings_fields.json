@@ -384,7 +384,7 @@
     "fieldPath" : "lotSize",
     "businessName" : "Lot Size",
     "sourceCollection" : "listings",
-    "dataType" : "string",
+    "dataType" : "number",
     "include" : true,
     "statistics" : {
       "distinctNonNullValues" : 100,
@@ -396,7 +396,7 @@
     "fieldPath" : "mlsArea",
     "businessName" : "Mls Area",
     "sourceCollection" : "listings",
-    "dataType" : "string",
+    "dataType" : "integer",
     "include" : true,
     "statistics" : {
       "distinctNonNullValues" : 10,
@@ -571,7 +571,7 @@
     "fieldPath" : "property_expanded.zipcode",
     "businessName" : "Property Zipcode",
     "sourceCollection" : "listings",
-    "dataType" : "string",
+    "dataType" : "integer",
     "include" : true,
     "statistics" : {
       "distinctNonNullValues" : 24,
@@ -705,7 +705,7 @@
     }
   } ],
   "collection" : "listings",
-  "discoveredAt" : 1754901774048,
+  "discoveredAt" : 1754952862197,
   "discoveryParameters" : {
     "sampleSize" : 10000,
     "expansionDepth" : 3,
@@ -1593,7 +1593,7 @@
     "fieldPath" : "lotSize",
     "businessName" : "Lot Size",
     "sourceCollection" : "listings",
-    "dataType" : "string",
+    "dataType" : "number",
     "include" : true,
     "statistics" : {
       "distinctNonNullValues" : 100,
@@ -1605,7 +1605,7 @@
     "fieldPath" : "mlsArea",
     "businessName" : "Mls Area",
     "sourceCollection" : "listings",
-    "dataType" : "string",
+    "dataType" : "integer",
     "include" : true,
     "statistics" : {
       "distinctNonNullValues" : 10,
@@ -2034,7 +2034,7 @@
     "fieldPath" : "property_expanded.zipcode",
     "businessName" : "Property Zipcode",
     "sourceCollection" : "listings",
-    "dataType" : "string",
+    "dataType" : "integer",
     "include" : true,
     "statistics" : {
       "distinctNonNullValues" : 24,
@@ -2239,8 +2239,8 @@
       "nullCount" : 0,
       "totalOccurrences" : 7,
       "sampleValues" : [ "5b6c6b3f9e89b41f53e0e02b", "5b6c6b419e89b41f53e0e168", "5b6c6b419e89b41f53e0e16f", "5b6c6b419e89b41f53e0e1c2" ],
-      "avgArrayLength" : 6.285714285714286,
-      "maxArrayLength" : 14
+      "avgArrayLength" : 6.428571428571429,
+      "maxArrayLength" : 15
     },
     "arrayConfig" : {
       "displayMode" : "comma_separated",
@@ -2415,10 +2415,10 @@
     "dataType" : "date",
     "include" : false,
     "statistics" : {
-      "distinctNonNullValues" : 3,
+      "distinctNonNullValues" : 4,
       "nullCount" : 0,
       "totalOccurrences" : 9,
-      "sampleValues" : [ "Mon Aug 11 04:25:08 UTC 2025", "Mon Aug 11 04:25:09 UTC 2025", "Tue Aug 16 10:46:15 UTC 2022" ]
+      "sampleValues" : [ "Mon Aug 11 09:25:55 UTC 2025", "Mon Aug 11 09:25:56 UTC 2025", "Mon Aug 11 16:43:16 UTC 2025", "Tue Aug 16 10:46:15 UTC 2022" ]
     }
   }, {
     "fieldPath" : "viewTypes",

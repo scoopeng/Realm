@@ -185,15 +185,12 @@ public class FieldStatisticsCollector {
             } else {
                 nonNullCount++;
                 
-                // Track unique values (up to a limit)
-                if (uniqueValues.size() < MAX_UNIQUE_VALUES) {
-                    uniqueValues.add(value);
-                }
+                // Track unique values - no limit, we have plenty of memory
+                uniqueValues.add(value);
                 
                 // Track value counts for distribution
-                if (uniqueValues.size() <= 100) {
-                    valueCounts.merge(value, 1L, Long::sum);
-                }
+                // No limit - we have plenty of memory
+                valueCounts.merge(value, 1L, Long::sum);
                 
                 // Collect sample values
                 if (sampleValues.size() < MAX_SAMPLE_VALUES && !sampleValues.contains(value)) {

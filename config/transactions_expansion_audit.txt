@@ -1,0 +1,83 @@
+=================================================================
+FIELD EXPANSION AUDIT TREE
+=================================================================
+Collection: transactions
+Generated: Mon Aug 11 08:15:58 UTC 2025
+Total Fields: 53
+Included Fields: 20
+Expansion Depth: 3
+=================================================================
+
+__v [integer] (EXCLUDED) - 1 distinct values
+_id [objectId] (EXCLUDED) - 100 distinct values -> s
+buyers [array] - 100 distinct values -> people
+closingDate [date] - 100 distinct values
+daysOnMarket [integer] - 100 distinct values
+deedNumber [string] - 100 distinct values
+deleted [boolean] (EXCLUDED) - 1 distinct values
+excludeFromMarketReport [boolean] - 2 distinct values
+internalSaleId [string] (EXCLUDED) - 100 distinct values
+listing [objectId] - 100 distinct values -> listings
+  └─ EXPANDED:
+    listing_expanded [object] (EXCLUDED) - 0 distinct values
+    listing_expanded.__v [integer] (EXCLUDED) - 1 distinct values
+    listing_expanded._id [objectId] (EXCLUDED) - 100 distinct values -> s
+    listing_expanded.appliances [null] (EXCLUDED) - 0 distinct values
+    listing_expanded.archived [string] (EXCLUDED) - 1 distinct values
+    listing_expanded.coolingSystems [null] (EXCLUDED) - 0 distinct values
+    listing_expanded.dateListed [date] - 65 distinct values
+    listing_expanded.deleted [boolean] (EXCLUDED) - 1 distinct values
+    listing_expanded.exteriorType [null] (EXCLUDED) - 0 distinct values
+    listing_expanded.fees [null] (EXCLUDED) - 0 distinct values
+    listing_expanded.heatingSystems [null] (EXCLUDED) - 0 distinct values
+    listing_expanded.listingAgents [null] (EXCLUDED) - 0 distinct values
+    listing_expanded.mlsId [string] (EXCLUDED) - 94 distinct values
+    listing_expanded.parkingTypes [null] (EXCLUDED) - 0 distinct values
+    listing_expanded.pictures [null] (EXCLUDED) - 0 distinct values
+    listing_expanded.price [object] (EXCLUDED) - 0 distinct values
+    listing_expanded.price.amount [integer] (EXCLUDED) - 1 distinct values
+    listing_expanded.price.currency [string] (EXCLUDED) - 1 distinct values
+    listing_expanded.propertyType [string] (EXCLUDED) - 2 distinct values
+    listing_expanded.realmData [object] (EXCLUDED) - 0 distinct values
+    listing_expanded.roofTypes [null] (EXCLUDED) - 0 distinct values
+    listing_expanded.viewTypes [null] (EXCLUDED) - 0 distinct values
+listingAgents [array] - 100 distinct values -> agents.fullName
+loanAmount [string] - 100 distinct values
+loanType [string] - 23 distinct values
+property [objectId] - 100 distinct values -> properties
+  └─ EXPANDED:
+    property_expanded [object] (EXCLUDED) - 0 distinct values
+    property_expanded.__v [integer] (EXCLUDED) - 1 distinct values
+    property_expanded._id [objectId] (EXCLUDED) - 100 distinct values -> s
+    property_expanded.city [string] - 38 distinct values
+    property_expanded.deleted [boolean] (EXCLUDED) - 1 distinct values
+    property_expanded.fullAddress [string] - 100 distinct values
+    property_expanded.realmData [object] (EXCLUDED) - 0 distinct values
+    property_expanded.schools [null] (EXCLUDED) - 0 distinct values
+    property_expanded.state [string] (EXCLUDED) - 1 distinct values
+    property_expanded.streetAddress [string] - 100 distinct values
+    property_expanded.taxes [null] (EXCLUDED) - 0 distinct values
+    property_expanded.zipcode [string] - 69 distinct values
+salePrice [string] - 100 distinct values
+sellers [array] - 100 distinct values -> people
+sellingAgents [array] - 100 distinct values -> agents.fullName
+type [string] - 3 distinct values
+underContractDate [date] - 100 distinct values
+
+=================================================================
+EXPANSION SUMMARY
+=================================================================
+
+Expanded Relationships:
+  - listing -> transactions
+  - property -> transactions
+
+Array References:
+  - buyers -> people
+  - listingAgents -> agents (extracting: fullName)
+  - sellers -> people
+  - sellingAgents -> agents (extracting: fullName)
+
+Unexpanded ObjectId Fields (potential relationships):
+  - listing (guessed target: listings)
+  - property (guessed target: properties)

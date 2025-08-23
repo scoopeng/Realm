@@ -1,0 +1,3536 @@
+{
+  "includedFields" : [ {
+    "fieldPath" : "agents",
+    "businessName" : "Agents",
+    "sourceCollection" : "agentclients",
+    "dataType" : "array",
+    "include" : true,
+    "statistics" : {
+      "distinctNonNullValues" : 50,
+      "nullCount" : 0,
+      "totalOccurrences" : 20000,
+      "sampleValues" : [ "5b6c6b3f9e89b41f53e0e01d", "5b6c6b3f9e89b41f53e0e02b", "5b6c6b3f9e89b41f53e0e069", "5b6c6b3f9e89b41f53e0e091", "5b6c6b409e89b41f53e0e0d8" ],
+      "avgArrayLength" : 3.7946,
+      "maxArrayLength" : 8
+    },
+    "arrayConfig" : {
+      "extractField" : "fullName",
+      "displayMode" : "comma_separated",
+      "sortOrder" : "alphanumeric",
+      "delimiter" : ", ",
+      "objectType" : "objectId",
+      "referenceCollection" : "agents",
+      "availableFields" : [ "createdAt", "deleted", "fullName", "lastUpdated", "privateURL", "updatedAt" ]
+    }
+  }, {
+    "fieldPath" : "archived",
+    "businessName" : "Archive Date",
+    "sourceCollection" : "agentclients",
+    "dataType" : "string",
+    "include" : true,
+    "statistics" : {
+      "distinctNonNullValues" : 193,
+      "nullCount" : 17234,
+      "totalOccurrences" : 11383,
+      "sampleValues" : [ "2019-09-30T19:00:36.108Z", "2019-09-30T19:01:19.813Z", "2020-01-16T23:52:25.044Z", "2021-08-05T21:27:57.160Z", "2021-12-07T04:44:26.380Z" ]
+    }
+  }, {
+    "fieldPath" : "client",
+    "businessName" : "Client",
+    "sourceCollection" : "agentclients",
+    "dataType" : "objectId",
+    "include" : true,
+    "statistics" : {
+      "distinctNonNullValues" : 9838,
+      "nullCount" : 0,
+      "totalOccurrences" : 20000,
+      "sampleValues" : [ "5b6c6c2d116fa31f8a2c0f7b", "5beb22790c1b8a02a38464b0", "5beb22790c1b8a02aa846494", "5beb22790c1b8a04ac8464af", "5beb22790c1b8a062d846497" ]
+    },
+    "relationshipTarget" : "people_meta"
+  }, {
+    "fieldPath" : "client_expanded.address.city",
+    "businessName" : "Client Address City",
+    "sourceCollection" : "agentclients",
+    "dataType" : "string",
+    "include" : true,
+    "statistics" : {
+      "distinctNonNullValues" : 954,
+      "nullCount" : 6684,
+      "totalOccurrences" : 9989,
+      "sampleValues" : [ "ARROYO GRANDE", "ATLANTA", "ATTN: Dr.", "Abilene", "Afton" ]
+    }
+  }, {
+    "fieldPath" : "client_expanded.address.country",
+    "businessName" : "Client Address Country",
+    "sourceCollection" : "agentclients",
+    "dataType" : "string",
+    "include" : true,
+    "statistics" : {
+      "distinctNonNullValues" : 52,
+      "nullCount" : 8483,
+      "totalOccurrences" : 9989,
+      "sampleValues" : [ "2", "AR", "AU", "Argentina", "BE" ]
+    }
+  }, {
+    "fieldPath" : "client_expanded.address.displayAddress",
+    "businessName" : "Client Address Display Address",
+    "sourceCollection" : "agentclients",
+    "dataType" : "string",
+    "include" : true,
+    "statistics" : {
+      "distinctNonNullValues" : 2054,
+      "nullCount" : 7731,
+      "totalOccurrences" : 9989,
+      "sampleValues" : [ "0 ELLIOT CEMETERY RD", "0115 PO", "03 05 THE SER", "1 AVERY ST", "1 CNBC PLAZA - 900 SYLVAN AVE" ]
+    }
+  }, {
+    "fieldPath" : "client_expanded.address.housenumber",
+    "businessName" : "Client Address Housenumber",
+    "sourceCollection" : "agentclients",
+    "dataType" : "string",
+    "include" : true,
+    "statistics" : {
+      "distinctNonNullValues" : 1432,
+      "nullCount" : 7737,
+      "totalOccurrences" : 9989,
+      "sampleValues" : [ "0", "0115", "03", "1", "10" ]
+    }
+  }, {
+    "fieldPath" : "client_expanded.address.postalCode",
+    "businessName" : "Client Address Postal Code",
+    "sourceCollection" : "agentclients",
+    "dataType" : "string",
+    "include" : true,
+    "statistics" : {
+      "distinctNonNullValues" : 1278,
+      "nullCount" : 6905,
+      "totalOccurrences" : 9989,
+      "sampleValues" : [ "01742", "01778-2808", "02056-1013", "02090-2907", "02108-3106" ]
+    }
+  }, {
+    "fieldPath" : "client_expanded.address.state",
+    "businessName" : "Client Address State",
+    "sourceCollection" : "agentclients",
+    "dataType" : "string",
+    "include" : true,
+    "statistics" : {
+      "distinctNonNullValues" : 177,
+      "nullCount" : 6259,
+      "totalOccurrences" : 9989,
+      "sampleValues" : [ "(NA)", "01", "07", "25", "26" ]
+    }
+  }, {
+    "fieldPath" : "client_expanded.address.streetAddress",
+    "businessName" : "Client Address Street Address",
+    "sourceCollection" : "agentclients",
+    "dataType" : "string",
+    "include" : true,
+    "statistics" : {
+      "distinctNonNullValues" : 2804,
+      "nullCount" : 6910,
+      "totalOccurrences" : 9989,
+      "sampleValues" : [ "'A' Hetrick", "0 Elliot Cemetery Road", "0115 PO Box 93569", "1 Avery Street Apt. 19B", "1 CNBC Plaza - 900 Sylvan Avenue" ]
+    }
+  }, {
+    "fieldPath" : "client_expanded.address.streetname",
+    "businessName" : "Client Address Streetname",
+    "sourceCollection" : "agentclients",
+    "dataType" : "string",
+    "include" : true,
+    "statistics" : {
+      "distinctNonNullValues" : 1505,
+      "nullCount" : 7766,
+      "totalOccurrences" : 9989,
+      "sampleValues" : [ "000", "05 THE SER", "1 2 BEACON", "1 2 HUNTLEY", "100" ]
+    }
+  }, {
+    "fieldPath" : "client_expanded.address.streetnameDirection",
+    "businessName" : "Client Address Streetname Direction",
+    "sourceCollection" : "agentclients",
+    "dataType" : "string",
+    "include" : true,
+    "statistics" : {
+      "distinctNonNullValues" : 8,
+      "nullCount" : 9922,
+      "totalOccurrences" : 9989,
+      "sampleValues" : [ "E", "N", "NE", "NW", "S" ]
+    }
+  }, {
+    "fieldPath" : "client_expanded.address.streetnamePrefix",
+    "businessName" : "Client Address Streetname Prefix",
+    "sourceCollection" : "agentclients",
+    "dataType" : "string",
+    "include" : true,
+    "statistics" : {
+      "distinctNonNullValues" : 8,
+      "nullCount" : 9521,
+      "totalOccurrences" : 9989,
+      "sampleValues" : [ "E", "N", "NE", "NW", "S" ]
+    }
+  }, {
+    "fieldPath" : "client_expanded.address.streetnameSuffix",
+    "businessName" : "Client Address Streetname Suffix",
+    "sourceCollection" : "agentclients",
+    "dataType" : "string",
+    "include" : true,
+    "statistics" : {
+      "distinctNonNullValues" : 58,
+      "nullCount" : 8106,
+      "totalOccurrences" : 9989,
+      "sampleValues" : [ "AVE", "BCH", "BLVD", "CIR", "CORS" ]
+    }
+  }, {
+    "fieldPath" : "client_expanded.address.unit",
+    "businessName" : "Client Address Unit",
+    "sourceCollection" : "agentclients",
+    "dataType" : "string",
+    "include" : true,
+    "statistics" : {
+      "distinctNonNullValues" : 204,
+      "nullCount" : 9722,
+      "totalOccurrences" : 9989,
+      "sampleValues" : [ "# 1205", "#1", "#1-2-1", "#10", "#100" ]
+    }
+  }, {
+    "fieldPath" : "client_expanded.demographics.birthDate",
+    "businessName" : "Client Demographics Birth Date",
+    "sourceCollection" : "agentclients",
+    "dataType" : "date",
+    "include" : true,
+    "statistics" : {
+      "distinctNonNullValues" : 6,
+      "nullCount" : 9506,
+      "totalOccurrences" : 9512,
+      "sampleValues" : [ "11/28/2006", "1604-05-07", "3/18/2000", "9/10/2018", "9/8/2000" ]
+    }
+  }, {
+    "fieldPath" : "client_expanded.name.firstName",
+    "businessName" : "Client Name First Name",
+    "sourceCollection" : "agentclients",
+    "dataType" : "string",
+    "include" : true,
+    "statistics" : {
+      "distinctNonNullValues" : 2465,
+      "nullCount" : 0,
+      "totalOccurrences" : 9989,
+      "sampleValues" : [ "A", "A.", "A. Max", "A. Silvana", "AARON" ]
+    }
+  }, {
+    "fieldPath" : "client_expanded.name.fullName",
+    "businessName" : "Client Name Full Name",
+    "sourceCollection" : "agentclients",
+    "dataType" : "string",
+    "include" : true,
+    "statistics" : {
+      "distinctNonNullValues" : 9265,
+      "nullCount" : 0,
+      "totalOccurrences" : 9989,
+      "sampleValues" : [ "A Gomez", "A Toberoff", "A Young", "A. Hartzell", "A. Max Kohlenberg" ]
+    }
+  }, {
+    "fieldPath" : "client_expanded.name.lastName",
+    "businessName" : "Client Name Last Name",
+    "sourceCollection" : "agentclients",
+    "dataType" : "string",
+    "include" : true,
+    "statistics" : {
+      "distinctNonNullValues" : 6152,
+      "nullCount" : 1,
+      "totalOccurrences" : 9989,
+      "sampleValues" : [ "('Hungerford')", "(Hoyle) Haskell", "<>", "A Biondi", "A Raynor" ]
+    }
+  }, {
+    "fieldPath" : "client_expanded.name.middleName",
+    "businessName" : "Client Name Middle Name",
+    "sourceCollection" : "agentclients",
+    "dataType" : "string",
+    "include" : true,
+    "statistics" : {
+      "distinctNonNullValues" : 38,
+      "nullCount" : 9942,
+      "totalOccurrences" : 9989,
+      "sampleValues" : [ "(Mary Katharine)", "A", "A.", "Airlines", "Ann" ]
+    }
+  }, {
+    "fieldPath" : "client_expanded.name.prefix",
+    "businessName" : "Client Name Prefix",
+    "sourceCollection" : "agentclients",
+    "dataType" : "string",
+    "include" : true,
+    "statistics" : {
+      "distinctNonNullValues" : 16,
+      "nullCount" : 9966,
+      "totalOccurrences" : 9989,
+      "sampleValues" : [ "Associate Broker", "Dr", "E", "Head of Consumer Credit Sales and Business Development", "Mr" ]
+    }
+  }, {
+    "fieldPath" : "client_expanded.name.suffix",
+    "businessName" : "Client Name Suffix",
+    "sourceCollection" : "agentclients",
+    "dataType" : "string",
+    "include" : true,
+    "statistics" : {
+      "distinctNonNullValues" : 7,
+      "nullCount" : 9982,
+      "totalOccurrences" : 9989,
+      "sampleValues" : [ "Jr", "Jr.", "Mr", "Mrs", "NE" ]
+    }
+  }, {
+    "fieldPath" : "client_expanded.primaryEmail",
+    "businessName" : "Client Primary Email",
+    "sourceCollection" : "agentclients",
+    "dataType" : "string",
+    "include" : true,
+    "statistics" : {
+      "distinctNonNullValues" : 9586,
+      "nullCount" : 0,
+      "totalOccurrences" : 9989,
+      "sampleValues" : [ "102420.2005@compuserve.com", "1207ccs@gmail.com", "12djc27@gmail.com", "1wrightj@gmail.com", "250silverado.hancock@gmail.com" ]
+    }
+  }, {
+    "fieldPath" : "client_expanded.primaryPhone",
+    "businessName" : "Client Primary Phone",
+    "sourceCollection" : "agentclients",
+    "dataType" : "string",
+    "include" : true,
+    "statistics" : {
+      "distinctNonNullValues" : 4598,
+      "nullCount" : 5056,
+      "totalOccurrences" : 9989,
+      "sampleValues" : [ " (281) 831-7171‬", "(+590) 590 87 57 58", "(1) 730-3031", "(1) 734-6061", "(201) 923-5063" ]
+    }
+  }, {
+    "fieldPath" : "client_expanded.updatedAt",
+    "businessName" : "Client Updated At",
+    "sourceCollection" : "agentclients",
+    "dataType" : "date",
+    "include" : true,
+    "statistics" : {
+      "distinctNonNullValues" : 60,
+      "nullCount" : 0,
+      "totalOccurrences" : 8871,
+      "sampleValues" : [ "Mon Aug 01 05:35:32 UTC 2022", "Mon Feb 05 17:45:02 UTC 2024", "Mon Feb 05 17:48:58 UTC 2024", "Mon Mar 27 06:37:15 UTC 2023", "Sat Aug 23 09:30:35 UTC 2025" ]
+    }
+  }, {
+    "fieldPath" : "fullName",
+    "businessName" : "Full Name",
+    "sourceCollection" : "agentclients",
+    "dataType" : "string",
+    "include" : true,
+    "statistics" : {
+      "distinctNonNullValues" : 9298,
+      "nullCount" : 0,
+      "totalOccurrences" : 20000,
+      "sampleValues" : [ "A Gomez", "A Toberoff", "A Young", "A. Hartzell", "A. Max Kohlenberg" ]
+    }
+  }, {
+    "fieldPath" : "lastNameFirst",
+    "businessName" : "Last Name First",
+    "sourceCollection" : "agentclients",
+    "dataType" : "string",
+    "include" : true,
+    "statistics" : {
+      "distinctNonNullValues" : 8174,
+      "nullCount" : 0,
+      "totalOccurrences" : 17508,
+      "sampleValues" : [ "(Hoyle) Haskell Molly", "A Biondi Roger", "A Raynor Kimberly", "ALAVI ALI", "ASA Scott A." ]
+    }
+  }, {
+    "fieldPath" : "realmData.lifestyleNames",
+    "businessName" : "Realm Data Lifestyle Names",
+    "sourceCollection" : "agentclients",
+    "dataType" : "array",
+    "include" : true,
+    "statistics" : {
+      "distinctNonNullValues" : 19,
+      "nullCount" : 10800,
+      "totalOccurrences" : 14500,
+      "sampleValues" : [ "art_architecture", "country_club_living", "country_living", "eco_friendly", "eco_friendly_living" ],
+      "avgArrayLength" : 2.1758241758241756,
+      "maxArrayLength" : 12
+    },
+    "arrayConfig" : {
+      "displayMode" : "comma_separated",
+      "sortOrder" : "alphanumeric",
+      "delimiter" : ", ",
+      "objectType" : "string"
+    }
+  }, {
+    "fieldPath" : "realmData.lifestyles",
+    "businessName" : "Realm Data Lifestyles",
+    "sourceCollection" : "agentclients",
+    "dataType" : "array",
+    "include" : true,
+    "statistics" : {
+      "distinctNonNullValues" : 14,
+      "nullCount" : 7628,
+      "totalOccurrences" : 14018,
+      "sampleValues" : [ "5db9b02ef723983b5c712c7a", "5db9b02ef723983b5c712c8c", "5db9b02ef723983b5c712c97", "5db9b02ef723983b5c712ca2", "5db9b02ef723983b5c712cad" ],
+      "avgArrayLength" : 2.1569972559780477,
+      "maxArrayLength" : 12
+    },
+    "arrayConfig" : {
+      "extractField" : "lifestyleName",
+      "displayMode" : "comma_separated",
+      "sortOrder" : "alphanumeric",
+      "delimiter" : ", ",
+      "objectType" : "object",
+      "referenceField" : "lifestyle",
+      "referenceCollection" : "lifestyles",
+      "availableFields" : [ "lifestyleName" ]
+    }
+  }, {
+    "fieldPath" : "realmData.maxPrice",
+    "businessName" : "Realm Data Max Price",
+    "sourceCollection" : "agentclients",
+    "dataType" : "integer",
+    "include" : true,
+    "statistics" : {
+      "distinctNonNullValues" : 2483,
+      "nullCount" : 0,
+      "totalOccurrences" : 13352,
+      "sampleValues" : [ "0", "1.289106525E7", "1000650", "1001000", "1001175" ]
+    }
+  }, {
+    "fieldPath" : "realmData.ownerAgent",
+    "businessName" : "Realm Data Owner Agent",
+    "sourceCollection" : "agentclients",
+    "dataType" : "objectId",
+    "include" : true,
+    "statistics" : {
+      "distinctNonNullValues" : 31,
+      "nullCount" : 0,
+      "totalOccurrences" : 17858,
+      "sampleValues" : [ "5b6c6b3f9e89b41f53e0e01d", "5b6c6b3f9e89b41f53e0e02b", "5b6c6b3f9e89b41f53e0e069", "5b6c6b3f9e89b41f53e0e091", "5b6c6b409e89b41f53e0e0d8" ]
+    },
+    "relationshipTarget" : "agents"
+  }, {
+    "fieldPath" : "realmData.ownerAgent_expanded.archived",
+    "businessName" : "Realm Data Owner Agent Archived",
+    "sourceCollection" : "agentclients",
+    "dataType" : "string",
+    "include" : true,
+    "statistics" : {
+      "distinctNonNullValues" : 4,
+      "nullCount" : 7193,
+      "totalOccurrences" : 7456,
+      "sampleValues" : [ "2019-09-30T19:00:36.108Z", "2024-01-22T18:31:39.587Z", "2024-11-15T17:01:15.734Z", "2024-12-19" ]
+    }
+  }, {
+    "fieldPath" : "realmData.ownerAgent_expanded.fullName",
+    "businessName" : "Realm Data Owner Agent Full Name",
+    "sourceCollection" : "agentclients",
+    "dataType" : "string",
+    "include" : true,
+    "statistics" : {
+      "distinctNonNullValues" : 24,
+      "nullCount" : 0,
+      "totalOccurrences" : 8871,
+      "sampleValues" : [ "Ann Dolan", "Ashley Test Kim", "Ashley2 Test", "Cesar Herrera", "Christy Gillespie" ]
+    }
+  }, {
+    "fieldPath" : "realmData.ownerAgent_expanded.lastUpdated",
+    "businessName" : "Realm Data Owner Agent Last Updated",
+    "sourceCollection" : "agentclients",
+    "dataType" : "double",
+    "include" : true,
+    "statistics" : {
+      "distinctNonNullValues" : 10,
+      "nullCount" : 0,
+      "totalOccurrences" : 8871,
+      "sampleValues" : [ "1.660233924E9", "1.674075227E9", "1.675719033E9", "1.675719395E9", "1.683913872E9" ]
+    }
+  }, {
+    "fieldPath" : "realmData.ownerAgent_expanded.person",
+    "businessName" : "Realm Data Owner Agent Person",
+    "sourceCollection" : "agentclients",
+    "dataType" : "objectId",
+    "include" : true,
+    "statistics" : {
+      "distinctNonNullValues" : 24,
+      "nullCount" : 0,
+      "totalOccurrences" : 8871,
+      "sampleValues" : [ "5b6c6b3e9e89b41f53e0e01c", "5b6c6b3f9e89b41f53e0e02a", "5b6c6b3f9e89b41f53e0e068", "5b6c6b3f9e89b41f53e0e090", "5b6c6b419e89b41f53e0e1c1" ]
+    }
+  }, {
+    "fieldPath" : "realmData.ownerAgent_expanded.photoURL",
+    "businessName" : "Realm Data Owner Agent Photo URL",
+    "sourceCollection" : "agentclients",
+    "dataType" : "string",
+    "include" : true,
+    "statistics" : {
+      "distinctNonNullValues" : 3,
+      "nullCount" : 6540,
+      "totalOccurrences" : 8022,
+      "sampleValues" : [ "https://images.pexels.com/photos/551628/pexels-photo-551628.jpeg?auto=format%2Ccompress&cs=tinysrgb&dpr=1&w=500", "https://livejacksonhole.com/wp-content/uploads/2018/08/RichardLewis-1.jpg", "https://www.colorado.com/sites/default/files/styles/1000x685/public/Dillon2_Town-of-Dillon_0.jpg?itok=cXTpK04e" ]
+    }
+  }, {
+    "fieldPath" : "realmData.ownerAgent_expanded.privateURL",
+    "businessName" : "Realm Data Owner Agent Private URL",
+    "sourceCollection" : "agentclients",
+    "dataType" : "string",
+    "include" : true,
+    "statistics" : {
+      "distinctNonNullValues" : 16,
+      "nullCount" : 0,
+      "totalOccurrences" : 8621,
+      "sampleValues" : [ "https://media.realm-global.com/Vista?referral=ADolanMEX", "https://media.realm-global.com/Vista?referral=CGillespieWY", "https://media.realm-global.com/Vista?referral=CHerreraRR", "https://media.realm-global.com/Vista?referral=CMurphyWY", "https://media.realm-global.com/Vista?referral=DPalmerWY" ]
+    }
+  }, {
+    "fieldPath" : "realmData.ownerAgent_expanded.realmData.clientCount",
+    "businessName" : "Realm Data Owner Agent Realm Data Client Count",
+    "sourceCollection" : "agentclients",
+    "dataType" : "integer",
+    "include" : true,
+    "statistics" : {
+      "distinctNonNullValues" : 5,
+      "nullCount" : 0,
+      "totalOccurrences" : 8871,
+      "sampleValues" : [ "0", "1", "1545", "3593", "6" ]
+    }
+  }, {
+    "fieldPath" : "realmData.ownerAgent_expanded.realmData.clientUpload.etl.completedAt",
+    "businessName" : "Realm Data Owner Agent Realm Data Client Upload Etl Completed At",
+    "sourceCollection" : "agentclients",
+    "dataType" : "date",
+    "include" : true,
+    "statistics" : {
+      "distinctNonNullValues" : 16,
+      "nullCount" : 0,
+      "totalOccurrences" : 8348,
+      "sampleValues" : [ "Fri Apr 26 15:08:05 UTC 2019", "Mon Jun 29 15:48:36 UTC 2020", "Sat Oct 21 00:18:39 UTC 2023", "Thu Feb 07 17:44:53 UTC 2019", "Thu Jan 16 22:58:35 UTC 2020" ]
+    }
+  }, {
+    "fieldPath" : "realmData.ownerAgent_expanded.realmData.clientUpload.etl.inProgressAt",
+    "businessName" : "Realm Data Owner Agent Realm Data Client Upload Etl In Progress At",
+    "sourceCollection" : "agentclients",
+    "dataType" : "date",
+    "include" : true,
+    "statistics" : {
+      "distinctNonNullValues" : 19,
+      "nullCount" : 0,
+      "totalOccurrences" : 8572,
+      "sampleValues" : [ "Fri Apr 26 15:08:04 UTC 2019", "Mon Feb 25 21:53:11 UTC 2019", "Mon Jun 29 15:48:26 UTC 2020", "Sat Oct 21 00:18:17 UTC 2023", "Thu Jan 16 22:58:35 UTC 2020" ]
+    }
+  }, {
+    "fieldPath" : "realmData.ownerAgent_expanded.realmData.clientUpload.etl.rejectedAt",
+    "businessName" : "Realm Data Owner Agent Realm Data Client Upload Etl Rejected At",
+    "sourceCollection" : "agentclients",
+    "dataType" : "date",
+    "include" : true,
+    "statistics" : {
+      "distinctNonNullValues" : 2,
+      "nullCount" : 0,
+      "totalOccurrences" : 1666,
+      "sampleValues" : [ "Mon Feb 25 21:53:11 UTC 2019", "Tue Mar 05 13:08:22 UTC 2019" ]
+    }
+  }, {
+    "fieldPath" : "realmData.ownerAgent_expanded.realmData.clientUpload.etl.status",
+    "businessName" : "Realm Data Owner Agent Realm Data Client Upload Etl Status",
+    "sourceCollection" : "agentclients",
+    "dataType" : "string",
+    "include" : true,
+    "statistics" : {
+      "distinctNonNullValues" : 4,
+      "nullCount" : 0,
+      "totalOccurrences" : 8572,
+      "sampleValues" : [ "Completed", "Import", "InProgress", "Rejected" ]
+    }
+  }, {
+    "fieldPath" : "realmData.ownerAgent_expanded.realmData.clientUpload.file.bucket",
+    "businessName" : "Realm Data Owner Agent Realm Data Client Upload File Bucket",
+    "sourceCollection" : "agentclients",
+    "dataType" : "string",
+    "include" : true,
+    "statistics" : {
+      "distinctNonNullValues" : 2,
+      "nullCount" : 0,
+      "totalOccurrences" : 8572,
+      "sampleValues" : [ "dev-admin-agents-test", "realm-uploads-bo-prod" ]
+    }
+  }, {
+    "fieldPath" : "realmData.ownerAgent_expanded.realmData.clientUpload.file.etag",
+    "businessName" : "Realm Data Owner Agent Realm Data Client Upload File Etag",
+    "sourceCollection" : "agentclients",
+    "dataType" : "string",
+    "include" : true,
+    "statistics" : {
+      "distinctNonNullValues" : 19,
+      "nullCount" : 0,
+      "totalOccurrences" : 8572,
+      "sampleValues" : [ "\"01be4c1c4fdbb8f5569ad8977d05a45f\"", "\"053f4e57a154dafac1dfd0eee254e77a\"", "\"16645e3cb6cb35c8dc9736d6c3756e87\"", "\"1eeea7ade49a6f518706250831804405\"", "\"23dbef691f70609cf8dc81ea90b4f44b\"" ]
+    }
+  }, {
+    "fieldPath" : "realmData.ownerAgent_expanded.realmData.clientUpload.file.key",
+    "businessName" : "Realm Data Owner Agent Realm Data Client Upload File Key",
+    "sourceCollection" : "agentclients",
+    "dataType" : "string",
+    "include" : true,
+    "statistics" : {
+      "distinctNonNullValues" : 19,
+      "nullCount" : 0,
+      "totalOccurrences" : 8572,
+      "sampleValues" : [ "1545408817887", "1551790834228", "1556290772237", "1559759375510", "1561054059376" ]
+    }
+  }, {
+    "fieldPath" : "realmData.ownerAgent_expanded.realmData.clientUpload.file.location",
+    "businessName" : "Realm Data Owner Agent Realm Data Client Upload File Location",
+    "sourceCollection" : "agentclients",
+    "dataType" : "string",
+    "include" : true,
+    "statistics" : {
+      "distinctNonNullValues" : 19,
+      "nullCount" : 0,
+      "totalOccurrences" : 8572,
+      "sampleValues" : [ "https://dev-admin-agents-test.s3.amazonaws.com/1545408817887", "https://realm-uploads-bo-prod.s3.amazonaws.com/1551790834228", "https://realm-uploads-bo-prod.s3.amazonaws.com/1556290772237", "https://realm-uploads-bo-prod.s3.amazonaws.com/1559759375510", "https://realm-uploads-bo-prod.s3.amazonaws.com/1561054059376" ]
+    }
+  }, {
+    "fieldPath" : "realmData.ownerAgent_expanded.realmData.clientUpload.file.mimetype",
+    "businessName" : "Realm Data Owner Agent Realm Data Client Upload File Mimetype",
+    "sourceCollection" : "agentclients",
+    "dataType" : "string",
+    "include" : true,
+    "statistics" : {
+      "distinctNonNullValues" : 2,
+      "nullCount" : 0,
+      "totalOccurrences" : 8572,
+      "sampleValues" : [ "application/vnd.ms-excel", "text/csv" ]
+    }
+  }, {
+    "fieldPath" : "realmData.ownerAgent_expanded.realmData.clientUpload.file.originalname",
+    "businessName" : "Realm Data Owner Agent Realm Data Client Upload File Originalname",
+    "sourceCollection" : "agentclients",
+    "dataType" : "string",
+    "include" : true,
+    "statistics" : {
+      "distinctNonNullValues" : 19,
+      "nullCount" : 0,
+      "totalOccurrences" : 8572,
+      "sampleValues" : [ "06.29 Tester CSV - Sheet1.csv", "1629 Name-Phone - Sheet1 (1).csv", "Ann Dolan Client List - REALM_clientdata_format (1).csv", "Boost Contacts_Outlook.csv", "DianePalmerREALM Mailing list 2019 - DianePalmerREALM Mailing list 2019.csv" ]
+    }
+  }, {
+    "fieldPath" : "realmData.ownerAgent_expanded.realmData.clientUpload.file.size",
+    "businessName" : "Realm Data Owner Agent Realm Data Client Upload File Size",
+    "sourceCollection" : "agentclients",
+    "dataType" : "integer",
+    "include" : true,
+    "statistics" : {
+      "distinctNonNullValues" : 19,
+      "nullCount" : 0,
+      "totalOccurrences" : 8572,
+      "sampleValues" : [ "10837", "116523", "131", "145479", "1460" ]
+    }
+  }, {
+    "fieldPath" : "realmData.ownerAgent_expanded.realmData.clientUpload.source",
+    "businessName" : "Realm Data Owner Agent Realm Data Client Upload Source",
+    "sourceCollection" : "agentclients",
+    "dataType" : "string",
+    "include" : true,
+    "statistics" : {
+      "distinctNonNullValues" : 5,
+      "nullCount" : 0,
+      "totalOccurrences" : 8572,
+      "sampleValues" : [ "MailChimp", "MasterTemplate", "Outlook", "Realm", "TopProducer" ]
+    }
+  }, {
+    "fieldPath" : "realmData.ownerAgent_expanded.realmData.clientUpload.uploadedAt",
+    "businessName" : "Realm Data Owner Agent Realm Data Client Upload Uploaded At",
+    "sourceCollection" : "agentclients",
+    "dataType" : "date",
+    "include" : true,
+    "statistics" : {
+      "distinctNonNullValues" : 19,
+      "nullCount" : 0,
+      "totalOccurrences" : 8572,
+      "sampleValues" : [ "Fri Apr 26 14:59:32 UTC 2019", "Fri Dec 21 16:13:38 UTC 2018", "Mon Jun 29 15:47:56 UTC 2020", "Sat Oct 21 00:13:53 UTC 2023", "Thu Jan 16 22:56:17 UTC 2020" ]
+    }
+  }, {
+    "fieldPath" : "realmData.ownerAgent_expanded.realmData.clientUpload.url",
+    "businessName" : "Realm Data Owner Agent Realm Data Client Upload Url",
+    "sourceCollection" : "agentclients",
+    "dataType" : "string",
+    "include" : true,
+    "statistics" : {
+      "distinctNonNullValues" : 19,
+      "nullCount" : 0,
+      "totalOccurrences" : 8572,
+      "sampleValues" : [ "https://dev-admin-agents-test.s3.amazonaws.com/1545408817887", "https://realm-uploads-bo-prod.s3.amazonaws.com/1551790834228", "https://realm-uploads-bo-prod.s3.amazonaws.com/1556290772237", "https://realm-uploads-bo-prod.s3.amazonaws.com/1559759375510", "https://realm-uploads-bo-prod.s3.amazonaws.com/1561054059376" ]
+    }
+  }, {
+    "fieldPath" : "realmData.ownerAgent_expanded.realmData.listingCount",
+    "businessName" : "Realm Data Owner Agent Realm Data Listing Count",
+    "sourceCollection" : "agentclients",
+    "dataType" : "integer",
+    "include" : true,
+    "statistics" : {
+      "distinctNonNullValues" : 8,
+      "nullCount" : 0,
+      "totalOccurrences" : 8370,
+      "sampleValues" : [ "0", "1", "17", "2", "4" ]
+    }
+  }, {
+    "fieldPath" : "realmData.ownerAgent_expanded.subscription",
+    "businessName" : "Realm Data Owner Agent Subscription",
+    "sourceCollection" : "agentclients",
+    "dataType" : "objectId",
+    "include" : true,
+    "statistics" : {
+      "distinctNonNullValues" : 16,
+      "nullCount" : 0,
+      "totalOccurrences" : 8871,
+      "sampleValues" : [ "5d02ba07f000318ce53bad7b", "5d02bdeff00031bcc63badac", "5d02c06e39963fe13babab21", "5d02c08983582d4e780f1620", "5d02c1dcf00031977a3badb9" ]
+    }
+  }, {
+    "fieldPath" : "realmData.ownerAgent_expanded.updatedAt",
+    "businessName" : "Realm Data Owner Agent Updated At",
+    "sourceCollection" : "agentclients",
+    "dataType" : "date",
+    "include" : true,
+    "statistics" : {
+      "distinctNonNullValues" : 15,
+      "nullCount" : 0,
+      "totalOccurrences" : 8871,
+      "sampleValues" : [ "Fri Jan 24 22:52:19 UTC 2025", "Fri Jan 31 15:51:06 UTC 2025", "Fri Nov 15 17:01:16 UTC 2024", "Mon Apr 28 11:08:49 UTC 2025", "Mon Jan 22 18:31:39 UTC 2024" ]
+    }
+  }, {
+    "fieldPath" : "realmData.ownerTeam",
+    "businessName" : "Realm Data Owner Team",
+    "sourceCollection" : "agentclients",
+    "dataType" : "objectId",
+    "include" : true,
+    "statistics" : {
+      "distinctNonNullValues" : 5,
+      "nullCount" : 0,
+      "totalOccurrences" : 11650,
+      "sampleValues" : [ "5c9e8520ffbec5380fd6754c", "5ca52e2ae5d6bb9fec120607", "5ca52f754c5e5faa929d21ab", "5d8d3a25ba0be851a4d6ebeb", "5dcdba6f05a42e35b059aa18" ]
+    },
+    "relationshipTarget" : "teams"
+  }, {
+    "fieldPath" : "realmData.ownerTeam_expanded.displayName",
+    "businessName" : "Realm Data Owner Team Display Name",
+    "sourceCollection" : "agentclients",
+    "dataType" : "string",
+    "include" : true,
+    "statistics" : {
+      "distinctNonNullValues" : 5,
+      "nullCount" : 0,
+      "totalOccurrences" : 5825,
+      "sampleValues" : [ "Chris | Kristen", "Christy & Garth Gillespie", "Graham Faupel Mendenhall", "Live Jackson Hole", "The Wards" ]
+    }
+  }, {
+    "fieldPath" : "realmData.ownerTeam_expanded.leader",
+    "businessName" : "Realm Data Owner Team Leader",
+    "sourceCollection" : "agentclients",
+    "dataType" : "objectId",
+    "include" : true,
+    "statistics" : {
+      "distinctNonNullValues" : 5,
+      "nullCount" : 0,
+      "totalOccurrences" : 5825,
+      "sampleValues" : [ "5b6c6b419e89b41f53e0e1c2", "5c4ba9e8e3e54a1813c00065", "5c7da3dc0bc3645305eb8333", "5ca5290931f5615cefc5fdb7", "5d5c2c0db7624c6a5ca3b18d" ]
+    }
+  }, {
+    "fieldPath" : "realmData.ownerTeam_expanded.name",
+    "businessName" : "Realm Data Owner Team Name",
+    "sourceCollection" : "agentclients",
+    "dataType" : "string",
+    "include" : true,
+    "statistics" : {
+      "distinctNonNullValues" : 5,
+      "nullCount" : 0,
+      "totalOccurrences" : 5825,
+      "sampleValues" : [ "Chris | Kristen", "Christy & Garth Gillespie", "Graham-Faupel-Mendenhall", "Jeff &amp; Kelli Ward", "LiveJacksonHole" ]
+    }
+  }, {
+    "fieldPath" : "realmData.ownerTeam_expanded.photoURL",
+    "businessName" : "Realm Data Owner Team Photo URL",
+    "sourceCollection" : "agentclients",
+    "dataType" : "string",
+    "include" : true,
+    "statistics" : {
+      "distinctNonNullValues" : 2,
+      "nullCount" : 80,
+      "totalOccurrences" : 5539,
+      "sampleValues" : [ "https://realm-uploaded-images.s3.amazonaws.com/1585933931986.jpeg", "https://realm-uploaded-images.s3.amazonaws.com/1671654737457.png" ]
+    }
+  }, {
+    "fieldPath" : "realmData.ownerTeam_expanded.thumbnailPhotoURL",
+    "businessName" : "Realm Data Owner Team Thumbnail Photo URL",
+    "sourceCollection" : "agentclients",
+    "dataType" : "string",
+    "include" : true,
+    "statistics" : {
+      "distinctNonNullValues" : 2,
+      "nullCount" : 0,
+      "totalOccurrences" : 5459,
+      "sampleValues" : [ "https://realm-uploaded-images.s3.amazonaws.com/thumbnail/1585933931986.jpeg", "https://realm-uploaded-images.s3.amazonaws.com/thumbnail/1671654737457.png" ]
+    }
+  }, {
+    "fieldPath" : "realmData.ownerTeam_expanded.tier",
+    "businessName" : "Realm Data Owner Team Tier",
+    "sourceCollection" : "agentclients",
+    "dataType" : "string",
+    "include" : true,
+    "statistics" : {
+      "distinctNonNullValues" : 2,
+      "nullCount" : 0,
+      "totalOccurrences" : 5825,
+      "sampleValues" : [ "M", "S" ]
+    }
+  }, {
+    "fieldPath" : "realmData.ownerTeam_expanded.websiteURL",
+    "businessName" : "Realm Data Owner Team Website URL",
+    "sourceCollection" : "agentclients",
+    "dataType" : "string",
+    "include" : true,
+    "statistics" : {
+      "distinctNonNullValues" : 2,
+      "nullCount" : 3699,
+      "totalOccurrences" : 5825,
+      "sampleValues" : [ "https://jacksonholeexperts.com", "https://livejacksonhole.com" ]
+    }
+  }, {
+    "fieldPath" : "realmData.tagNames",
+    "businessName" : "Realm Data Tag Names",
+    "sourceCollection" : "agentclients",
+    "dataType" : "array",
+    "include" : true,
+    "statistics" : {
+      "distinctNonNullValues" : 223,
+      "nullCount" : 3898,
+      "totalOccurrences" : 17933,
+      "sampleValues" : [ "achitectural_provenance", "airstrip", "apartment", "architectural_provenance", "arts" ],
+      "avgArrayLength" : 7.808183183183183,
+      "maxArrayLength" : 61
+    },
+    "arrayConfig" : {
+      "displayMode" : "comma_separated",
+      "sortOrder" : "alphanumeric",
+      "delimiter" : ", ",
+      "objectType" : "string"
+    }
+  }, {
+    "fieldPath" : "realmData.tags",
+    "businessName" : "Realm Data Tags",
+    "sourceCollection" : "agentclients",
+    "dataType" : "array",
+    "include" : true,
+    "statistics" : {
+      "distinctNonNullValues" : 259,
+      "nullCount" : 468,
+      "totalOccurrences" : 17736,
+      "sampleValues" : [ "5c1d32bc3fce883621e4f1c3", "5c1d32bc3fce883621e4f1c4", "5c1d32bc3fce883621e4f1c5", "5c1d32bc3fce883621e4f1c6", "5c1d32bc3fce883621e4f1c7" ],
+      "avgArrayLength" : 7.724374357216318,
+      "maxArrayLength" : 131
+    },
+    "arrayConfig" : {
+      "extractField" : "subCategory",
+      "displayMode" : "comma_separated",
+      "sortOrder" : "alphanumeric",
+      "delimiter" : ", ",
+      "objectType" : "object",
+      "referenceField" : "tag",
+      "referenceCollection" : "tags",
+      "availableFields" : [ "category", "createdAt", "createdBy", "deleted", "subCategory", "tagName", "weight" ]
+    }
+  }, {
+    "fieldPath" : "statusIntent",
+    "businessName" : "Status Intent",
+    "sourceCollection" : "agentclients",
+    "dataType" : "string",
+    "include" : true,
+    "statistics" : {
+      "distinctNonNullValues" : 2,
+      "nullCount" : 0,
+      "totalOccurrences" : 17746,
+      "sampleValues" : [ "Active", "Inactive" ]
+    }
+  }, {
+    "fieldPath" : "updatedAt",
+    "businessName" : "Updated At",
+    "sourceCollection" : "agentclients",
+    "dataType" : "date",
+    "include" : true,
+    "statistics" : {
+      "distinctNonNullValues" : 545,
+      "nullCount" : 0,
+      "totalOccurrences" : 17540,
+      "sampleValues" : [ "Fri Apr 25 09:49:29 UTC 2025", "Fri Dec 20 09:01:55 UTC 2024", "Sat Aug 23 10:00:32 UTC 2025", "Sat Aug 23 10:00:33 UTC 2025", "Sat Aug 23 10:00:37 UTC 2025" ]
+    }
+  } ],
+  "collection" : "agentclients",
+  "discoveredAt" : 1755990210328,
+  "discoveryParameters" : {
+    "sampleSize" : 10000,
+    "expansionDepth" : 3,
+    "minDistinctNonNullValues" : 2,
+    "includeBusinessIds" : true
+  },
+  "fields" : [ {
+    "fieldPath" : "__v",
+    "businessName" : "Version",
+    "sourceCollection" : "agentclients",
+    "dataType" : "integer",
+    "include" : false,
+    "statistics" : {
+      "distinctNonNullValues" : 1,
+      "nullCount" : 0,
+      "totalOccurrences" : 244,
+      "sampleValues" : [ "0" ]
+    }
+  }, {
+    "fieldPath" : "_id",
+    "businessName" : "Record ID",
+    "sourceCollection" : "agentclients",
+    "dataType" : "objectId",
+    "include" : false,
+    "statistics" : {
+      "distinctNonNullValues" : 10000,
+      "nullCount" : 0,
+      "totalOccurrences" : 20000,
+      "sampleValues" : [ "5beb22790c1b8a02f7846448", "5beb22790c1b8a076484642e", "5beb22790c1b8a0ce184643b", "5beb22790c1b8a0ebd84642c", "5beb22790c1b8a1123846430" ]
+    }
+  }, {
+    "fieldPath" : "agents",
+    "businessName" : "Agents",
+    "sourceCollection" : "agentclients",
+    "dataType" : "array",
+    "include" : true,
+    "statistics" : {
+      "distinctNonNullValues" : 50,
+      "nullCount" : 0,
+      "totalOccurrences" : 20000,
+      "sampleValues" : [ "5b6c6b3f9e89b41f53e0e01d", "5b6c6b3f9e89b41f53e0e02b", "5b6c6b3f9e89b41f53e0e069", "5b6c6b3f9e89b41f53e0e091", "5b6c6b409e89b41f53e0e0d8" ],
+      "avgArrayLength" : 3.7946,
+      "maxArrayLength" : 8
+    },
+    "arrayConfig" : {
+      "extractField" : "fullName",
+      "displayMode" : "comma_separated",
+      "sortOrder" : "alphanumeric",
+      "delimiter" : ", ",
+      "objectType" : "objectId",
+      "referenceCollection" : "agents",
+      "availableFields" : [ "createdAt", "deleted", "fullName", "lastUpdated", "privateURL", "updatedAt" ]
+    }
+  }, {
+    "fieldPath" : "agents[count]",
+    "businessName" : "Agents Count",
+    "sourceCollection" : "agentclients",
+    "dataType" : "integer",
+    "include" : false,
+    "statistics" : {
+      "distinctNonNullValues" : 50,
+      "nullCount" : 0
+    },
+    "extractionMode" : "count",
+    "sourceField" : "agents"
+  }, {
+    "fieldPath" : "agents[primary].deleted",
+    "businessName" : "Primary Agents Is Deleted",
+    "sourceCollection" : "agentclients",
+    "dataType" : "string",
+    "include" : false,
+    "statistics" : {
+      "distinctNonNullValues" : 50,
+      "nullCount" : 0
+    },
+    "extractionMode" : "primary",
+    "sourceField" : "agents",
+    "extractionIndex" : 0
+  }, {
+    "fieldPath" : "agents[primary].person",
+    "businessName" : "Primary Agents Person",
+    "sourceCollection" : "agentclients",
+    "dataType" : "string",
+    "include" : false,
+    "statistics" : {
+      "distinctNonNullValues" : 50,
+      "nullCount" : 0
+    },
+    "extractionMode" : "primary",
+    "sourceField" : "agents",
+    "extractionIndex" : 0
+  }, {
+    "fieldPath" : "agents[primary].privateURL",
+    "businessName" : "Primary Agents Private URL",
+    "sourceCollection" : "agentclients",
+    "dataType" : "string",
+    "include" : false,
+    "statistics" : {
+      "distinctNonNullValues" : 50,
+      "nullCount" : 0
+    },
+    "extractionMode" : "primary",
+    "sourceField" : "agents",
+    "extractionIndex" : 0
+  }, {
+    "fieldPath" : "agents[primary].realmData",
+    "businessName" : "Primary Agents Realm Data",
+    "sourceCollection" : "agentclients",
+    "dataType" : "string",
+    "include" : false,
+    "statistics" : {
+      "distinctNonNullValues" : 50,
+      "nullCount" : 0
+    },
+    "extractionMode" : "primary",
+    "sourceField" : "agents",
+    "extractionIndex" : 0
+  }, {
+    "fieldPath" : "archived",
+    "businessName" : "Archive Date",
+    "sourceCollection" : "agentclients",
+    "dataType" : "string",
+    "include" : true,
+    "statistics" : {
+      "distinctNonNullValues" : 193,
+      "nullCount" : 17234,
+      "totalOccurrences" : 11383,
+      "sampleValues" : [ "2019-09-30T19:00:36.108Z", "2019-09-30T19:01:19.813Z", "2020-01-16T23:52:25.044Z", "2021-08-05T21:27:57.160Z", "2021-12-07T04:44:26.380Z" ]
+    }
+  }, {
+    "fieldPath" : "client",
+    "businessName" : "Client",
+    "sourceCollection" : "agentclients",
+    "dataType" : "objectId",
+    "include" : true,
+    "statistics" : {
+      "distinctNonNullValues" : 9838,
+      "nullCount" : 0,
+      "totalOccurrences" : 20000,
+      "sampleValues" : [ "5b6c6c2d116fa31f8a2c0f7b", "5beb22790c1b8a02a38464b0", "5beb22790c1b8a02aa846494", "5beb22790c1b8a04ac8464af", "5beb22790c1b8a062d846497" ]
+    },
+    "relationshipTarget" : "people_meta"
+  }, {
+    "fieldPath" : "clientOld",
+    "businessName" : "Client Old",
+    "sourceCollection" : "agentclients",
+    "dataType" : "objectId",
+    "include" : false,
+    "statistics" : {
+      "distinctNonNullValues" : 1,
+      "nullCount" : 0,
+      "totalOccurrences" : 2,
+      "sampleValues" : [ "5beb22880c1b8a0424847fc4" ]
+    }
+  }, {
+    "fieldPath" : "client_expanded",
+    "businessName" : "Client",
+    "sourceCollection" : "agentclients",
+    "dataType" : "object",
+    "include" : false,
+    "statistics" : {
+      "distinctNonNullValues" : 0,
+      "nullCount" : 0,
+      "totalOccurrences" : 9989
+    }
+  }, {
+    "fieldPath" : "client_expanded.__v",
+    "businessName" : "Client Version",
+    "sourceCollection" : "agentclients",
+    "dataType" : "integer",
+    "include" : false,
+    "statistics" : {
+      "distinctNonNullValues" : 2,
+      "nullCount" : 0,
+      "totalOccurrences" : 127,
+      "sampleValues" : [ "0", "1" ]
+    }
+  }, {
+    "fieldPath" : "client_expanded._id",
+    "businessName" : "Client",
+    "sourceCollection" : "agentclients",
+    "dataType" : "objectId",
+    "include" : false,
+    "statistics" : {
+      "distinctNonNullValues" : 9827,
+      "nullCount" : 0,
+      "totalOccurrences" : 9989,
+      "sampleValues" : [ "5b6c6c2d116fa31f8a2c0f7b", "5beb22790c1b8a02a38464b0", "5beb22790c1b8a02aa846494", "5beb22790c1b8a04ac8464af", "5beb22790c1b8a062d846497" ]
+    }
+  }, {
+    "fieldPath" : "client_expanded.address",
+    "businessName" : "Client Address",
+    "sourceCollection" : "agentclients",
+    "dataType" : "object",
+    "include" : false,
+    "statistics" : {
+      "distinctNonNullValues" : 0,
+      "nullCount" : 0,
+      "totalOccurrences" : 9989
+    }
+  }, {
+    "fieldPath" : "client_expanded.address.city",
+    "businessName" : "Client Address City",
+    "sourceCollection" : "agentclients",
+    "dataType" : "string",
+    "include" : true,
+    "statistics" : {
+      "distinctNonNullValues" : 954,
+      "nullCount" : 6684,
+      "totalOccurrences" : 9989,
+      "sampleValues" : [ "ARROYO GRANDE", "ATLANTA", "ATTN: Dr.", "Abilene", "Afton" ]
+    }
+  }, {
+    "fieldPath" : "client_expanded.address.country",
+    "businessName" : "Client Address Country",
+    "sourceCollection" : "agentclients",
+    "dataType" : "string",
+    "include" : true,
+    "statistics" : {
+      "distinctNonNullValues" : 52,
+      "nullCount" : 8483,
+      "totalOccurrences" : 9989,
+      "sampleValues" : [ "2", "AR", "AU", "Argentina", "BE" ]
+    }
+  }, {
+    "fieldPath" : "client_expanded.address.displayAddress",
+    "businessName" : "Client Address Display Address",
+    "sourceCollection" : "agentclients",
+    "dataType" : "string",
+    "include" : true,
+    "statistics" : {
+      "distinctNonNullValues" : 2054,
+      "nullCount" : 7731,
+      "totalOccurrences" : 9989,
+      "sampleValues" : [ "0 ELLIOT CEMETERY RD", "0115 PO", "03 05 THE SER", "1 AVERY ST", "1 CNBC PLAZA - 900 SYLVAN AVE" ]
+    }
+  }, {
+    "fieldPath" : "client_expanded.address.housenumber",
+    "businessName" : "Client Address Housenumber",
+    "sourceCollection" : "agentclients",
+    "dataType" : "string",
+    "include" : true,
+    "statistics" : {
+      "distinctNonNullValues" : 1432,
+      "nullCount" : 7737,
+      "totalOccurrences" : 9989,
+      "sampleValues" : [ "0", "0115", "03", "1", "10" ]
+    }
+  }, {
+    "fieldPath" : "client_expanded.address.lat",
+    "businessName" : "Client Address Lat",
+    "sourceCollection" : "agentclients",
+    "dataType" : "double",
+    "include" : false,
+    "statistics" : {
+      "distinctNonNullValues" : 19,
+      "nullCount" : 0,
+      "totalOccurrences" : 27,
+      "sampleValues" : [ "20.9144491", "21.2812422", "21.7737654", "34.0489281", "34.0690865" ]
+    }
+  }, {
+    "fieldPath" : "client_expanded.address.lng",
+    "businessName" : "Client Address Lng",
+    "sourceCollection" : "agentclients",
+    "dataType" : "double",
+    "include" : false,
+    "statistics" : {
+      "distinctNonNullValues" : 19,
+      "nullCount" : 0,
+      "totalOccurrences" : 27,
+      "sampleValues" : [ "-100.745235", "-107.2902839", "-110.7634541", "-110.8752112", "-111.0937311" ]
+    }
+  }, {
+    "fieldPath" : "client_expanded.address.postalCode",
+    "businessName" : "Client Address Postal Code",
+    "sourceCollection" : "agentclients",
+    "dataType" : "string",
+    "include" : true,
+    "statistics" : {
+      "distinctNonNullValues" : 1278,
+      "nullCount" : 6905,
+      "totalOccurrences" : 9989,
+      "sampleValues" : [ "01742", "01778-2808", "02056-1013", "02090-2907", "02108-3106" ]
+    }
+  }, {
+    "fieldPath" : "client_expanded.address.state",
+    "businessName" : "Client Address State",
+    "sourceCollection" : "agentclients",
+    "dataType" : "string",
+    "include" : true,
+    "statistics" : {
+      "distinctNonNullValues" : 177,
+      "nullCount" : 6259,
+      "totalOccurrences" : 9989,
+      "sampleValues" : [ "(NA)", "01", "07", "25", "26" ]
+    }
+  }, {
+    "fieldPath" : "client_expanded.address.streetAddress",
+    "businessName" : "Client Address Street Address",
+    "sourceCollection" : "agentclients",
+    "dataType" : "string",
+    "include" : true,
+    "statistics" : {
+      "distinctNonNullValues" : 2804,
+      "nullCount" : 6910,
+      "totalOccurrences" : 9989,
+      "sampleValues" : [ "'A' Hetrick", "0 Elliot Cemetery Road", "0115 PO Box 93569", "1 Avery Street Apt. 19B", "1 CNBC Plaza - 900 Sylvan Avenue" ]
+    }
+  }, {
+    "fieldPath" : "client_expanded.address.streetname",
+    "businessName" : "Client Address Streetname",
+    "sourceCollection" : "agentclients",
+    "dataType" : "string",
+    "include" : true,
+    "statistics" : {
+      "distinctNonNullValues" : 1505,
+      "nullCount" : 7766,
+      "totalOccurrences" : 9989,
+      "sampleValues" : [ "000", "05 THE SER", "1 2 BEACON", "1 2 HUNTLEY", "100" ]
+    }
+  }, {
+    "fieldPath" : "client_expanded.address.streetnameDirection",
+    "businessName" : "Client Address Streetname Direction",
+    "sourceCollection" : "agentclients",
+    "dataType" : "string",
+    "include" : true,
+    "statistics" : {
+      "distinctNonNullValues" : 8,
+      "nullCount" : 9922,
+      "totalOccurrences" : 9989,
+      "sampleValues" : [ "E", "N", "NE", "NW", "S" ]
+    }
+  }, {
+    "fieldPath" : "client_expanded.address.streetnamePrefix",
+    "businessName" : "Client Address Streetname Prefix",
+    "sourceCollection" : "agentclients",
+    "dataType" : "string",
+    "include" : true,
+    "statistics" : {
+      "distinctNonNullValues" : 8,
+      "nullCount" : 9521,
+      "totalOccurrences" : 9989,
+      "sampleValues" : [ "E", "N", "NE", "NW", "S" ]
+    }
+  }, {
+    "fieldPath" : "client_expanded.address.streetnameSuffix",
+    "businessName" : "Client Address Streetname Suffix",
+    "sourceCollection" : "agentclients",
+    "dataType" : "string",
+    "include" : true,
+    "statistics" : {
+      "distinctNonNullValues" : 58,
+      "nullCount" : 8106,
+      "totalOccurrences" : 9989,
+      "sampleValues" : [ "AVE", "BCH", "BLVD", "CIR", "CORS" ]
+    }
+  }, {
+    "fieldPath" : "client_expanded.address.unit",
+    "businessName" : "Client Address Unit",
+    "sourceCollection" : "agentclients",
+    "dataType" : "string",
+    "include" : true,
+    "statistics" : {
+      "distinctNonNullValues" : 204,
+      "nullCount" : 9722,
+      "totalOccurrences" : 9989,
+      "sampleValues" : [ "# 1205", "#1", "#1-2-1", "#10", "#100" ]
+    }
+  }, {
+    "fieldPath" : "client_expanded.deleted",
+    "businessName" : "Client Deleted",
+    "sourceCollection" : "agentclients",
+    "dataType" : "boolean",
+    "include" : false,
+    "statistics" : {
+      "distinctNonNullValues" : 2,
+      "nullCount" : 0,
+      "totalOccurrences" : 175,
+      "sampleValues" : [ "false", "true" ]
+    }
+  }, {
+    "fieldPath" : "client_expanded.demographics",
+    "businessName" : "Client Demographics",
+    "sourceCollection" : "agentclients",
+    "dataType" : "object",
+    "include" : false,
+    "statistics" : {
+      "distinctNonNullValues" : 0,
+      "nullCount" : 0,
+      "totalOccurrences" : 9988
+    }
+  }, {
+    "fieldPath" : "client_expanded.demographics.birthDate",
+    "businessName" : "Client Demographics Birth Date",
+    "sourceCollection" : "agentclients",
+    "dataType" : "date",
+    "include" : true,
+    "statistics" : {
+      "distinctNonNullValues" : 6,
+      "nullCount" : 9506,
+      "totalOccurrences" : 9512,
+      "sampleValues" : [ "11/28/2006", "1604-05-07", "3/18/2000", "9/10/2018", "9/8/2000" ]
+    }
+  }, {
+    "fieldPath" : "client_expanded.demographics.gender",
+    "businessName" : "Client Demographics Gender",
+    "sourceCollection" : "agentclients",
+    "dataType" : "string",
+    "include" : false,
+    "statistics" : {
+      "distinctNonNullValues" : 1,
+      "nullCount" : 9026,
+      "totalOccurrences" : 9984,
+      "sampleValues" : [ "Unspecified" ]
+    }
+  }, {
+    "fieldPath" : "client_expanded.emails",
+    "businessName" : "Client Emails",
+    "sourceCollection" : "agentclients",
+    "dataType" : "array",
+    "include" : false,
+    "statistics" : {
+      "distinctNonNullValues" : 0,
+      "nullCount" : 0,
+      "totalOccurrences" : 9989,
+      "avgArrayLength" : 1.602462708979878,
+      "maxArrayLength" : 5
+    },
+    "arrayConfig" : {
+      "displayMode" : "comma_separated",
+      "sortOrder" : "alphanumeric",
+      "delimiter" : ", "
+    }
+  }, {
+    "fieldPath" : "client_expanded.emails[count]",
+    "businessName" : "Client Emails Count",
+    "sourceCollection" : "agentclients",
+    "dataType" : "integer",
+    "include" : false,
+    "statistics" : {
+      "distinctNonNullValues" : 0,
+      "nullCount" : 0
+    },
+    "extractionMode" : "count",
+    "sourceField" : "client_expanded.emails"
+  }, {
+    "fieldPath" : "client_expanded.externalData",
+    "businessName" : "Client External Data",
+    "sourceCollection" : "agentclients",
+    "include" : false,
+    "statistics" : {
+      "distinctNonNullValues" : 0,
+      "nullCount" : 1,
+      "totalOccurrences" : 1
+    }
+  }, {
+    "fieldPath" : "client_expanded.languages",
+    "businessName" : "Client Languages",
+    "sourceCollection" : "agentclients",
+    "dataType" : "array",
+    "include" : false,
+    "statistics" : {
+      "distinctNonNullValues" : 0,
+      "nullCount" : 126,
+      "totalOccurrences" : 9989,
+      "avgArrayLength" : 1.0,
+      "maxArrayLength" : 1
+    },
+    "arrayConfig" : {
+      "displayMode" : "comma_separated",
+      "sortOrder" : "alphanumeric",
+      "delimiter" : ", "
+    }
+  }, {
+    "fieldPath" : "client_expanded.languages[count]",
+    "businessName" : "Client Languages Count",
+    "sourceCollection" : "agentclients",
+    "dataType" : "integer",
+    "include" : false,
+    "statistics" : {
+      "distinctNonNullValues" : 0,
+      "nullCount" : 126
+    },
+    "extractionMode" : "count",
+    "sourceField" : "client_expanded.languages"
+  }, {
+    "fieldPath" : "client_expanded.location",
+    "businessName" : "Client Location",
+    "sourceCollection" : "agentclients",
+    "dataType" : "object",
+    "include" : false,
+    "statistics" : {
+      "distinctNonNullValues" : 0,
+      "nullCount" : 0,
+      "totalOccurrences" : 27
+    }
+  }, {
+    "fieldPath" : "client_expanded.location.coordinates",
+    "businessName" : "Client Location Coordinates",
+    "sourceCollection" : "agentclients",
+    "dataType" : "array",
+    "include" : false,
+    "statistics" : {
+      "distinctNonNullValues" : 0,
+      "nullCount" : 0,
+      "totalOccurrences" : 27,
+      "avgArrayLength" : 2.0,
+      "maxArrayLength" : 2
+    },
+    "arrayConfig" : {
+      "displayMode" : "comma_separated",
+      "sortOrder" : "alphanumeric",
+      "delimiter" : ", "
+    }
+  }, {
+    "fieldPath" : "client_expanded.location.coordinates[count]",
+    "businessName" : "Client Location Coordinates Count",
+    "sourceCollection" : "agentclients",
+    "dataType" : "integer",
+    "include" : false,
+    "statistics" : {
+      "distinctNonNullValues" : 0,
+      "nullCount" : 0
+    },
+    "extractionMode" : "count",
+    "sourceField" : "client_expanded.location.coordinates"
+  }, {
+    "fieldPath" : "client_expanded.location.type",
+    "businessName" : "Client Location Type",
+    "sourceCollection" : "agentclients",
+    "dataType" : "string",
+    "include" : false,
+    "statistics" : {
+      "distinctNonNullValues" : 1,
+      "nullCount" : 0,
+      "totalOccurrences" : 27,
+      "sampleValues" : [ "Point" ]
+    }
+  }, {
+    "fieldPath" : "client_expanded.name",
+    "businessName" : "Client Name",
+    "sourceCollection" : "agentclients",
+    "dataType" : "object",
+    "include" : false,
+    "statistics" : {
+      "distinctNonNullValues" : 0,
+      "nullCount" : 0,
+      "totalOccurrences" : 9989
+    }
+  }, {
+    "fieldPath" : "client_expanded.name.firstName",
+    "businessName" : "Client Name First Name",
+    "sourceCollection" : "agentclients",
+    "dataType" : "string",
+    "include" : true,
+    "statistics" : {
+      "distinctNonNullValues" : 2465,
+      "nullCount" : 0,
+      "totalOccurrences" : 9989,
+      "sampleValues" : [ "A", "A.", "A. Max", "A. Silvana", "AARON" ]
+    }
+  }, {
+    "fieldPath" : "client_expanded.name.fullName",
+    "businessName" : "Client Name Full Name",
+    "sourceCollection" : "agentclients",
+    "dataType" : "string",
+    "include" : true,
+    "statistics" : {
+      "distinctNonNullValues" : 9265,
+      "nullCount" : 0,
+      "totalOccurrences" : 9989,
+      "sampleValues" : [ "A Gomez", "A Toberoff", "A Young", "A. Hartzell", "A. Max Kohlenberg" ]
+    }
+  }, {
+    "fieldPath" : "client_expanded.name.lastName",
+    "businessName" : "Client Name Last Name",
+    "sourceCollection" : "agentclients",
+    "dataType" : "string",
+    "include" : true,
+    "statistics" : {
+      "distinctNonNullValues" : 6152,
+      "nullCount" : 1,
+      "totalOccurrences" : 9989,
+      "sampleValues" : [ "('Hungerford')", "(Hoyle) Haskell", "<>", "A Biondi", "A Raynor" ]
+    }
+  }, {
+    "fieldPath" : "client_expanded.name.middleName",
+    "businessName" : "Client Name Middle Name",
+    "sourceCollection" : "agentclients",
+    "dataType" : "string",
+    "include" : true,
+    "statistics" : {
+      "distinctNonNullValues" : 38,
+      "nullCount" : 9942,
+      "totalOccurrences" : 9989,
+      "sampleValues" : [ "(Mary Katharine)", "A", "A.", "Airlines", "Ann" ]
+    }
+  }, {
+    "fieldPath" : "client_expanded.name.prefix",
+    "businessName" : "Client Name Prefix",
+    "sourceCollection" : "agentclients",
+    "dataType" : "string",
+    "include" : true,
+    "statistics" : {
+      "distinctNonNullValues" : 16,
+      "nullCount" : 9966,
+      "totalOccurrences" : 9989,
+      "sampleValues" : [ "Associate Broker", "Dr", "E", "Head of Consumer Credit Sales and Business Development", "Mr" ]
+    }
+  }, {
+    "fieldPath" : "client_expanded.name.suffix",
+    "businessName" : "Client Name Suffix",
+    "sourceCollection" : "agentclients",
+    "dataType" : "string",
+    "include" : true,
+    "statistics" : {
+      "distinctNonNullValues" : 7,
+      "nullCount" : 9982,
+      "totalOccurrences" : 9989,
+      "sampleValues" : [ "Jr", "Jr.", "Mr", "Mrs", "NE" ]
+    }
+  }, {
+    "fieldPath" : "client_expanded.phones",
+    "businessName" : "Client Phones",
+    "sourceCollection" : "agentclients",
+    "dataType" : "array",
+    "include" : false,
+    "statistics" : {
+      "distinctNonNullValues" : 0,
+      "nullCount" : 0,
+      "totalOccurrences" : 9989,
+      "avgArrayLength" : 1.6246871558714586,
+      "maxArrayLength" : 7
+    },
+    "arrayConfig" : {
+      "displayMode" : "comma_separated",
+      "sortOrder" : "alphanumeric",
+      "delimiter" : ", "
+    }
+  }, {
+    "fieldPath" : "client_expanded.phones[count]",
+    "businessName" : "Client Phones Count",
+    "sourceCollection" : "agentclients",
+    "dataType" : "integer",
+    "include" : false,
+    "statistics" : {
+      "distinctNonNullValues" : 0,
+      "nullCount" : 0
+    },
+    "extractionMode" : "count",
+    "sourceField" : "client_expanded.phones"
+  }, {
+    "fieldPath" : "client_expanded.primaryEmail",
+    "businessName" : "Client Primary Email",
+    "sourceCollection" : "agentclients",
+    "dataType" : "string",
+    "include" : true,
+    "statistics" : {
+      "distinctNonNullValues" : 9586,
+      "nullCount" : 0,
+      "totalOccurrences" : 9989,
+      "sampleValues" : [ "102420.2005@compuserve.com", "1207ccs@gmail.com", "12djc27@gmail.com", "1wrightj@gmail.com", "250silverado.hancock@gmail.com" ]
+    }
+  }, {
+    "fieldPath" : "client_expanded.primaryPhone",
+    "businessName" : "Client Primary Phone",
+    "sourceCollection" : "agentclients",
+    "dataType" : "string",
+    "include" : true,
+    "statistics" : {
+      "distinctNonNullValues" : 4598,
+      "nullCount" : 5056,
+      "totalOccurrences" : 9989,
+      "sampleValues" : [ " (281) 831-7171‬", "(+590) 590 87 57 58", "(1) 730-3031", "(1) 734-6061", "(201) 923-5063" ]
+    }
+  }, {
+    "fieldPath" : "client_expanded.realmData",
+    "businessName" : "Client Realm Data",
+    "sourceCollection" : "agentclients",
+    "dataType" : "object",
+    "include" : false,
+    "statistics" : {
+      "distinctNonNullValues" : 0,
+      "nullCount" : 0,
+      "totalOccurrences" : 9989
+    }
+  }, {
+    "fieldPath" : "client_expanded.realmData.bio",
+    "businessName" : "Client Realm Data Bio",
+    "sourceCollection" : "agentclients",
+    "dataType" : "string",
+    "include" : false,
+    "statistics" : {
+      "distinctNonNullValues" : 0,
+      "nullCount" : 6,
+      "totalOccurrences" : 14
+    }
+  }, {
+    "fieldPath" : "client_expanded.realmData.completeness",
+    "businessName" : "Client Realm Data Completeness",
+    "sourceCollection" : "agentclients",
+    "include" : false,
+    "statistics" : {
+      "distinctNonNullValues" : 0,
+      "nullCount" : 173,
+      "totalOccurrences" : 173
+    }
+  }, {
+    "fieldPath" : "client_expanded.realmData.convertAccount",
+    "businessName" : "Client Realm Data Convert Account",
+    "sourceCollection" : "agentclients",
+    "dataType" : "object",
+    "include" : false,
+    "statistics" : {
+      "distinctNonNullValues" : 0,
+      "nullCount" : 0,
+      "totalOccurrences" : 2
+    }
+  }, {
+    "fieldPath" : "client_expanded.realmData.convertAccount.freeTrialAnnual",
+    "businessName" : "Client Realm Data Convert Account Free Trial Annual",
+    "sourceCollection" : "agentclients",
+    "dataType" : "integer",
+    "include" : false,
+    "statistics" : {
+      "distinctNonNullValues" : 2,
+      "nullCount" : 0,
+      "totalOccurrences" : 2,
+      "sampleValues" : [ "-8624", "17" ]
+    }
+  }, {
+    "fieldPath" : "client_expanded.realmData.convertAccount.freeTrialMonthly",
+    "businessName" : "Client Realm Data Convert Account Free Trial Monthly",
+    "sourceCollection" : "agentclients",
+    "dataType" : "integer",
+    "include" : false,
+    "statistics" : {
+      "distinctNonNullValues" : 2,
+      "nullCount" : 0,
+      "totalOccurrences" : 2,
+      "sampleValues" : [ "-7089", "13" ]
+    }
+  }, {
+    "fieldPath" : "client_expanded.realmData.convertAccount.inviteDate",
+    "businessName" : "Client Realm Data Convert Account Invite Date",
+    "sourceCollection" : "agentclients",
+    "dataType" : "date",
+    "include" : false,
+    "statistics" : {
+      "distinctNonNullValues" : 2,
+      "nullCount" : 0,
+      "totalOccurrences" : 2,
+      "sampleValues" : [ "Thu Nov 16 00:00:00 UTC 2023", "Wed May 18 00:00:00 UTC 2022" ]
+    }
+  }, {
+    "fieldPath" : "client_expanded.realmData.convertAccount.inviteGroup",
+    "businessName" : "Client Realm Data Convert Account Invite Group",
+    "sourceCollection" : "agentclients",
+    "dataType" : "string",
+    "include" : false,
+    "statistics" : {
+      "distinctNonNullValues" : 2,
+      "nullCount" : 0,
+      "totalOccurrences" : 2,
+      "sampleValues" : [ "Founding Member Agent", "Founding Member Team" ]
+    }
+  }, {
+    "fieldPath" : "client_expanded.realmData.convertAccount.status",
+    "businessName" : "Client Realm Data Convert Account Status",
+    "sourceCollection" : "agentclients",
+    "dataType" : "string",
+    "include" : false,
+    "statistics" : {
+      "distinctNonNullValues" : 2,
+      "nullCount" : 0,
+      "totalOccurrences" : 2,
+      "sampleValues" : [ "C", "S" ]
+    }
+  }, {
+    "fieldPath" : "client_expanded.realmData.convertAccount.subscription",
+    "businessName" : "Client Realm Data Convert Account Subscription",
+    "sourceCollection" : "agentclients",
+    "dataType" : "objectId",
+    "include" : false,
+    "statistics" : {
+      "distinctNonNullValues" : 2,
+      "nullCount" : 0,
+      "totalOccurrences" : 2,
+      "sampleValues" : [ "5ff49ae76da21f000704d0b3", "60a4116f31118200081d2ba9" ]
+    }
+  }, {
+    "fieldPath" : "client_expanded.realmData.etl",
+    "businessName" : "Client Realm Data Etl",
+    "sourceCollection" : "agentclients",
+    "dataType" : "object",
+    "include" : false,
+    "statistics" : {
+      "distinctNonNullValues" : 0,
+      "nullCount" : 0,
+      "totalOccurrences" : 9867
+    }
+  }, {
+    "fieldPath" : "client_expanded.realmData.etl.completeness",
+    "businessName" : "Client Realm Data Etl Completeness",
+    "sourceCollection" : "agentclients",
+    "dataType" : "array",
+    "include" : false,
+    "statistics" : {
+      "distinctNonNullValues" : 0,
+      "nullCount" : 2184,
+      "totalOccurrences" : 9867,
+      "avgArrayLength" : 1.7156058831185734,
+      "maxArrayLength" : 2
+    },
+    "arrayConfig" : {
+      "displayMode" : "comma_separated",
+      "sortOrder" : "alphanumeric",
+      "delimiter" : ", "
+    }
+  }, {
+    "fieldPath" : "client_expanded.realmData.etl.completeness[count]",
+    "businessName" : "Client Realm Data Etl Completeness Count",
+    "sourceCollection" : "agentclients",
+    "dataType" : "integer",
+    "include" : false,
+    "statistics" : {
+      "distinctNonNullValues" : 0,
+      "nullCount" : 2184
+    },
+    "extractionMode" : "count",
+    "sourceField" : "client_expanded.realmData.etl.completeness"
+  }, {
+    "fieldPath" : "client_expanded.realmData.etl.importStatus",
+    "businessName" : "Client Realm Data Etl Import Status",
+    "sourceCollection" : "agentclients",
+    "dataType" : "array",
+    "include" : false,
+    "statistics" : {
+      "distinctNonNullValues" : 0,
+      "nullCount" : 0,
+      "totalOccurrences" : 9867,
+      "avgArrayLength" : 5.025742373568461,
+      "maxArrayLength" : 31
+    },
+    "arrayConfig" : {
+      "displayMode" : "comma_separated",
+      "sortOrder" : "alphanumeric",
+      "delimiter" : ", "
+    }
+  }, {
+    "fieldPath" : "client_expanded.realmData.etl.importStatus[count]",
+    "businessName" : "Client Realm Data Etl Import Status Count",
+    "sourceCollection" : "agentclients",
+    "dataType" : "integer",
+    "include" : false,
+    "statistics" : {
+      "distinctNonNullValues" : 0,
+      "nullCount" : 0
+    },
+    "extractionMode" : "count",
+    "sourceField" : "client_expanded.realmData.etl.importStatus"
+  }, {
+    "fieldPath" : "client_expanded.realmData.externalData",
+    "businessName" : "Client Realm Data External Data",
+    "sourceCollection" : "agentclients",
+    "dataType" : "array",
+    "include" : false,
+    "statistics" : {
+      "distinctNonNullValues" : 0,
+      "nullCount" : 0,
+      "totalOccurrences" : 9989,
+      "avgArrayLength" : 4.889378316147763,
+      "maxArrayLength" : 8
+    },
+    "arrayConfig" : {
+      "displayMode" : "comma_separated",
+      "sortOrder" : "alphanumeric",
+      "delimiter" : ", "
+    }
+  }, {
+    "fieldPath" : "client_expanded.realmData.externalData[count]",
+    "businessName" : "Client Realm Data External Data Count",
+    "sourceCollection" : "agentclients",
+    "dataType" : "integer",
+    "include" : false,
+    "statistics" : {
+      "distinctNonNullValues" : 0,
+      "nullCount" : 0
+    },
+    "extractionMode" : "count",
+    "sourceField" : "client_expanded.realmData.externalData"
+  }, {
+    "fieldPath" : "client_expanded.realmData.importStatus",
+    "businessName" : "Client Realm Data Import Status",
+    "sourceCollection" : "agentclients",
+    "include" : false,
+    "statistics" : {
+      "distinctNonNullValues" : 0,
+      "nullCount" : 173,
+      "totalOccurrences" : 173
+    }
+  }, {
+    "fieldPath" : "client_expanded.realmData.photoUrl",
+    "businessName" : "Client Realm Data Photo Url",
+    "sourceCollection" : "agentclients",
+    "dataType" : "string",
+    "include" : false,
+    "statistics" : {
+      "distinctNonNullValues" : 16,
+      "nullCount" : 0,
+      "totalOccurrences" : 16,
+      "sampleValues" : [ "https://realm-uploaded-images.s3.amazonaws.com/1553097617935.jpeg", "https://realm-uploaded-images.s3.amazonaws.com/1579711437448.jpeg", "https://realm-uploaded-images.s3.amazonaws.com/1582930295427.jpeg", "https://realm-uploaded-images.s3.amazonaws.com/1588349343900.jpeg", "https://realm-uploaded-images.s3.amazonaws.com/1592689506138.jpeg" ]
+    }
+  }, {
+    "fieldPath" : "client_expanded.realmData.profileViews",
+    "businessName" : "Client Realm Data Profile Views",
+    "sourceCollection" : "agentclients",
+    "dataType" : "object",
+    "include" : false,
+    "statistics" : {
+      "distinctNonNullValues" : 0,
+      "nullCount" : 0,
+      "totalOccurrences" : 173
+    }
+  }, {
+    "fieldPath" : "client_expanded.realmData.profileViews.viewedBy",
+    "businessName" : "Client Realm Data Profile Views Viewed By",
+    "sourceCollection" : "agentclients",
+    "include" : false,
+    "statistics" : {
+      "distinctNonNullValues" : 0,
+      "nullCount" : 173,
+      "totalOccurrences" : 173
+    }
+  }, {
+    "fieldPath" : "client_expanded.realmData.salesforceId",
+    "businessName" : "Client Realm Data Salesforce Id",
+    "sourceCollection" : "agentclients",
+    "dataType" : "string",
+    "include" : false,
+    "statistics" : {
+      "distinctNonNullValues" : 23,
+      "nullCount" : 0,
+      "totalOccurrences" : 23,
+      "sampleValues" : [ "0034z00002mfdY3AAI", "0034z00002oTu4UAAS", "0034z00002vlwp7AAA", "0034z00002vn3vFAAQ", "0035w000034uHQMAA2" ]
+    }
+  }, {
+    "fieldPath" : "client_expanded.realmData.sendGrid",
+    "businessName" : "Client Realm Data Send Grid",
+    "sourceCollection" : "agentclients",
+    "dataType" : "object",
+    "include" : false,
+    "statistics" : {
+      "distinctNonNullValues" : 0,
+      "nullCount" : 0,
+      "totalOccurrences" : 5
+    }
+  }, {
+    "fieldPath" : "client_expanded.realmData.sendGrid._id",
+    "businessName" : "Client Realm Data Send Grid",
+    "sourceCollection" : "agentclients",
+    "dataType" : "string",
+    "include" : false,
+    "statistics" : {
+      "distinctNonNullValues" : 3,
+      "nullCount" : 2,
+      "totalOccurrences" : 5,
+      "sampleValues" : [ "8b0c312b-2574-4ad0-8bdb-ccb3faea6efc", "b40e8a82-41b7-4b67-91e8-db935d51bca7", "cmNvbGVAYnVmZmFsb3JpdmVyaG9sZGluZ3NpbmMuY29t" ]
+    }
+  }, {
+    "fieldPath" : "client_expanded.realmData.sendGrid.currList",
+    "businessName" : "Client Realm Data Send Grid Curr List",
+    "sourceCollection" : "agentclients",
+    "dataType" : "string",
+    "include" : false,
+    "statistics" : {
+      "distinctNonNullValues" : 1,
+      "nullCount" : 0,
+      "totalOccurrences" : 4,
+      "sampleValues" : [ "d553750f-4ba4-4c19-bb1c-9754a3a1e8c5" ]
+    }
+  }, {
+    "fieldPath" : "client_expanded.realmData.sendGrid.jobId",
+    "businessName" : "Client Realm Data Send Grid Job Id",
+    "sourceCollection" : "agentclients",
+    "dataType" : "string",
+    "include" : false,
+    "statistics" : {
+      "distinctNonNullValues" : 4,
+      "nullCount" : 0,
+      "totalOccurrences" : 4,
+      "sampleValues" : [ "82aeb7e8-78a6-49c9-b3af-09de121abd1f", "84029afd-e24d-4e2e-a028-ab106a8f60be", "9ea2ea17-6a70-4b6c-a5a3-7d8ca62fc2e2", "a64ea04c-71cd-4539-8fea-3a31f6318e2f" ]
+    }
+  }, {
+    "fieldPath" : "client_expanded.realmData.sendGrid.lastUpdated",
+    "businessName" : "Client Realm Data Send Grid Last Updated",
+    "sourceCollection" : "agentclients",
+    "dataType" : "date",
+    "include" : false,
+    "statistics" : {
+      "distinctNonNullValues" : 5,
+      "nullCount" : 0,
+      "totalOccurrences" : 5,
+      "sampleValues" : [ "Sun Nov 05 18:36:23 UTC 2023", "Thu Jan 26 21:07:52 UTC 2023", "Thu Jul 18 23:04:10 UTC 2019", "Tue Nov 28 15:48:14 UTC 2023", "Tue Sep 12 19:33:19 UTC 2023" ]
+    }
+  }, {
+    "fieldPath" : "client_expanded.realmData.sendGrid.updated",
+    "businessName" : "Client Realm Data Send Grid Updated",
+    "sourceCollection" : "agentclients",
+    "dataType" : "boolean",
+    "include" : false,
+    "statistics" : {
+      "distinctNonNullValues" : 1,
+      "nullCount" : 0,
+      "totalOccurrences" : 5,
+      "sampleValues" : [ "false" ]
+    }
+  }, {
+    "fieldPath" : "client_expanded.realmData.socialAccounts",
+    "businessName" : "Client Realm Data Social Accounts",
+    "sourceCollection" : "agentclients",
+    "dataType" : "array",
+    "include" : false,
+    "statistics" : {
+      "distinctNonNullValues" : 0,
+      "nullCount" : 162,
+      "totalOccurrences" : 173,
+      "avgArrayLength" : 3.6363636363636362,
+      "maxArrayLength" : 6
+    },
+    "arrayConfig" : {
+      "displayMode" : "comma_separated",
+      "sortOrder" : "alphanumeric",
+      "delimiter" : ", "
+    }
+  }, {
+    "fieldPath" : "client_expanded.realmData.socialAccounts[count]",
+    "businessName" : "Client Realm Data Social Accounts Count",
+    "sourceCollection" : "agentclients",
+    "dataType" : "integer",
+    "include" : false,
+    "statistics" : {
+      "distinctNonNullValues" : 0,
+      "nullCount" : 162
+    },
+    "extractionMode" : "count",
+    "sourceField" : "client_expanded.realmData.socialAccounts"
+  }, {
+    "fieldPath" : "client_expanded.realmData.thumbnailUrl",
+    "businessName" : "Client Realm Data Thumbnail Url",
+    "sourceCollection" : "agentclients",
+    "dataType" : "string",
+    "include" : false,
+    "statistics" : {
+      "distinctNonNullValues" : 15,
+      "nullCount" : 0,
+      "totalOccurrences" : 15,
+      "sampleValues" : [ "https://realm-uploaded-images.s3.amazonaws.com/thumbnail/1553097617935.jpeg", "https://realm-uploaded-images.s3.amazonaws.com/thumbnail/1579711437448.jpeg", "https://realm-uploaded-images.s3.amazonaws.com/thumbnail/1582930295427.jpeg", "https://realm-uploaded-images.s3.amazonaws.com/thumbnail/1588349343900.jpeg", "https://realm-uploaded-images.s3.amazonaws.com/thumbnail/1592689506138.jpeg" ]
+    }
+  }, {
+    "fieldPath" : "client_expanded.realmData.tutorialStatus",
+    "businessName" : "Client Realm Data Tutorial Status",
+    "sourceCollection" : "agentclients",
+    "dataType" : "object",
+    "include" : false,
+    "statistics" : {
+      "distinctNonNullValues" : 0,
+      "nullCount" : 0,
+      "totalOccurrences" : 4
+    }
+  }, {
+    "fieldPath" : "client_expanded.realmData.tutorialStatus.Account",
+    "businessName" : "Client Realm Data Tutorial Status Account",
+    "sourceCollection" : "agentclients",
+    "dataType" : "integer",
+    "include" : false,
+    "statistics" : {
+      "distinctNonNullValues" : 1,
+      "nullCount" : 0,
+      "totalOccurrences" : 4,
+      "sampleValues" : [ "0" ]
+    }
+  }, {
+    "fieldPath" : "client_expanded.realmData.tutorialStatus.Agents",
+    "businessName" : "Client Realm Data Tutorial Status Agents",
+    "sourceCollection" : "agentclients",
+    "dataType" : "integer",
+    "include" : false,
+    "statistics" : {
+      "distinctNonNullValues" : 1,
+      "nullCount" : 0,
+      "totalOccurrences" : 4,
+      "sampleValues" : [ "0" ]
+    }
+  }, {
+    "fieldPath" : "client_expanded.realmData.tutorialStatus.Blog",
+    "businessName" : "Client Realm Data Tutorial Status Blog",
+    "sourceCollection" : "agentclients",
+    "dataType" : "integer",
+    "include" : false,
+    "statistics" : {
+      "distinctNonNullValues" : 1,
+      "nullCount" : 0,
+      "totalOccurrences" : 4,
+      "sampleValues" : [ "0" ]
+    }
+  }, {
+    "fieldPath" : "client_expanded.realmData.tutorialStatus.Brokerages",
+    "businessName" : "Client Realm Data Tutorial Status Brokerages",
+    "sourceCollection" : "agentclients",
+    "dataType" : "integer",
+    "include" : false,
+    "statistics" : {
+      "distinctNonNullValues" : 1,
+      "nullCount" : 0,
+      "totalOccurrences" : 4,
+      "sampleValues" : [ "0" ]
+    }
+  }, {
+    "fieldPath" : "client_expanded.realmData.tutorialStatus.Clients",
+    "businessName" : "Client Realm Data Tutorial Status Clients",
+    "sourceCollection" : "agentclients",
+    "dataType" : "integer",
+    "include" : false,
+    "statistics" : {
+      "distinctNonNullValues" : 1,
+      "nullCount" : 0,
+      "totalOccurrences" : 4,
+      "sampleValues" : [ "0" ]
+    }
+  }, {
+    "fieldPath" : "client_expanded.realmData.tutorialStatus.Dashboard",
+    "businessName" : "Client Realm Data Tutorial Status Dashboard",
+    "sourceCollection" : "agentclients",
+    "dataType" : "integer",
+    "include" : false,
+    "statistics" : {
+      "distinctNonNullValues" : 1,
+      "nullCount" : 0,
+      "totalOccurrences" : 4,
+      "sampleValues" : [ "0" ]
+    }
+  }, {
+    "fieldPath" : "client_expanded.realmData.tutorialStatus.MatchAlertDetails",
+    "businessName" : "Client Realm Data Tutorial Status Match Alert Details",
+    "sourceCollection" : "agentclients",
+    "dataType" : "integer",
+    "include" : false,
+    "statistics" : {
+      "distinctNonNullValues" : 1,
+      "nullCount" : 0,
+      "totalOccurrences" : 4,
+      "sampleValues" : [ "0" ]
+    }
+  }, {
+    "fieldPath" : "client_expanded.realmData.tutorialStatus.MatchAlerts",
+    "businessName" : "Client Realm Data Tutorial Status Match Alerts",
+    "sourceCollection" : "agentclients",
+    "dataType" : "integer",
+    "include" : false,
+    "statistics" : {
+      "distinctNonNullValues" : 1,
+      "nullCount" : 0,
+      "totalOccurrences" : 4,
+      "sampleValues" : [ "0" ]
+    }
+  }, {
+    "fieldPath" : "client_expanded.realmData.tutorialStatus.Matching",
+    "businessName" : "Client Realm Data Tutorial Status Matching",
+    "sourceCollection" : "agentclients",
+    "dataType" : "integer",
+    "include" : false,
+    "statistics" : {
+      "distinctNonNullValues" : 1,
+      "nullCount" : 0,
+      "totalOccurrences" : 4,
+      "sampleValues" : [ "0" ]
+    }
+  }, {
+    "fieldPath" : "client_expanded.realmData.tutorialStatus.MatchingDetails",
+    "businessName" : "Client Realm Data Tutorial Status Matching Details",
+    "sourceCollection" : "agentclients",
+    "dataType" : "integer",
+    "include" : false,
+    "statistics" : {
+      "distinctNonNullValues" : 1,
+      "nullCount" : 0,
+      "totalOccurrences" : 4,
+      "sampleValues" : [ "0" ]
+    }
+  }, {
+    "fieldPath" : "client_expanded.realmData.tutorialStatus.Profile",
+    "businessName" : "Client Realm Data Tutorial Status Profile",
+    "sourceCollection" : "agentclients",
+    "dataType" : "integer",
+    "include" : false,
+    "statistics" : {
+      "distinctNonNullValues" : 1,
+      "nullCount" : 0,
+      "totalOccurrences" : 4,
+      "sampleValues" : [ "0" ]
+    }
+  }, {
+    "fieldPath" : "client_expanded.realmData.tutorialStatus.Properties",
+    "businessName" : "Client Realm Data Tutorial Status Properties",
+    "sourceCollection" : "agentclients",
+    "dataType" : "integer",
+    "include" : false,
+    "statistics" : {
+      "distinctNonNullValues" : 1,
+      "nullCount" : 0,
+      "totalOccurrences" : 4,
+      "sampleValues" : [ "0" ]
+    }
+  }, {
+    "fieldPath" : "client_expanded.realmData.userAccount",
+    "businessName" : "Client Realm Data User Account",
+    "sourceCollection" : "agentclients",
+    "dataType" : "object",
+    "include" : false,
+    "statistics" : {
+      "distinctNonNullValues" : 0,
+      "nullCount" : 0,
+      "totalOccurrences" : 65
+    }
+  }, {
+    "fieldPath" : "client_expanded.realmData.userAccount.acceptedSaaSAt",
+    "businessName" : "Client Realm Data User Account Accepted Saa S At",
+    "sourceCollection" : "agentclients",
+    "dataType" : "date",
+    "include" : false,
+    "statistics" : {
+      "distinctNonNullValues" : 4,
+      "nullCount" : 0,
+      "totalOccurrences" : 4,
+      "sampleValues" : [ "Fri Feb 26 20:03:51 UTC 2021", "Fri Mar 12 18:22:08 UTC 2021", "Fri Nov 05 17:23:30 UTC 2021", "Mon Mar 28 19:39:08 UTC 2022" ]
+    }
+  }, {
+    "fieldPath" : "client_expanded.realmData.userAccount.acceptedTermsAt",
+    "businessName" : "Client Realm Data User Account Accepted Terms At",
+    "sourceCollection" : "agentclients",
+    "dataType" : "date",
+    "include" : false,
+    "statistics" : {
+      "distinctNonNullValues" : 16,
+      "nullCount" : 0,
+      "totalOccurrences" : 16,
+      "sampleValues" : [ "Fri Feb 26 20:03:51 UTC 2021", "Fri Mar 08 22:18:47 UTC 2019", "Fri Mar 12 18:22:08 UTC 2021", "Fri Nov 05 17:23:30 UTC 2021", "Mon Jun 17 17:46:24 UTC 2019" ]
+    }
+  }, {
+    "fieldPath" : "client_expanded.realmData.userAccount.activatedAt",
+    "businessName" : "Client Realm Data User Account Activated At",
+    "sourceCollection" : "agentclients",
+    "dataType" : "date",
+    "include" : false,
+    "statistics" : {
+      "distinctNonNullValues" : 16,
+      "nullCount" : 0,
+      "totalOccurrences" : 16,
+      "sampleValues" : [ "Fri Apr 30 21:32:28 UTC 2021", "Fri Feb 26 19:04:31 UTC 2021", "Fri Jan 06 01:30:00 UTC 2023", "Fri Mar 08 22:18:43 UTC 2019", "Fri Mar 12 18:18:33 UTC 2021" ]
+    }
+  }, {
+    "fieldPath" : "client_expanded.realmData.userAccount.inviteGroup",
+    "businessName" : "Client Realm Data User Account Invite Group",
+    "sourceCollection" : "agentclients",
+    "dataType" : "string",
+    "include" : false,
+    "statistics" : {
+      "distinctNonNullValues" : 4,
+      "nullCount" : 0,
+      "totalOccurrences" : 4,
+      "sampleValues" : [ "Brokerage", "Exclusive Member Agent", "Founding Member Agent", "Founding Member Team" ]
+    }
+  }, {
+    "fieldPath" : "client_expanded.realmData.userAccount.invitedAt",
+    "businessName" : "Client Realm Data User Account Invited At",
+    "sourceCollection" : "agentclients",
+    "dataType" : "date",
+    "include" : false,
+    "statistics" : {
+      "distinctNonNullValues" : 16,
+      "nullCount" : 0,
+      "totalOccurrences" : 16,
+      "sampleValues" : [ "Fri Feb 26 19:03:43 UTC 2021", "Fri Jul 11 19:18:35 UTC 2025", "Fri Mar 12 18:08:36 UTC 2021", "Fri May 31 16:23:12 UTC 2019", "Mon Mar 28 19:35:06 UTC 2022" ]
+    }
+  }, {
+    "fieldPath" : "client_expanded.realmData.userAccount.newMemberAt",
+    "businessName" : "Client Realm Data User Account New Member At",
+    "sourceCollection" : "agentclients",
+    "dataType" : "date",
+    "include" : false,
+    "statistics" : {
+      "distinctNonNullValues" : 2,
+      "nullCount" : 0,
+      "totalOccurrences" : 12,
+      "sampleValues" : [ "Sun Jan 01 00:00:00 UTC 2023", "Sun Jan 01 18:26:08 UTC 2023" ]
+    }
+  }, {
+    "fieldPath" : "client_expanded.realmData.userAccount.onBoardedAgentAt",
+    "businessName" : "Client Realm Data User Account On Boarded Agent At",
+    "sourceCollection" : "agentclients",
+    "dataType" : "date",
+    "include" : false,
+    "statistics" : {
+      "distinctNonNullValues" : 16,
+      "nullCount" : 0,
+      "totalOccurrences" : 16,
+      "sampleValues" : [ "Fri Mar 12 18:22:12 UTC 2021", "Mon Apr 04 17:17:28 UTC 2022", "Mon Jun 17 17:46:24 UTC 2019", "Mon Mar 28 19:39:07 UTC 2022", "Sun Jan 21 22:05:44 UTC 2024" ]
+    }
+  }, {
+    "fieldPath" : "client_expanded.realmData.userAccount.status",
+    "businessName" : "Client Realm Data User Account Status",
+    "sourceCollection" : "agentclients",
+    "dataType" : "string",
+    "include" : false,
+    "statistics" : {
+      "distinctNonNullValues" : 2,
+      "nullCount" : 0,
+      "totalOccurrences" : 19,
+      "sampleValues" : [ "Activated", "Pending" ]
+    }
+  }, {
+    "fieldPath" : "client_expanded.realmData.userAccount.uagSent",
+    "businessName" : "Client Realm Data User Account Uag Sent",
+    "sourceCollection" : "agentclients",
+    "dataType" : "date",
+    "include" : false,
+    "statistics" : {
+      "distinctNonNullValues" : 2,
+      "nullCount" : 0,
+      "totalOccurrences" : 2,
+      "sampleValues" : [ "Mon Mar 28 19:39:21 UTC 2022", "Tue Nov 28 15:44:38 UTC 2023" ]
+    }
+  }, {
+    "fieldPath" : "client_expanded.updatedAt",
+    "businessName" : "Client Updated At",
+    "sourceCollection" : "agentclients",
+    "dataType" : "date",
+    "include" : true,
+    "statistics" : {
+      "distinctNonNullValues" : 60,
+      "nullCount" : 0,
+      "totalOccurrences" : 8871,
+      "sampleValues" : [ "Mon Aug 01 05:35:32 UTC 2022", "Mon Feb 05 17:45:02 UTC 2024", "Mon Feb 05 17:48:58 UTC 2024", "Mon Mar 27 06:37:15 UTC 2023", "Sat Aug 23 09:30:35 UTC 2025" ]
+    }
+  }, {
+    "fieldPath" : "deleted",
+    "businessName" : "Is Deleted",
+    "sourceCollection" : "agentclients",
+    "dataType" : "boolean",
+    "include" : false,
+    "statistics" : {
+      "distinctNonNullValues" : 1,
+      "nullCount" : 0,
+      "totalOccurrences" : 244,
+      "sampleValues" : [ "false" ]
+    }
+  }, {
+    "fieldPath" : "fullName",
+    "businessName" : "Full Name",
+    "sourceCollection" : "agentclients",
+    "dataType" : "string",
+    "include" : true,
+    "statistics" : {
+      "distinctNonNullValues" : 9298,
+      "nullCount" : 0,
+      "totalOccurrences" : 20000,
+      "sampleValues" : [ "A Gomez", "A Toberoff", "A Young", "A. Hartzell", "A. Max Kohlenberg" ]
+    }
+  }, {
+    "fieldPath" : "lastNameFirst",
+    "businessName" : "Last Name First",
+    "sourceCollection" : "agentclients",
+    "dataType" : "string",
+    "include" : true,
+    "statistics" : {
+      "distinctNonNullValues" : 8174,
+      "nullCount" : 0,
+      "totalOccurrences" : 17508,
+      "sampleValues" : [ "(Hoyle) Haskell Molly", "A Biondi Roger", "A Raynor Kimberly", "ALAVI ALI", "ASA Scott A." ]
+    }
+  }, {
+    "fieldPath" : "realmData",
+    "businessName" : "Realm Data",
+    "sourceCollection" : "agentclients",
+    "dataType" : "object",
+    "include" : false,
+    "statistics" : {
+      "distinctNonNullValues" : 0,
+      "nullCount" : 0,
+      "totalOccurrences" : 20000
+    }
+  }, {
+    "fieldPath" : "realmData.etl",
+    "businessName" : "Realm Data Etl",
+    "sourceCollection" : "agentclients",
+    "dataType" : "object",
+    "include" : false,
+    "statistics" : {
+      "distinctNonNullValues" : 0,
+      "nullCount" : 0,
+      "totalOccurrences" : 244
+    }
+  }, {
+    "fieldPath" : "realmData.etl.completeness",
+    "businessName" : "Realm Data Etl Completeness",
+    "sourceCollection" : "agentclients",
+    "include" : false,
+    "statistics" : {
+      "distinctNonNullValues" : 0,
+      "nullCount" : 244,
+      "totalOccurrences" : 122
+    }
+  }, {
+    "fieldPath" : "realmData.lifestyleNames",
+    "businessName" : "Realm Data Lifestyle Names",
+    "sourceCollection" : "agentclients",
+    "dataType" : "array",
+    "include" : true,
+    "statistics" : {
+      "distinctNonNullValues" : 19,
+      "nullCount" : 10800,
+      "totalOccurrences" : 14500,
+      "sampleValues" : [ "art_architecture", "country_club_living", "country_living", "eco_friendly", "eco_friendly_living" ],
+      "avgArrayLength" : 2.1758241758241756,
+      "maxArrayLength" : 12
+    },
+    "arrayConfig" : {
+      "displayMode" : "comma_separated",
+      "sortOrder" : "alphanumeric",
+      "delimiter" : ", ",
+      "objectType" : "string"
+    }
+  }, {
+    "fieldPath" : "realmData.lifestyleNames[count]",
+    "businessName" : "Realm Data Lifestyle Names Count",
+    "sourceCollection" : "agentclients",
+    "dataType" : "integer",
+    "include" : false,
+    "statistics" : {
+      "distinctNonNullValues" : 19,
+      "nullCount" : 10800
+    },
+    "extractionMode" : "count",
+    "sourceField" : "realmData.lifestyleNames"
+  }, {
+    "fieldPath" : "realmData.lifestyles",
+    "businessName" : "Realm Data Lifestyles",
+    "sourceCollection" : "agentclients",
+    "dataType" : "array",
+    "include" : true,
+    "statistics" : {
+      "distinctNonNullValues" : 14,
+      "nullCount" : 7628,
+      "totalOccurrences" : 14018,
+      "sampleValues" : [ "5db9b02ef723983b5c712c7a", "5db9b02ef723983b5c712c8c", "5db9b02ef723983b5c712c97", "5db9b02ef723983b5c712ca2", "5db9b02ef723983b5c712cad" ],
+      "avgArrayLength" : 2.1569972559780477,
+      "maxArrayLength" : 12
+    },
+    "arrayConfig" : {
+      "extractField" : "lifestyleName",
+      "displayMode" : "comma_separated",
+      "sortOrder" : "alphanumeric",
+      "delimiter" : ", ",
+      "objectType" : "object",
+      "referenceField" : "lifestyle",
+      "referenceCollection" : "lifestyles",
+      "availableFields" : [ "lifestyleName" ]
+    }
+  }, {
+    "fieldPath" : "realmData.lifestyles[count]",
+    "businessName" : "Realm Data Lifestyles Count",
+    "sourceCollection" : "agentclients",
+    "dataType" : "integer",
+    "include" : false,
+    "statistics" : {
+      "distinctNonNullValues" : 14,
+      "nullCount" : 7628
+    },
+    "extractionMode" : "count",
+    "sourceField" : "realmData.lifestyles"
+  }, {
+    "fieldPath" : "realmData.lifestyles[primary].lifestyleName",
+    "businessName" : "Primary Lifestyles Lifestyle Name",
+    "sourceCollection" : "agentclients",
+    "dataType" : "string",
+    "include" : false,
+    "statistics" : {
+      "distinctNonNullValues" : 14,
+      "nullCount" : 7628
+    },
+    "extractionMode" : "primary",
+    "sourceField" : "realmData.lifestyles",
+    "extractionIndex" : 0
+  }, {
+    "fieldPath" : "realmData.lifestyles[primary].memberOf",
+    "businessName" : "Primary Lifestyles Member Of",
+    "sourceCollection" : "agentclients",
+    "dataType" : "string",
+    "include" : false,
+    "statistics" : {
+      "distinctNonNullValues" : 14,
+      "nullCount" : 7628
+    },
+    "extractionMode" : "primary",
+    "sourceField" : "realmData.lifestyles",
+    "extractionIndex" : 0
+  }, {
+    "fieldPath" : "realmData.lifestyles[primary].name",
+    "businessName" : "Primary Lifestyles Name",
+    "sourceCollection" : "agentclients",
+    "dataType" : "string",
+    "include" : false,
+    "statistics" : {
+      "distinctNonNullValues" : 14,
+      "nullCount" : 7628
+    },
+    "extractionMode" : "primary",
+    "sourceField" : "realmData.lifestyles",
+    "extractionIndex" : 0
+  }, {
+    "fieldPath" : "realmData.lifestyles[primary].tagMembers",
+    "businessName" : "Primary Lifestyles Tag Members",
+    "sourceCollection" : "agentclients",
+    "dataType" : "string",
+    "include" : false,
+    "statistics" : {
+      "distinctNonNullValues" : 14,
+      "nullCount" : 7628
+    },
+    "extractionMode" : "primary",
+    "sourceField" : "realmData.lifestyles",
+    "extractionIndex" : 0
+  }, {
+    "fieldPath" : "realmData.maxPrice",
+    "businessName" : "Realm Data Max Price",
+    "sourceCollection" : "agentclients",
+    "dataType" : "integer",
+    "include" : true,
+    "statistics" : {
+      "distinctNonNullValues" : 2483,
+      "nullCount" : 0,
+      "totalOccurrences" : 13352,
+      "sampleValues" : [ "0", "1.289106525E7", "1000650", "1001000", "1001175" ]
+    }
+  }, {
+    "fieldPath" : "realmData.ownerAgent",
+    "businessName" : "Realm Data Owner Agent",
+    "sourceCollection" : "agentclients",
+    "dataType" : "objectId",
+    "include" : true,
+    "statistics" : {
+      "distinctNonNullValues" : 31,
+      "nullCount" : 0,
+      "totalOccurrences" : 17858,
+      "sampleValues" : [ "5b6c6b3f9e89b41f53e0e01d", "5b6c6b3f9e89b41f53e0e02b", "5b6c6b3f9e89b41f53e0e069", "5b6c6b3f9e89b41f53e0e091", "5b6c6b409e89b41f53e0e0d8" ]
+    },
+    "relationshipTarget" : "agents"
+  }, {
+    "fieldPath" : "realmData.ownerAgent_expanded",
+    "businessName" : "Realm Data Owner Agent",
+    "sourceCollection" : "agentclients",
+    "dataType" : "object",
+    "include" : false,
+    "statistics" : {
+      "distinctNonNullValues" : 0,
+      "nullCount" : 0,
+      "totalOccurrences" : 8871
+    }
+  }, {
+    "fieldPath" : "realmData.ownerAgent_expanded.__v",
+    "businessName" : "Realm Data Owner Agent Version",
+    "sourceCollection" : "agentclients",
+    "dataType" : "integer",
+    "include" : false,
+    "statistics" : {
+      "distinctNonNullValues" : 5,
+      "nullCount" : 0,
+      "totalOccurrences" : 8871,
+      "sampleValues" : [ "0", "1", "2", "3", "4" ]
+    }
+  }, {
+    "fieldPath" : "realmData.ownerAgent_expanded._id",
+    "businessName" : "Realm Data Owner Agent",
+    "sourceCollection" : "agentclients",
+    "dataType" : "objectId",
+    "include" : false,
+    "statistics" : {
+      "distinctNonNullValues" : 24,
+      "nullCount" : 0,
+      "totalOccurrences" : 8871,
+      "sampleValues" : [ "5b6c6b3f9e89b41f53e0e01d", "5b6c6b3f9e89b41f53e0e02b", "5b6c6b3f9e89b41f53e0e069", "5b6c6b3f9e89b41f53e0e091", "5b6c6b419e89b41f53e0e1c2" ]
+    }
+  }, {
+    "fieldPath" : "realmData.ownerAgent_expanded.agentTypes",
+    "businessName" : "Realm Data Owner Agent Agent Types",
+    "sourceCollection" : "agentclients",
+    "include" : false,
+    "statistics" : {
+      "distinctNonNullValues" : 0,
+      "nullCount" : 8871,
+      "totalOccurrences" : 8871
+    }
+  }, {
+    "fieldPath" : "realmData.ownerAgent_expanded.archived",
+    "businessName" : "Realm Data Owner Agent Archived",
+    "sourceCollection" : "agentclients",
+    "dataType" : "string",
+    "include" : true,
+    "statistics" : {
+      "distinctNonNullValues" : 4,
+      "nullCount" : 7193,
+      "totalOccurrences" : 7456,
+      "sampleValues" : [ "2019-09-30T19:00:36.108Z", "2024-01-22T18:31:39.587Z", "2024-11-15T17:01:15.734Z", "2024-12-19" ]
+    }
+  }, {
+    "fieldPath" : "realmData.ownerAgent_expanded.brokerages",
+    "businessName" : "Realm Data Owner Agent Brokerages",
+    "sourceCollection" : "agentclients",
+    "dataType" : "array",
+    "include" : false,
+    "statistics" : {
+      "distinctNonNullValues" : 0,
+      "nullCount" : 0,
+      "totalOccurrences" : 8871,
+      "avgArrayLength" : 1.0,
+      "maxArrayLength" : 1
+    },
+    "arrayConfig" : {
+      "displayMode" : "comma_separated",
+      "sortOrder" : "alphanumeric",
+      "delimiter" : ", "
+    }
+  }, {
+    "fieldPath" : "realmData.ownerAgent_expanded.brokerages[count]",
+    "businessName" : "Realm Data Owner Agent Brokerages Count",
+    "sourceCollection" : "agentclients",
+    "dataType" : "integer",
+    "include" : false,
+    "statistics" : {
+      "distinctNonNullValues" : 0,
+      "nullCount" : 0
+    },
+    "extractionMode" : "count",
+    "sourceField" : "realmData.ownerAgent_expanded.brokerages"
+  }, {
+    "fieldPath" : "realmData.ownerAgent_expanded.deleted",
+    "businessName" : "Realm Data Owner Agent Deleted",
+    "sourceCollection" : "agentclients",
+    "dataType" : "boolean",
+    "include" : false,
+    "statistics" : {
+      "distinctNonNullValues" : 1,
+      "nullCount" : 0,
+      "totalOccurrences" : 8871,
+      "sampleValues" : [ "false" ]
+    }
+  }, {
+    "fieldPath" : "realmData.ownerAgent_expanded.fullName",
+    "businessName" : "Realm Data Owner Agent Full Name",
+    "sourceCollection" : "agentclients",
+    "dataType" : "string",
+    "include" : true,
+    "statistics" : {
+      "distinctNonNullValues" : 24,
+      "nullCount" : 0,
+      "totalOccurrences" : 8871,
+      "sampleValues" : [ "Ann Dolan", "Ashley Test Kim", "Ashley2 Test", "Cesar Herrera", "Christy Gillespie" ]
+    }
+  }, {
+    "fieldPath" : "realmData.ownerAgent_expanded.lastUpdated",
+    "businessName" : "Realm Data Owner Agent Last Updated",
+    "sourceCollection" : "agentclients",
+    "dataType" : "double",
+    "include" : true,
+    "statistics" : {
+      "distinctNonNullValues" : 10,
+      "nullCount" : 0,
+      "totalOccurrences" : 8871,
+      "sampleValues" : [ "1.660233924E9", "1.674075227E9", "1.675719033E9", "1.675719395E9", "1.683913872E9" ]
+    }
+  }, {
+    "fieldPath" : "realmData.ownerAgent_expanded.person",
+    "businessName" : "Realm Data Owner Agent Person",
+    "sourceCollection" : "agentclients",
+    "dataType" : "objectId",
+    "include" : true,
+    "statistics" : {
+      "distinctNonNullValues" : 24,
+      "nullCount" : 0,
+      "totalOccurrences" : 8871,
+      "sampleValues" : [ "5b6c6b3e9e89b41f53e0e01c", "5b6c6b3f9e89b41f53e0e02a", "5b6c6b3f9e89b41f53e0e068", "5b6c6b3f9e89b41f53e0e090", "5b6c6b419e89b41f53e0e1c1" ]
+    }
+  }, {
+    "fieldPath" : "realmData.ownerAgent_expanded.photoURL",
+    "businessName" : "Realm Data Owner Agent Photo URL",
+    "sourceCollection" : "agentclients",
+    "dataType" : "string",
+    "include" : true,
+    "statistics" : {
+      "distinctNonNullValues" : 3,
+      "nullCount" : 6540,
+      "totalOccurrences" : 8022,
+      "sampleValues" : [ "https://images.pexels.com/photos/551628/pexels-photo-551628.jpeg?auto=format%2Ccompress&cs=tinysrgb&dpr=1&w=500", "https://livejacksonhole.com/wp-content/uploads/2018/08/RichardLewis-1.jpg", "https://www.colorado.com/sites/default/files/styles/1000x685/public/Dillon2_Town-of-Dillon_0.jpg?itok=cXTpK04e" ]
+    }
+  }, {
+    "fieldPath" : "realmData.ownerAgent_expanded.privateURL",
+    "businessName" : "Realm Data Owner Agent Private URL",
+    "sourceCollection" : "agentclients",
+    "dataType" : "string",
+    "include" : true,
+    "statistics" : {
+      "distinctNonNullValues" : 16,
+      "nullCount" : 0,
+      "totalOccurrences" : 8621,
+      "sampleValues" : [ "https://media.realm-global.com/Vista?referral=ADolanMEX", "https://media.realm-global.com/Vista?referral=CGillespieWY", "https://media.realm-global.com/Vista?referral=CHerreraRR", "https://media.realm-global.com/Vista?referral=CMurphyWY", "https://media.realm-global.com/Vista?referral=DPalmerWY" ]
+    }
+  }, {
+    "fieldPath" : "realmData.ownerAgent_expanded.realmData",
+    "businessName" : "Realm Data Owner Agent Realm Data",
+    "sourceCollection" : "agentclients",
+    "dataType" : "object",
+    "include" : false,
+    "statistics" : {
+      "distinctNonNullValues" : 0,
+      "nullCount" : 0,
+      "totalOccurrences" : 8871
+    }
+  }, {
+    "fieldPath" : "realmData.ownerAgent_expanded.realmData.clientCount",
+    "businessName" : "Realm Data Owner Agent Realm Data Client Count",
+    "sourceCollection" : "agentclients",
+    "dataType" : "integer",
+    "include" : true,
+    "statistics" : {
+      "distinctNonNullValues" : 5,
+      "nullCount" : 0,
+      "totalOccurrences" : 8871,
+      "sampleValues" : [ "0", "1", "1545", "3593", "6" ]
+    }
+  }, {
+    "fieldPath" : "realmData.ownerAgent_expanded.realmData.clientUpload",
+    "businessName" : "Realm Data Owner Agent Realm Data Client Upload",
+    "sourceCollection" : "agentclients",
+    "dataType" : "object",
+    "include" : false,
+    "statistics" : {
+      "distinctNonNullValues" : 0,
+      "nullCount" : 0,
+      "totalOccurrences" : 8572
+    }
+  }, {
+    "fieldPath" : "realmData.ownerAgent_expanded.realmData.clientUpload.etl",
+    "businessName" : "Realm Data Owner Agent Realm Data Client Upload Etl",
+    "sourceCollection" : "agentclients",
+    "dataType" : "object",
+    "include" : false,
+    "statistics" : {
+      "distinctNonNullValues" : 0,
+      "nullCount" : 0,
+      "totalOccurrences" : 8572
+    }
+  }, {
+    "fieldPath" : "realmData.ownerAgent_expanded.realmData.clientUpload.etl.completedAt",
+    "businessName" : "Realm Data Owner Agent Realm Data Client Upload Etl Completed At",
+    "sourceCollection" : "agentclients",
+    "dataType" : "date",
+    "include" : true,
+    "statistics" : {
+      "distinctNonNullValues" : 16,
+      "nullCount" : 0,
+      "totalOccurrences" : 8348,
+      "sampleValues" : [ "Fri Apr 26 15:08:05 UTC 2019", "Mon Jun 29 15:48:36 UTC 2020", "Sat Oct 21 00:18:39 UTC 2023", "Thu Feb 07 17:44:53 UTC 2019", "Thu Jan 16 22:58:35 UTC 2020" ]
+    }
+  }, {
+    "fieldPath" : "realmData.ownerAgent_expanded.realmData.clientUpload.etl.inProgressAt",
+    "businessName" : "Realm Data Owner Agent Realm Data Client Upload Etl In Progress At",
+    "sourceCollection" : "agentclients",
+    "dataType" : "date",
+    "include" : true,
+    "statistics" : {
+      "distinctNonNullValues" : 19,
+      "nullCount" : 0,
+      "totalOccurrences" : 8572,
+      "sampleValues" : [ "Fri Apr 26 15:08:04 UTC 2019", "Mon Feb 25 21:53:11 UTC 2019", "Mon Jun 29 15:48:26 UTC 2020", "Sat Oct 21 00:18:17 UTC 2023", "Thu Jan 16 22:58:35 UTC 2020" ]
+    }
+  }, {
+    "fieldPath" : "realmData.ownerAgent_expanded.realmData.clientUpload.etl.rejectedAt",
+    "businessName" : "Realm Data Owner Agent Realm Data Client Upload Etl Rejected At",
+    "sourceCollection" : "agentclients",
+    "dataType" : "date",
+    "include" : true,
+    "statistics" : {
+      "distinctNonNullValues" : 2,
+      "nullCount" : 0,
+      "totalOccurrences" : 1666,
+      "sampleValues" : [ "Mon Feb 25 21:53:11 UTC 2019", "Tue Mar 05 13:08:22 UTC 2019" ]
+    }
+  }, {
+    "fieldPath" : "realmData.ownerAgent_expanded.realmData.clientUpload.etl.status",
+    "businessName" : "Realm Data Owner Agent Realm Data Client Upload Etl Status",
+    "sourceCollection" : "agentclients",
+    "dataType" : "string",
+    "include" : true,
+    "statistics" : {
+      "distinctNonNullValues" : 4,
+      "nullCount" : 0,
+      "totalOccurrences" : 8572,
+      "sampleValues" : [ "Completed", "Import", "InProgress", "Rejected" ]
+    }
+  }, {
+    "fieldPath" : "realmData.ownerAgent_expanded.realmData.clientUpload.file",
+    "businessName" : "Realm Data Owner Agent Realm Data Client Upload File",
+    "sourceCollection" : "agentclients",
+    "dataType" : "object",
+    "include" : false,
+    "statistics" : {
+      "distinctNonNullValues" : 0,
+      "nullCount" : 0,
+      "totalOccurrences" : 8572
+    }
+  }, {
+    "fieldPath" : "realmData.ownerAgent_expanded.realmData.clientUpload.file.acl",
+    "businessName" : "Realm Data Owner Agent Realm Data Client Upload File Acl",
+    "sourceCollection" : "agentclients",
+    "dataType" : "string",
+    "include" : false,
+    "statistics" : {
+      "distinctNonNullValues" : 1,
+      "nullCount" : 0,
+      "totalOccurrences" : 8572,
+      "sampleValues" : [ "private" ]
+    }
+  }, {
+    "fieldPath" : "realmData.ownerAgent_expanded.realmData.clientUpload.file.bucket",
+    "businessName" : "Realm Data Owner Agent Realm Data Client Upload File Bucket",
+    "sourceCollection" : "agentclients",
+    "dataType" : "string",
+    "include" : true,
+    "statistics" : {
+      "distinctNonNullValues" : 2,
+      "nullCount" : 0,
+      "totalOccurrences" : 8572,
+      "sampleValues" : [ "dev-admin-agents-test", "realm-uploads-bo-prod" ]
+    }
+  }, {
+    "fieldPath" : "realmData.ownerAgent_expanded.realmData.clientUpload.file.contentDisposition",
+    "businessName" : "Realm Data Owner Agent Realm Data Client Upload File Content Disposition",
+    "sourceCollection" : "agentclients",
+    "include" : false,
+    "statistics" : {
+      "distinctNonNullValues" : 0,
+      "nullCount" : 8572,
+      "totalOccurrences" : 8572
+    }
+  }, {
+    "fieldPath" : "realmData.ownerAgent_expanded.realmData.clientUpload.file.contentEncoding",
+    "businessName" : "Realm Data Owner Agent Realm Data Client Upload File Content Encoding",
+    "sourceCollection" : "agentclients",
+    "include" : false,
+    "statistics" : {
+      "distinctNonNullValues" : 0,
+      "nullCount" : 3366,
+      "totalOccurrences" : 3366
+    }
+  }, {
+    "fieldPath" : "realmData.ownerAgent_expanded.realmData.clientUpload.file.contentType",
+    "businessName" : "Realm Data Owner Agent Realm Data Client Upload File Content Type",
+    "sourceCollection" : "agentclients",
+    "dataType" : "string",
+    "include" : false,
+    "statistics" : {
+      "distinctNonNullValues" : 1,
+      "nullCount" : 0,
+      "totalOccurrences" : 8572,
+      "sampleValues" : [ "application/octet-stream" ]
+    }
+  }, {
+    "fieldPath" : "realmData.ownerAgent_expanded.realmData.clientUpload.file.encoding",
+    "businessName" : "Realm Data Owner Agent Realm Data Client Upload File Encoding",
+    "sourceCollection" : "agentclients",
+    "dataType" : "string",
+    "include" : false,
+    "statistics" : {
+      "distinctNonNullValues" : 1,
+      "nullCount" : 0,
+      "totalOccurrences" : 8572,
+      "sampleValues" : [ "7bit" ]
+    }
+  }, {
+    "fieldPath" : "realmData.ownerAgent_expanded.realmData.clientUpload.file.etag",
+    "businessName" : "Realm Data Owner Agent Realm Data Client Upload File Etag",
+    "sourceCollection" : "agentclients",
+    "dataType" : "string",
+    "include" : true,
+    "statistics" : {
+      "distinctNonNullValues" : 19,
+      "nullCount" : 0,
+      "totalOccurrences" : 8572,
+      "sampleValues" : [ "\"01be4c1c4fdbb8f5569ad8977d05a45f\"", "\"053f4e57a154dafac1dfd0eee254e77a\"", "\"16645e3cb6cb35c8dc9736d6c3756e87\"", "\"1eeea7ade49a6f518706250831804405\"", "\"23dbef691f70609cf8dc81ea90b4f44b\"" ]
+    }
+  }, {
+    "fieldPath" : "realmData.ownerAgent_expanded.realmData.clientUpload.file.fieldname",
+    "businessName" : "Realm Data Owner Agent Realm Data Client Upload File Fieldname",
+    "sourceCollection" : "agentclients",
+    "dataType" : "string",
+    "include" : false,
+    "statistics" : {
+      "distinctNonNullValues" : 1,
+      "nullCount" : 0,
+      "totalOccurrences" : 8572,
+      "sampleValues" : [ "file" ]
+    }
+  }, {
+    "fieldPath" : "realmData.ownerAgent_expanded.realmData.clientUpload.file.key",
+    "businessName" : "Realm Data Owner Agent Realm Data Client Upload File Key",
+    "sourceCollection" : "agentclients",
+    "dataType" : "string",
+    "include" : true,
+    "statistics" : {
+      "distinctNonNullValues" : 19,
+      "nullCount" : 0,
+      "totalOccurrences" : 8572,
+      "sampleValues" : [ "1545408817887", "1551790834228", "1556290772237", "1559759375510", "1561054059376" ]
+    }
+  }, {
+    "fieldPath" : "realmData.ownerAgent_expanded.realmData.clientUpload.file.location",
+    "businessName" : "Realm Data Owner Agent Realm Data Client Upload File Location",
+    "sourceCollection" : "agentclients",
+    "dataType" : "string",
+    "include" : true,
+    "statistics" : {
+      "distinctNonNullValues" : 19,
+      "nullCount" : 0,
+      "totalOccurrences" : 8572,
+      "sampleValues" : [ "https://dev-admin-agents-test.s3.amazonaws.com/1545408817887", "https://realm-uploads-bo-prod.s3.amazonaws.com/1551790834228", "https://realm-uploads-bo-prod.s3.amazonaws.com/1556290772237", "https://realm-uploads-bo-prod.s3.amazonaws.com/1559759375510", "https://realm-uploads-bo-prod.s3.amazonaws.com/1561054059376" ]
+    }
+  }, {
+    "fieldPath" : "realmData.ownerAgent_expanded.realmData.clientUpload.file.metadata",
+    "businessName" : "Realm Data Owner Agent Realm Data Client Upload File Metadata",
+    "sourceCollection" : "agentclients",
+    "dataType" : "object",
+    "include" : false,
+    "statistics" : {
+      "distinctNonNullValues" : 0,
+      "nullCount" : 0,
+      "totalOccurrences" : 8572
+    }
+  }, {
+    "fieldPath" : "realmData.ownerAgent_expanded.realmData.clientUpload.file.metadata.fieldName",
+    "businessName" : "Realm Data Owner Agent Realm Data Client Upload File Metadata Field Name",
+    "sourceCollection" : "agentclients",
+    "dataType" : "string",
+    "include" : false,
+    "statistics" : {
+      "distinctNonNullValues" : 1,
+      "nullCount" : 0,
+      "totalOccurrences" : 8572,
+      "sampleValues" : [ "file" ]
+    }
+  }, {
+    "fieldPath" : "realmData.ownerAgent_expanded.realmData.clientUpload.file.mimetype",
+    "businessName" : "Realm Data Owner Agent Realm Data Client Upload File Mimetype",
+    "sourceCollection" : "agentclients",
+    "dataType" : "string",
+    "include" : true,
+    "statistics" : {
+      "distinctNonNullValues" : 2,
+      "nullCount" : 0,
+      "totalOccurrences" : 8572,
+      "sampleValues" : [ "application/vnd.ms-excel", "text/csv" ]
+    }
+  }, {
+    "fieldPath" : "realmData.ownerAgent_expanded.realmData.clientUpload.file.originalname",
+    "businessName" : "Realm Data Owner Agent Realm Data Client Upload File Originalname",
+    "sourceCollection" : "agentclients",
+    "dataType" : "string",
+    "include" : true,
+    "statistics" : {
+      "distinctNonNullValues" : 19,
+      "nullCount" : 0,
+      "totalOccurrences" : 8572,
+      "sampleValues" : [ "06.29 Tester CSV - Sheet1.csv", "1629 Name-Phone - Sheet1 (1).csv", "Ann Dolan Client List - REALM_clientdata_format (1).csv", "Boost Contacts_Outlook.csv", "DianePalmerREALM Mailing list 2019 - DianePalmerREALM Mailing list 2019.csv" ]
+    }
+  }, {
+    "fieldPath" : "realmData.ownerAgent_expanded.realmData.clientUpload.file.serverSideEncryption",
+    "businessName" : "Realm Data Owner Agent Realm Data Client Upload File Server Side Encryption",
+    "sourceCollection" : "agentclients",
+    "include" : false,
+    "statistics" : {
+      "distinctNonNullValues" : 0,
+      "nullCount" : 8572,
+      "totalOccurrences" : 8572
+    }
+  }, {
+    "fieldPath" : "realmData.ownerAgent_expanded.realmData.clientUpload.file.size",
+    "businessName" : "Realm Data Owner Agent Realm Data Client Upload File Size",
+    "sourceCollection" : "agentclients",
+    "dataType" : "integer",
+    "include" : true,
+    "statistics" : {
+      "distinctNonNullValues" : 19,
+      "nullCount" : 0,
+      "totalOccurrences" : 8572,
+      "sampleValues" : [ "10837", "116523", "131", "145479", "1460" ]
+    }
+  }, {
+    "fieldPath" : "realmData.ownerAgent_expanded.realmData.clientUpload.file.storageClass",
+    "businessName" : "Realm Data Owner Agent Realm Data Client Upload File Storage Class",
+    "sourceCollection" : "agentclients",
+    "dataType" : "string",
+    "include" : false,
+    "statistics" : {
+      "distinctNonNullValues" : 1,
+      "nullCount" : 0,
+      "totalOccurrences" : 8572,
+      "sampleValues" : [ "STANDARD" ]
+    }
+  }, {
+    "fieldPath" : "realmData.ownerAgent_expanded.realmData.clientUpload.file.versionId",
+    "businessName" : "Realm Data Owner Agent Realm Data Client Upload File Version Id",
+    "sourceCollection" : "agentclients",
+    "dataType" : "string",
+    "include" : false,
+    "statistics" : {
+      "distinctNonNullValues" : 2,
+      "nullCount" : 3740,
+      "totalOccurrences" : 7106,
+      "sampleValues" : [ "o7NEFRkS6DQ3ak6YOq1pLt4VpMJxy049", "zOpWBAqTLA_RuevD0o2LenYE1Q3KOJLr" ]
+    }
+  }, {
+    "fieldPath" : "realmData.ownerAgent_expanded.realmData.clientUpload.fileId",
+    "businessName" : "Realm Data Owner Agent Realm Data Client Upload File Id",
+    "sourceCollection" : "agentclients",
+    "dataType" : "string",
+    "include" : false,
+    "statistics" : {
+      "distinctNonNullValues" : 19,
+      "nullCount" : 0,
+      "totalOccurrences" : 8572,
+      "sampleValues" : [ "1545408818094e1c1", "1551790834410d93f", "1556290772398e321", "1559759375725125b", "1561054059498d1e8" ]
+    }
+  }, {
+    "fieldPath" : "realmData.ownerAgent_expanded.realmData.clientUpload.source",
+    "businessName" : "Realm Data Owner Agent Realm Data Client Upload Source",
+    "sourceCollection" : "agentclients",
+    "dataType" : "string",
+    "include" : true,
+    "statistics" : {
+      "distinctNonNullValues" : 5,
+      "nullCount" : 0,
+      "totalOccurrences" : 8572,
+      "sampleValues" : [ "MailChimp", "MasterTemplate", "Outlook", "Realm", "TopProducer" ]
+    }
+  }, {
+    "fieldPath" : "realmData.ownerAgent_expanded.realmData.clientUpload.uploadedAt",
+    "businessName" : "Realm Data Owner Agent Realm Data Client Upload Uploaded At",
+    "sourceCollection" : "agentclients",
+    "dataType" : "date",
+    "include" : true,
+    "statistics" : {
+      "distinctNonNullValues" : 19,
+      "nullCount" : 0,
+      "totalOccurrences" : 8572,
+      "sampleValues" : [ "Fri Apr 26 14:59:32 UTC 2019", "Fri Dec 21 16:13:38 UTC 2018", "Mon Jun 29 15:47:56 UTC 2020", "Sat Oct 21 00:13:53 UTC 2023", "Thu Jan 16 22:56:17 UTC 2020" ]
+    }
+  }, {
+    "fieldPath" : "realmData.ownerAgent_expanded.realmData.clientUpload.url",
+    "businessName" : "Realm Data Owner Agent Realm Data Client Upload Url",
+    "sourceCollection" : "agentclients",
+    "dataType" : "string",
+    "include" : true,
+    "statistics" : {
+      "distinctNonNullValues" : 19,
+      "nullCount" : 0,
+      "totalOccurrences" : 8572,
+      "sampleValues" : [ "https://dev-admin-agents-test.s3.amazonaws.com/1545408817887", "https://realm-uploads-bo-prod.s3.amazonaws.com/1551790834228", "https://realm-uploads-bo-prod.s3.amazonaws.com/1556290772237", "https://realm-uploads-bo-prod.s3.amazonaws.com/1559759375510", "https://realm-uploads-bo-prod.s3.amazonaws.com/1561054059376" ]
+    }
+  }, {
+    "fieldPath" : "realmData.ownerAgent_expanded.realmData.description",
+    "businessName" : "Realm Data Owner Agent Realm Data Description",
+    "sourceCollection" : "agentclients",
+    "include" : false,
+    "statistics" : {
+      "distinctNonNullValues" : 0,
+      "nullCount" : 8,
+      "totalOccurrences" : 8
+    }
+  }, {
+    "fieldPath" : "realmData.ownerAgent_expanded.realmData.lifestyleNames",
+    "businessName" : "Realm Data Owner Agent Realm Data Lifestyle Names",
+    "sourceCollection" : "agentclients",
+    "dataType" : "array",
+    "include" : false,
+    "statistics" : {
+      "distinctNonNullValues" : 0,
+      "nullCount" : 12,
+      "totalOccurrences" : 6619,
+      "avgArrayLength" : 5.510216437112153,
+      "maxArrayLength" : 7
+    },
+    "arrayConfig" : {
+      "displayMode" : "comma_separated",
+      "sortOrder" : "alphanumeric",
+      "delimiter" : ", "
+    }
+  }, {
+    "fieldPath" : "realmData.ownerAgent_expanded.realmData.lifestyleNames[count]",
+    "businessName" : "Realm Data Owner Agent Realm Data Lifestyle Names Count",
+    "sourceCollection" : "agentclients",
+    "dataType" : "integer",
+    "include" : false,
+    "statistics" : {
+      "distinctNonNullValues" : 0,
+      "nullCount" : 12
+    },
+    "extractionMode" : "count",
+    "sourceField" : "realmData.ownerAgent_expanded.realmData.lifestyleNames"
+  }, {
+    "fieldPath" : "realmData.ownerAgent_expanded.realmData.lifestyles",
+    "businessName" : "Realm Data Owner Agent Realm Data Lifestyles",
+    "sourceCollection" : "agentclients",
+    "dataType" : "array",
+    "include" : false,
+    "statistics" : {
+      "distinctNonNullValues" : 0,
+      "nullCount" : 12,
+      "totalOccurrences" : 6619,
+      "avgArrayLength" : 5.510216437112153,
+      "maxArrayLength" : 7
+    },
+    "arrayConfig" : {
+      "displayMode" : "comma_separated",
+      "sortOrder" : "alphanumeric",
+      "delimiter" : ", "
+    }
+  }, {
+    "fieldPath" : "realmData.ownerAgent_expanded.realmData.lifestyles[count]",
+    "businessName" : "Realm Data Owner Agent Realm Data Lifestyles Count",
+    "sourceCollection" : "agentclients",
+    "dataType" : "integer",
+    "include" : false,
+    "statistics" : {
+      "distinctNonNullValues" : 0,
+      "nullCount" : 12
+    },
+    "extractionMode" : "count",
+    "sourceField" : "realmData.ownerAgent_expanded.realmData.lifestyles"
+  }, {
+    "fieldPath" : "realmData.ownerAgent_expanded.realmData.listingCount",
+    "businessName" : "Realm Data Owner Agent Realm Data Listing Count",
+    "sourceCollection" : "agentclients",
+    "dataType" : "integer",
+    "include" : true,
+    "statistics" : {
+      "distinctNonNullValues" : 8,
+      "nullCount" : 0,
+      "totalOccurrences" : 8370,
+      "sampleValues" : [ "0", "1", "17", "2", "4" ]
+    }
+  }, {
+    "fieldPath" : "realmData.ownerAgent_expanded.realmData.tagNames",
+    "businessName" : "Realm Data Owner Agent Realm Data Tag Names",
+    "sourceCollection" : "agentclients",
+    "dataType" : "array",
+    "include" : false,
+    "statistics" : {
+      "distinctNonNullValues" : 0,
+      "nullCount" : 1683,
+      "totalOccurrences" : 8871,
+      "avgArrayLength" : 64.72621035058431,
+      "maxArrayLength" : 74
+    },
+    "arrayConfig" : {
+      "displayMode" : "comma_separated",
+      "sortOrder" : "alphanumeric",
+      "delimiter" : ", "
+    }
+  }, {
+    "fieldPath" : "realmData.ownerAgent_expanded.realmData.tagNames[count]",
+    "businessName" : "Realm Data Owner Agent Realm Data Tag Names Count",
+    "sourceCollection" : "agentclients",
+    "dataType" : "integer",
+    "include" : false,
+    "statistics" : {
+      "distinctNonNullValues" : 0,
+      "nullCount" : 1683
+    },
+    "extractionMode" : "count",
+    "sourceField" : "realmData.ownerAgent_expanded.realmData.tagNames"
+  }, {
+    "fieldPath" : "realmData.ownerAgent_expanded.realmData.tags",
+    "businessName" : "Realm Data Owner Agent Realm Data Tags",
+    "sourceCollection" : "agentclients",
+    "dataType" : "array",
+    "include" : false,
+    "statistics" : {
+      "distinctNonNullValues" : 0,
+      "nullCount" : 1683,
+      "totalOccurrences" : 8871,
+      "avgArrayLength" : 85.02351140790206,
+      "maxArrayLength" : 114
+    },
+    "arrayConfig" : {
+      "displayMode" : "comma_separated",
+      "sortOrder" : "alphanumeric",
+      "delimiter" : ", "
+    }
+  }, {
+    "fieldPath" : "realmData.ownerAgent_expanded.realmData.tags[count]",
+    "businessName" : "Realm Data Owner Agent Realm Data Tags Count",
+    "sourceCollection" : "agentclients",
+    "dataType" : "integer",
+    "include" : false,
+    "statistics" : {
+      "distinctNonNullValues" : 0,
+      "nullCount" : 1683
+    },
+    "extractionMode" : "count",
+    "sourceField" : "realmData.ownerAgent_expanded.realmData.tags"
+  }, {
+    "fieldPath" : "realmData.ownerAgent_expanded.subscription",
+    "businessName" : "Realm Data Owner Agent Subscription",
+    "sourceCollection" : "agentclients",
+    "dataType" : "objectId",
+    "include" : true,
+    "statistics" : {
+      "distinctNonNullValues" : 16,
+      "nullCount" : 0,
+      "totalOccurrences" : 8871,
+      "sampleValues" : [ "5d02ba07f000318ce53bad7b", "5d02bdeff00031bcc63badac", "5d02c06e39963fe13babab21", "5d02c08983582d4e780f1620", "5d02c1dcf00031977a3badb9" ]
+    }
+  }, {
+    "fieldPath" : "realmData.ownerAgent_expanded.updatedAt",
+    "businessName" : "Realm Data Owner Agent Updated At",
+    "sourceCollection" : "agentclients",
+    "dataType" : "date",
+    "include" : true,
+    "statistics" : {
+      "distinctNonNullValues" : 15,
+      "nullCount" : 0,
+      "totalOccurrences" : 8871,
+      "sampleValues" : [ "Fri Jan 24 22:52:19 UTC 2025", "Fri Jan 31 15:51:06 UTC 2025", "Fri Nov 15 17:01:16 UTC 2024", "Mon Apr 28 11:08:49 UTC 2025", "Mon Jan 22 18:31:39 UTC 2024" ]
+    }
+  }, {
+    "fieldPath" : "realmData.ownerTeam",
+    "businessName" : "Realm Data Owner Team",
+    "sourceCollection" : "agentclients",
+    "dataType" : "objectId",
+    "include" : true,
+    "statistics" : {
+      "distinctNonNullValues" : 5,
+      "nullCount" : 0,
+      "totalOccurrences" : 11650,
+      "sampleValues" : [ "5c9e8520ffbec5380fd6754c", "5ca52e2ae5d6bb9fec120607", "5ca52f754c5e5faa929d21ab", "5d8d3a25ba0be851a4d6ebeb", "5dcdba6f05a42e35b059aa18" ]
+    },
+    "relationshipTarget" : "teams"
+  }, {
+    "fieldPath" : "realmData.ownerTeam_expanded",
+    "businessName" : "Realm Data Owner Team",
+    "sourceCollection" : "agentclients",
+    "dataType" : "object",
+    "include" : false,
+    "statistics" : {
+      "distinctNonNullValues" : 0,
+      "nullCount" : 0,
+      "totalOccurrences" : 5825
+    }
+  }, {
+    "fieldPath" : "realmData.ownerTeam_expanded.__v",
+    "businessName" : "Realm Data Owner Team Version",
+    "sourceCollection" : "agentclients",
+    "dataType" : "integer",
+    "include" : false,
+    "statistics" : {
+      "distinctNonNullValues" : 1,
+      "nullCount" : 0,
+      "totalOccurrences" : 5825,
+      "sampleValues" : [ "0" ]
+    }
+  }, {
+    "fieldPath" : "realmData.ownerTeam_expanded._id",
+    "businessName" : "Realm Data Owner Team",
+    "sourceCollection" : "agentclients",
+    "dataType" : "objectId",
+    "include" : false,
+    "statistics" : {
+      "distinctNonNullValues" : 5,
+      "nullCount" : 0,
+      "totalOccurrences" : 5825,
+      "sampleValues" : [ "5c9e8520ffbec5380fd6754c", "5ca52e2ae5d6bb9fec120607", "5ca52f754c5e5faa929d21ab", "5d8d3a25ba0be851a4d6ebeb", "5dcdba6f05a42e35b059aa18" ]
+    }
+  }, {
+    "fieldPath" : "realmData.ownerTeam_expanded.agents",
+    "businessName" : "Realm Data Owner Team Agents",
+    "sourceCollection" : "agentclients",
+    "dataType" : "array",
+    "include" : false,
+    "statistics" : {
+      "distinctNonNullValues" : 0,
+      "nullCount" : 0,
+      "totalOccurrences" : 5825,
+      "avgArrayLength" : 5.727725321888412,
+      "maxArrayLength" : 8
+    },
+    "arrayConfig" : {
+      "displayMode" : "comma_separated",
+      "sortOrder" : "alphanumeric",
+      "delimiter" : ", "
+    }
+  }, {
+    "fieldPath" : "realmData.ownerTeam_expanded.agents[count]",
+    "businessName" : "Realm Data Owner Team Agents Count",
+    "sourceCollection" : "agentclients",
+    "dataType" : "integer",
+    "include" : false,
+    "statistics" : {
+      "distinctNonNullValues" : 0,
+      "nullCount" : 0
+    },
+    "extractionMode" : "count",
+    "sourceField" : "realmData.ownerTeam_expanded.agents"
+  }, {
+    "fieldPath" : "realmData.ownerTeam_expanded.deleted",
+    "businessName" : "Realm Data Owner Team Deleted",
+    "sourceCollection" : "agentclients",
+    "dataType" : "boolean",
+    "include" : false,
+    "statistics" : {
+      "distinctNonNullValues" : 1,
+      "nullCount" : 0,
+      "totalOccurrences" : 5825,
+      "sampleValues" : [ "false" ]
+    }
+  }, {
+    "fieldPath" : "realmData.ownerTeam_expanded.description",
+    "businessName" : "Realm Data Owner Team Description",
+    "sourceCollection" : "agentclients",
+    "dataType" : "object",
+    "include" : false,
+    "statistics" : {
+      "distinctNonNullValues" : 0,
+      "nullCount" : 0,
+      "totalOccurrences" : 5745
+    }
+  }, {
+    "fieldPath" : "realmData.ownerTeam_expanded.description.en",
+    "businessName" : "Realm Data Owner Team Description En",
+    "sourceCollection" : "agentclients",
+    "include" : false,
+    "statistics" : {
+      "distinctNonNullValues" : 0,
+      "nullCount" : 5745,
+      "totalOccurrences" : 5745
+    }
+  }, {
+    "fieldPath" : "realmData.ownerTeam_expanded.displayName",
+    "businessName" : "Realm Data Owner Team Display Name",
+    "sourceCollection" : "agentclients",
+    "dataType" : "string",
+    "include" : true,
+    "statistics" : {
+      "distinctNonNullValues" : 5,
+      "nullCount" : 0,
+      "totalOccurrences" : 5825,
+      "sampleValues" : [ "Chris | Kristen", "Christy & Garth Gillespie", "Graham Faupel Mendenhall", "Live Jackson Hole", "The Wards" ]
+    }
+  }, {
+    "fieldPath" : "realmData.ownerTeam_expanded.email",
+    "businessName" : "Realm Data Owner Team Email",
+    "sourceCollection" : "agentclients",
+    "dataType" : "string",
+    "include" : false,
+    "statistics" : {
+      "distinctNonNullValues" : 1,
+      "nullCount" : 3985,
+      "totalOccurrences" : 5825,
+      "sampleValues" : [ "livejacksonhole@jhrea.com" ]
+    }
+  }, {
+    "fieldPath" : "realmData.ownerTeam_expanded.leader",
+    "businessName" : "Realm Data Owner Team Leader",
+    "sourceCollection" : "agentclients",
+    "dataType" : "objectId",
+    "include" : true,
+    "statistics" : {
+      "distinctNonNullValues" : 5,
+      "nullCount" : 0,
+      "totalOccurrences" : 5825,
+      "sampleValues" : [ "5b6c6b419e89b41f53e0e1c2", "5c4ba9e8e3e54a1813c00065", "5c7da3dc0bc3645305eb8333", "5ca5290931f5615cefc5fdb7", "5d5c2c0db7624c6a5ca3b18d" ]
+    }
+  }, {
+    "fieldPath" : "realmData.ownerTeam_expanded.name",
+    "businessName" : "Realm Data Owner Team Name",
+    "sourceCollection" : "agentclients",
+    "dataType" : "string",
+    "include" : true,
+    "statistics" : {
+      "distinctNonNullValues" : 5,
+      "nullCount" : 0,
+      "totalOccurrences" : 5825,
+      "sampleValues" : [ "Chris | Kristen", "Christy & Garth Gillespie", "Graham-Faupel-Mendenhall", "Jeff &amp; Kelli Ward", "LiveJacksonHole" ]
+    }
+  }, {
+    "fieldPath" : "realmData.ownerTeam_expanded.photoURL",
+    "businessName" : "Realm Data Owner Team Photo URL",
+    "sourceCollection" : "agentclients",
+    "dataType" : "string",
+    "include" : true,
+    "statistics" : {
+      "distinctNonNullValues" : 2,
+      "nullCount" : 80,
+      "totalOccurrences" : 5539,
+      "sampleValues" : [ "https://realm-uploaded-images.s3.amazonaws.com/1585933931986.jpeg", "https://realm-uploaded-images.s3.amazonaws.com/1671654737457.png" ]
+    }
+  }, {
+    "fieldPath" : "realmData.ownerTeam_expanded.searchable",
+    "businessName" : "Realm Data Owner Team Searchable",
+    "sourceCollection" : "agentclients",
+    "dataType" : "array",
+    "include" : false,
+    "statistics" : {
+      "distinctNonNullValues" : 0,
+      "nullCount" : 0,
+      "totalOccurrences" : 5825,
+      "avgArrayLength" : 1.6212875536480686,
+      "maxArrayLength" : 2
+    },
+    "arrayConfig" : {
+      "displayMode" : "comma_separated",
+      "sortOrder" : "alphanumeric",
+      "delimiter" : ", "
+    }
+  }, {
+    "fieldPath" : "realmData.ownerTeam_expanded.searchable[count]",
+    "businessName" : "Realm Data Owner Team Searchable Count",
+    "sourceCollection" : "agentclients",
+    "dataType" : "integer",
+    "include" : false,
+    "statistics" : {
+      "distinctNonNullValues" : 0,
+      "nullCount" : 0
+    },
+    "extractionMode" : "count",
+    "sourceField" : "realmData.ownerTeam_expanded.searchable"
+  }, {
+    "fieldPath" : "realmData.ownerTeam_expanded.subscribers",
+    "businessName" : "Realm Data Owner Team Subscribers",
+    "sourceCollection" : "agentclients",
+    "dataType" : "array",
+    "include" : false,
+    "statistics" : {
+      "distinctNonNullValues" : 0,
+      "nullCount" : 0,
+      "totalOccurrences" : 5825,
+      "avgArrayLength" : 5.727725321888412,
+      "maxArrayLength" : 8
+    },
+    "arrayConfig" : {
+      "displayMode" : "comma_separated",
+      "sortOrder" : "alphanumeric",
+      "delimiter" : ", "
+    }
+  }, {
+    "fieldPath" : "realmData.ownerTeam_expanded.subscribers[count]",
+    "businessName" : "Realm Data Owner Team Subscribers Count",
+    "sourceCollection" : "agentclients",
+    "dataType" : "integer",
+    "include" : false,
+    "statistics" : {
+      "distinctNonNullValues" : 0,
+      "nullCount" : 0
+    },
+    "extractionMode" : "count",
+    "sourceField" : "realmData.ownerTeam_expanded.subscribers"
+  }, {
+    "fieldPath" : "realmData.ownerTeam_expanded.thumbnailPhotoURL",
+    "businessName" : "Realm Data Owner Team Thumbnail Photo URL",
+    "sourceCollection" : "agentclients",
+    "dataType" : "string",
+    "include" : true,
+    "statistics" : {
+      "distinctNonNullValues" : 2,
+      "nullCount" : 0,
+      "totalOccurrences" : 5459,
+      "sampleValues" : [ "https://realm-uploaded-images.s3.amazonaws.com/thumbnail/1585933931986.jpeg", "https://realm-uploaded-images.s3.amazonaws.com/thumbnail/1671654737457.png" ]
+    }
+  }, {
+    "fieldPath" : "realmData.ownerTeam_expanded.tier",
+    "businessName" : "Realm Data Owner Team Tier",
+    "sourceCollection" : "agentclients",
+    "dataType" : "string",
+    "include" : true,
+    "statistics" : {
+      "distinctNonNullValues" : 2,
+      "nullCount" : 0,
+      "totalOccurrences" : 5825,
+      "sampleValues" : [ "M", "S" ]
+    }
+  }, {
+    "fieldPath" : "realmData.ownerTeam_expanded.websiteURL",
+    "businessName" : "Realm Data Owner Team Website URL",
+    "sourceCollection" : "agentclients",
+    "dataType" : "string",
+    "include" : true,
+    "statistics" : {
+      "distinctNonNullValues" : 2,
+      "nullCount" : 3699,
+      "totalOccurrences" : 5825,
+      "sampleValues" : [ "https://jacksonholeexperts.com", "https://livejacksonhole.com" ]
+    }
+  }, {
+    "fieldPath" : "realmData.profiles",
+    "businessName" : "Realm Data Profiles",
+    "sourceCollection" : "agentclients",
+    "include" : false,
+    "statistics" : {
+      "distinctNonNullValues" : 0,
+      "nullCount" : 244,
+      "totalOccurrences" : 122
+    }
+  }, {
+    "fieldPath" : "realmData.tagNames",
+    "businessName" : "Realm Data Tag Names",
+    "sourceCollection" : "agentclients",
+    "dataType" : "array",
+    "include" : true,
+    "statistics" : {
+      "distinctNonNullValues" : 223,
+      "nullCount" : 3898,
+      "totalOccurrences" : 17933,
+      "sampleValues" : [ "achitectural_provenance", "airstrip", "apartment", "architectural_provenance", "arts" ],
+      "avgArrayLength" : 7.808183183183183,
+      "maxArrayLength" : 61
+    },
+    "arrayConfig" : {
+      "displayMode" : "comma_separated",
+      "sortOrder" : "alphanumeric",
+      "delimiter" : ", ",
+      "objectType" : "string"
+    }
+  }, {
+    "fieldPath" : "realmData.tagNames[count]",
+    "businessName" : "Realm Data Tag Names Count",
+    "sourceCollection" : "agentclients",
+    "dataType" : "integer",
+    "include" : false,
+    "statistics" : {
+      "distinctNonNullValues" : 223,
+      "nullCount" : 3898
+    },
+    "extractionMode" : "count",
+    "sourceField" : "realmData.tagNames"
+  }, {
+    "fieldPath" : "realmData.tags",
+    "businessName" : "Realm Data Tags",
+    "sourceCollection" : "agentclients",
+    "dataType" : "array",
+    "include" : true,
+    "statistics" : {
+      "distinctNonNullValues" : 259,
+      "nullCount" : 468,
+      "totalOccurrences" : 17736,
+      "sampleValues" : [ "5c1d32bc3fce883621e4f1c3", "5c1d32bc3fce883621e4f1c4", "5c1d32bc3fce883621e4f1c5", "5c1d32bc3fce883621e4f1c6", "5c1d32bc3fce883621e4f1c7" ],
+      "avgArrayLength" : 7.724374357216318,
+      "maxArrayLength" : 131
+    },
+    "arrayConfig" : {
+      "extractField" : "subCategory",
+      "displayMode" : "comma_separated",
+      "sortOrder" : "alphanumeric",
+      "delimiter" : ", ",
+      "objectType" : "object",
+      "referenceField" : "tag",
+      "referenceCollection" : "tags",
+      "availableFields" : [ "category", "createdAt", "createdBy", "deleted", "subCategory", "tagName", "weight" ]
+    }
+  }, {
+    "fieldPath" : "realmData.tags[count]",
+    "businessName" : "Realm Data Tags Count",
+    "sourceCollection" : "agentclients",
+    "dataType" : "integer",
+    "include" : false,
+    "statistics" : {
+      "distinctNonNullValues" : 259,
+      "nullCount" : 468
+    },
+    "extractionMode" : "count",
+    "sourceField" : "realmData.tags"
+  }, {
+    "fieldPath" : "realmData.tags[primary].memberOf",
+    "businessName" : "Primary Tags Member Of",
+    "sourceCollection" : "agentclients",
+    "dataType" : "string",
+    "include" : false,
+    "statistics" : {
+      "distinctNonNullValues" : 259,
+      "nullCount" : 468
+    },
+    "extractionMode" : "primary",
+    "sourceField" : "realmData.tags",
+    "extractionIndex" : 0
+  }, {
+    "fieldPath" : "realmData.tags[primary].name",
+    "businessName" : "Primary Tags Name",
+    "sourceCollection" : "agentclients",
+    "dataType" : "string",
+    "include" : false,
+    "statistics" : {
+      "distinctNonNullValues" : 259,
+      "nullCount" : 468
+    },
+    "extractionMode" : "primary",
+    "sourceField" : "realmData.tags",
+    "extractionIndex" : 0
+  }, {
+    "fieldPath" : "realmData.tags[primary].tagName",
+    "businessName" : "Primary Tags Tag Name",
+    "sourceCollection" : "agentclients",
+    "dataType" : "string",
+    "include" : false,
+    "statistics" : {
+      "distinctNonNullValues" : 259,
+      "nullCount" : 468
+    },
+    "extractionMode" : "primary",
+    "sourceField" : "realmData.tags",
+    "extractionIndex" : 0
+  }, {
+    "fieldPath" : "statusIntent",
+    "businessName" : "Status Intent",
+    "sourceCollection" : "agentclients",
+    "dataType" : "string",
+    "include" : true,
+    "statistics" : {
+      "distinctNonNullValues" : 2,
+      "nullCount" : 0,
+      "totalOccurrences" : 17746,
+      "sampleValues" : [ "Active", "Inactive" ]
+    }
+  }, {
+    "fieldPath" : "teamWas",
+    "businessName" : "Team Was",
+    "sourceCollection" : "agentclients",
+    "dataType" : "string",
+    "include" : false,
+    "statistics" : {
+      "distinctNonNullValues" : 1,
+      "nullCount" : 0,
+      "totalOccurrences" : 148,
+      "sampleValues" : [ "LiveJacksonHole" ]
+    }
+  }, {
+    "fieldPath" : "updatedAt",
+    "businessName" : "Updated At",
+    "sourceCollection" : "agentclients",
+    "dataType" : "date",
+    "include" : true,
+    "statistics" : {
+      "distinctNonNullValues" : 545,
+      "nullCount" : 0,
+      "totalOccurrences" : 17540,
+      "sampleValues" : [ "Fri Apr 25 09:49:29 UTC 2025", "Fri Dec 20 09:01:55 UTC 2024", "Sat Aug 23 10:00:32 UTC 2025", "Sat Aug 23 10:00:33 UTC 2025", "Sat Aug 23 10:00:37 UTC 2025" ]
+    }
+  } ],
+  "requiredCollections" : [ "teams", "agents", "tags", "people_meta", "lifestyles" ],
+  "exportSettings" : {
+    "batchSize" : 5000,
+    "useBusinessNames" : true,
+    "outputFormat" : "csv",
+    "csvDelimiter" : ",",
+    "csvQuoteChar" : "\""
+  }
+}

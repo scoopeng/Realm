@@ -1,0 +1,954 @@
+{
+  "includedFields" : [ {
+    "fieldPath" : "buyers",
+    "businessName" : "Buyers",
+    "sourceCollection" : "transactions",
+    "dataType" : "array",
+    "include" : true,
+    "statistics" : {
+      "distinctNonNullValues" : 100,
+      "nullCount" : 1,
+      "totalOccurrences" : 10100,
+      "sampleValues" : [ "5b6c6c0e116fa31f8a2bff56", "5b6c6c0e116fa31f8a2bff5d", "5b6c6c0e116fa31f8a2bff64", "5b6c6c0e116fa31f8a2bff6c", "5b6c6c0e116fa31f8a2bff73" ],
+      "avgArrayLength" : 1.8169125656005545,
+      "maxArrayLength" : 2
+    },
+    "arrayConfig" : {
+      "displayMode" : "comma_separated",
+      "sortOrder" : "alphanumeric",
+      "delimiter" : ", ",
+      "objectType" : "objectId",
+      "referenceCollection" : "people"
+    }
+  }, {
+    "fieldPath" : "closingDate",
+    "businessName" : "Closing Date",
+    "sourceCollection" : "transactions",
+    "dataType" : "date",
+    "include" : true,
+    "statistics" : {
+      "distinctNonNullValues" : 100,
+      "nullCount" : 0,
+      "totalOccurrences" : 8144,
+      "sampleValues" : [ "Fri Apr 06 06:00:00 UTC 2018", "Fri Apr 20 06:00:00 UTC 2018", "Fri Apr 27 06:00:00 UTC 2018", "Fri Aug 19 06:00:00 UTC 2005", "Fri Feb 02 07:00:00 UTC 2018" ]
+    }
+  }, {
+    "fieldPath" : "daysOnMarket",
+    "businessName" : "Days on Market",
+    "sourceCollection" : "transactions",
+    "dataType" : "integer",
+    "include" : true,
+    "statistics" : {
+      "distinctNonNullValues" : 100,
+      "nullCount" : 0,
+      "totalOccurrences" : 8250,
+      "sampleValues" : [ "0", "1026", "105", "106", "107" ]
+    }
+  }, {
+    "fieldPath" : "deedNumber",
+    "businessName" : "Deed Number",
+    "sourceCollection" : "transactions",
+    "dataType" : "string",
+    "include" : true,
+    "statistics" : {
+      "distinctNonNullValues" : 100,
+      "nullCount" : 0,
+      "totalOccurrences" : 6030,
+      "sampleValues" : [ "0625556 WD", "0669118 WD", "0686170 WD", "0688138 WD", "0692914 WD" ]
+    }
+  }, {
+    "fieldPath" : "excludeFromMarketReport",
+    "businessName" : "Exclude From Market Report",
+    "sourceCollection" : "transactions",
+    "dataType" : "boolean",
+    "include" : true,
+    "statistics" : {
+      "distinctNonNullValues" : 2,
+      "nullCount" : 0,
+      "totalOccurrences" : 8250,
+      "sampleValues" : [ "false", "true" ]
+    }
+  }, {
+    "fieldPath" : "listing",
+    "businessName" : "Listing",
+    "sourceCollection" : "transactions",
+    "dataType" : "objectId",
+    "include" : true,
+    "statistics" : {
+      "distinctNonNullValues" : 100,
+      "nullCount" : 0,
+      "totalOccurrences" : 10098,
+      "sampleValues" : [ "5b6c6c0e116fa31f8a2bff5a", "5b6c6c0e116fa31f8a2bff61", "5b6c6c0e116fa31f8a2bff68", "5b6c6c0e116fa31f8a2bff70", "5b6c6c0e116fa31f8a2bff75" ]
+    },
+    "relationshipTarget" : "listings"
+  }, {
+    "fieldPath" : "listingAgents",
+    "businessName" : "Listing Agents",
+    "sourceCollection" : "transactions",
+    "dataType" : "array",
+    "include" : true,
+    "statistics" : {
+      "distinctNonNullValues" : 100,
+      "nullCount" : 9045,
+      "totalOccurrences" : 10100,
+      "sampleValues" : [ "5b6c6c0e116fa31f8a2bff60", "5b6c6c0e116fa31f8a2bff67", "5b6c6c0e116fa31f8a2bff6f", "5b6c6c0e116fa31f8a2bff7b", "5b6c6c0e116fa31f8a2bff89" ],
+      "avgArrayLength" : 1.0,
+      "maxArrayLength" : 1
+    },
+    "arrayConfig" : {
+      "extractField" : "fullName",
+      "displayMode" : "comma_separated",
+      "sortOrder" : "alphanumeric",
+      "delimiter" : ", ",
+      "objectType" : "objectId",
+      "referenceCollection" : "agents",
+      "availableFields" : [ "createdAt", "deleted", "fullName", "lastUpdated", "privateURL", "updatedAt" ]
+    }
+  }, {
+    "fieldPath" : "listing_expanded.dateListed",
+    "businessName" : "Listing Date Listed",
+    "sourceCollection" : "transactions",
+    "dataType" : "date",
+    "include" : true,
+    "statistics" : {
+      "distinctNonNullValues" : 65,
+      "nullCount" : 0,
+      "totalOccurrences" : 99,
+      "sampleValues" : [ "Fri Apr 06 06:00:00 UTC 2018", "Fri Dec 08 07:00:00 UTC 2017", "Fri Feb 02 07:00:00 UTC 2018", "Fri Feb 16 07:00:00 UTC 2018", "Fri Jan 12 07:00:00 UTC 2018" ]
+    }
+  }, {
+    "fieldPath" : "loanAmount",
+    "businessName" : "Loan Amount",
+    "sourceCollection" : "transactions",
+    "dataType" : "string",
+    "include" : true,
+    "statistics" : {
+      "distinctNonNullValues" : 100,
+      "nullCount" : 0,
+      "totalOccurrences" : 1848,
+      "sampleValues" : [ "0.00", "1,000,000.00", "1,003,750.00", "1,050,000.00", "1,052,883.00" ]
+    }
+  }, {
+    "fieldPath" : "loanType",
+    "businessName" : "Loan Type",
+    "sourceCollection" : "transactions",
+    "dataType" : "string",
+    "include" : true,
+    "statistics" : {
+      "distinctNonNullValues" : 23,
+      "nullCount" : 0,
+      "totalOccurrences" : 7110,
+      "sampleValues" : [ "2 loans", "Cash", "Conv. Uninsured", "Conventional", "LOC" ]
+    }
+  }, {
+    "fieldPath" : "property",
+    "businessName" : "Property ID",
+    "sourceCollection" : "transactions",
+    "dataType" : "objectId",
+    "include" : true,
+    "statistics" : {
+      "distinctNonNullValues" : 100,
+      "nullCount" : 0,
+      "totalOccurrences" : 10099,
+      "sampleValues" : [ "5b6c6c0e116fa31f8a2bff54", "5b6c6c0e116fa31f8a2bff5c", "5b6c6c0e116fa31f8a2bff63", "5b6c6c0e116fa31f8a2bff6a", "5b6c6c0e116fa31f8a2bff72" ]
+    },
+    "relationshipTarget" : "properties"
+  }, {
+    "fieldPath" : "property_expanded.city",
+    "businessName" : "Property City",
+    "sourceCollection" : "transactions",
+    "dataType" : "string",
+    "include" : true,
+    "statistics" : {
+      "distinctNonNullValues" : 38,
+      "nullCount" : 0,
+      "totalOccurrences" : 100,
+      "sampleValues" : [ "Alhambra", "Altadena", "Apple Valley", "Arcadia", "Beverly Hills" ]
+    }
+  }, {
+    "fieldPath" : "property_expanded.fullAddress",
+    "businessName" : "Property Full Address",
+    "sourceCollection" : "transactions",
+    "dataType" : "string",
+    "include" : true,
+    "statistics" : {
+      "distinctNonNullValues" : 100,
+      "nullCount" : 0,
+      "totalOccurrences" : 100,
+      "sampleValues" : [ "101 Ocean Ave., #A400,Santa Monica,CA,90402", "1012 N. Hidalgo Ave.,Alhambra,CA,91801", "10445 Wilshire Blvd., #903,Los Angeles,CA,90024", "10773 Wheatland Ave.,Shadow Hills,CA,91040", "10982 Roebling Ave., #456,Los Angeles,CA,90024" ]
+    }
+  }, {
+    "fieldPath" : "property_expanded.streetAddress",
+    "businessName" : "Property Street Address",
+    "sourceCollection" : "transactions",
+    "dataType" : "string",
+    "include" : true,
+    "statistics" : {
+      "distinctNonNullValues" : 100,
+      "nullCount" : 0,
+      "totalOccurrences" : 100,
+      "sampleValues" : [ "101 Ocean Ave., #A400", "1012 N. Hidalgo Ave.", "10445 Wilshire Blvd., #903", "10773 Wheatland Ave.", "10982 Roebling Ave., #456" ]
+    }
+  }, {
+    "fieldPath" : "property_expanded.zipcode",
+    "businessName" : "Property Zipcode",
+    "sourceCollection" : "transactions",
+    "dataType" : "string",
+    "include" : true,
+    "statistics" : {
+      "distinctNonNullValues" : 69,
+      "nullCount" : 0,
+      "totalOccurrences" : 100,
+      "sampleValues" : [ "90004", "90015", "90019", "90024", "90026" ]
+    }
+  }, {
+    "fieldPath" : "salePrice",
+    "businessName" : "Sale Price",
+    "sourceCollection" : "transactions",
+    "dataType" : "string",
+    "include" : true,
+    "statistics" : {
+      "distinctNonNullValues" : 100,
+      "nullCount" : 0,
+      "totalOccurrences" : 10099,
+      "sampleValues" : [ "$1,000,000.00", "$1,005,000.00", "$1,015,000.00", "$1,017,000.00", "$1,035,000.00" ]
+    }
+  }, {
+    "fieldPath" : "sellers",
+    "businessName" : "Sellers",
+    "sourceCollection" : "transactions",
+    "dataType" : "array",
+    "include" : true,
+    "statistics" : {
+      "distinctNonNullValues" : 100,
+      "nullCount" : 8252,
+      "totalOccurrences" : 10100,
+      "sampleValues" : [ "5b6c6c0e116fa31f8a2bff57", "5b6c6c0e116fa31f8a2bff5e", "5b6c6c0e116fa31f8a2bff65", "5b6c6c0e116fa31f8a2bff6d", "5b6c6c0e116fa31f8a2bff74" ],
+      "avgArrayLength" : 1.0,
+      "maxArrayLength" : 1
+    },
+    "arrayConfig" : {
+      "displayMode" : "comma_separated",
+      "sortOrder" : "alphanumeric",
+      "delimiter" : ", ",
+      "objectType" : "objectId",
+      "referenceCollection" : "people"
+    }
+  }, {
+    "fieldPath" : "sellingAgents",
+    "businessName" : "Selling Agents",
+    "sourceCollection" : "transactions",
+    "dataType" : "array",
+    "include" : true,
+    "statistics" : {
+      "distinctNonNullValues" : 100,
+      "nullCount" : 9093,
+      "totalOccurrences" : 10100,
+      "sampleValues" : [ "5b6c6c0e116fa31f8a2bff59", "5b6c6c0e116fa31f8a2bff67", "5b6c6c0e116fa31f8a2bff82", "5b6c6c0f116fa31f8a2bff91", "5b6c6c0f116fa31f8a2bff98" ],
+      "avgArrayLength" : 1.0,
+      "maxArrayLength" : 1
+    },
+    "arrayConfig" : {
+      "extractField" : "fullName",
+      "displayMode" : "comma_separated",
+      "sortOrder" : "alphanumeric",
+      "delimiter" : ", ",
+      "objectType" : "objectId",
+      "referenceCollection" : "agents",
+      "availableFields" : [ "createdAt", "deleted", "fullName", "lastUpdated", "privateURL", "updatedAt" ]
+    }
+  }, {
+    "fieldPath" : "type",
+    "businessName" : "Type",
+    "sourceCollection" : "transactions",
+    "dataType" : "string",
+    "include" : true,
+    "statistics" : {
+      "distinctNonNullValues" : 3,
+      "nullCount" : 0,
+      "totalOccurrences" : 1849,
+      "sampleValues" : [ "O/B List Our Sale", "Our List O/B Sale", "Our List and Sale" ]
+    }
+  }, {
+    "fieldPath" : "underContractDate",
+    "businessName" : "Under Contract Date",
+    "sourceCollection" : "transactions",
+    "dataType" : "date",
+    "include" : true,
+    "statistics" : {
+      "distinctNonNullValues" : 100,
+      "nullCount" : 0,
+      "totalOccurrences" : 3254,
+      "sampleValues" : [ "Fri Apr 19 06:00:00 UTC 2013", "Fri Dec 08 07:00:00 UTC 2006", "Fri Dec 18 07:00:00 UTC 2015", "Fri Feb 06 07:00:00 UTC 2015", "Fri Jan 04 07:00:00 UTC 2008" ]
+    }
+  } ],
+  "collection" : "transactions",
+  "discoveredAt" : 1754900115382,
+  "discoveryParameters" : {
+    "sampleSize" : 10000,
+    "expansionDepth" : 3,
+    "minDistinctNonNullValues" : 2,
+    "includeBusinessIds" : true
+  },
+  "fields" : [ {
+    "fieldPath" : "__v",
+    "businessName" : "Version",
+    "sourceCollection" : "transactions",
+    "dataType" : "integer",
+    "include" : false,
+    "statistics" : {
+      "distinctNonNullValues" : 1,
+      "nullCount" : 0,
+      "totalOccurrences" : 10100,
+      "sampleValues" : [ "0" ]
+    }
+  }, {
+    "fieldPath" : "_id",
+    "businessName" : "Record ID",
+    "sourceCollection" : "transactions",
+    "dataType" : "objectId",
+    "include" : false,
+    "statistics" : {
+      "distinctNonNullValues" : 100,
+      "nullCount" : 0,
+      "totalOccurrences" : 10100,
+      "sampleValues" : [ "5b6c6c0e116fa31f8a2bff5b", "5b6c6c0e116fa31f8a2bff62", "5b6c6c0e116fa31f8a2bff69", "5b6c6c0e116fa31f8a2bff71", "5b6c6c0e116fa31f8a2bff76" ]
+    },
+    "relationshipTarget" : "s"
+  }, {
+    "fieldPath" : "buyers",
+    "businessName" : "Buyers",
+    "sourceCollection" : "transactions",
+    "dataType" : "array",
+    "include" : true,
+    "statistics" : {
+      "distinctNonNullValues" : 100,
+      "nullCount" : 1,
+      "totalOccurrences" : 10100,
+      "sampleValues" : [ "5b6c6c0e116fa31f8a2bff56", "5b6c6c0e116fa31f8a2bff5d", "5b6c6c0e116fa31f8a2bff64", "5b6c6c0e116fa31f8a2bff6c", "5b6c6c0e116fa31f8a2bff73" ],
+      "avgArrayLength" : 1.8169125656005545,
+      "maxArrayLength" : 2
+    },
+    "arrayConfig" : {
+      "displayMode" : "comma_separated",
+      "sortOrder" : "alphanumeric",
+      "delimiter" : ", ",
+      "objectType" : "objectId",
+      "referenceCollection" : "people"
+    }
+  }, {
+    "fieldPath" : "closingDate",
+    "businessName" : "Closing Date",
+    "sourceCollection" : "transactions",
+    "dataType" : "date",
+    "include" : true,
+    "statistics" : {
+      "distinctNonNullValues" : 100,
+      "nullCount" : 0,
+      "totalOccurrences" : 8144,
+      "sampleValues" : [ "Fri Apr 06 06:00:00 UTC 2018", "Fri Apr 20 06:00:00 UTC 2018", "Fri Apr 27 06:00:00 UTC 2018", "Fri Aug 19 06:00:00 UTC 2005", "Fri Feb 02 07:00:00 UTC 2018" ]
+    }
+  }, {
+    "fieldPath" : "daysOnMarket",
+    "businessName" : "Days on Market",
+    "sourceCollection" : "transactions",
+    "dataType" : "integer",
+    "include" : true,
+    "statistics" : {
+      "distinctNonNullValues" : 100,
+      "nullCount" : 0,
+      "totalOccurrences" : 8250,
+      "sampleValues" : [ "0", "1026", "105", "106", "107" ]
+    }
+  }, {
+    "fieldPath" : "deedNumber",
+    "businessName" : "Deed Number",
+    "sourceCollection" : "transactions",
+    "dataType" : "string",
+    "include" : true,
+    "statistics" : {
+      "distinctNonNullValues" : 100,
+      "nullCount" : 0,
+      "totalOccurrences" : 6030,
+      "sampleValues" : [ "0625556 WD", "0669118 WD", "0686170 WD", "0688138 WD", "0692914 WD" ]
+    }
+  }, {
+    "fieldPath" : "deleted",
+    "businessName" : "Is Deleted",
+    "sourceCollection" : "transactions",
+    "dataType" : "boolean",
+    "include" : false,
+    "statistics" : {
+      "distinctNonNullValues" : 1,
+      "nullCount" : 0,
+      "totalOccurrences" : 10100,
+      "sampleValues" : [ "false" ]
+    }
+  }, {
+    "fieldPath" : "excludeFromMarketReport",
+    "businessName" : "Exclude From Market Report",
+    "sourceCollection" : "transactions",
+    "dataType" : "boolean",
+    "include" : true,
+    "statistics" : {
+      "distinctNonNullValues" : 2,
+      "nullCount" : 0,
+      "totalOccurrences" : 8250,
+      "sampleValues" : [ "false", "true" ]
+    }
+  }, {
+    "fieldPath" : "internalSaleId",
+    "businessName" : "Internal Sale Id",
+    "sourceCollection" : "transactions",
+    "dataType" : "string",
+    "include" : false,
+    "statistics" : {
+      "distinctNonNullValues" : 100,
+      "nullCount" : 0,
+      "totalOccurrences" : 1849,
+      "sampleValues" : [ "S012-420-1802-01031", "S012-420-1803-01018", "S012-420-1803-1013", "S012-420-1803-1019", "S012-420-1804-01005" ]
+    }
+  }, {
+    "fieldPath" : "listing",
+    "businessName" : "Listing",
+    "sourceCollection" : "transactions",
+    "dataType" : "objectId",
+    "include" : true,
+    "statistics" : {
+      "distinctNonNullValues" : 100,
+      "nullCount" : 0,
+      "totalOccurrences" : 10098,
+      "sampleValues" : [ "5b6c6c0e116fa31f8a2bff5a", "5b6c6c0e116fa31f8a2bff61", "5b6c6c0e116fa31f8a2bff68", "5b6c6c0e116fa31f8a2bff70", "5b6c6c0e116fa31f8a2bff75" ]
+    },
+    "relationshipTarget" : "listings"
+  }, {
+    "fieldPath" : "listingAgents",
+    "businessName" : "Listing Agents",
+    "sourceCollection" : "transactions",
+    "dataType" : "array",
+    "include" : true,
+    "statistics" : {
+      "distinctNonNullValues" : 100,
+      "nullCount" : 9045,
+      "totalOccurrences" : 10100,
+      "sampleValues" : [ "5b6c6c0e116fa31f8a2bff60", "5b6c6c0e116fa31f8a2bff67", "5b6c6c0e116fa31f8a2bff6f", "5b6c6c0e116fa31f8a2bff7b", "5b6c6c0e116fa31f8a2bff89" ],
+      "avgArrayLength" : 1.0,
+      "maxArrayLength" : 1
+    },
+    "arrayConfig" : {
+      "extractField" : "fullName",
+      "displayMode" : "comma_separated",
+      "sortOrder" : "alphanumeric",
+      "delimiter" : ", ",
+      "objectType" : "objectId",
+      "referenceCollection" : "agents",
+      "availableFields" : [ "createdAt", "deleted", "fullName", "lastUpdated", "privateURL", "updatedAt" ]
+    }
+  }, {
+    "fieldPath" : "listing_expanded",
+    "businessName" : "Listing",
+    "sourceCollection" : "transactions",
+    "dataType" : "object",
+    "include" : false,
+    "statistics" : {
+      "distinctNonNullValues" : 0,
+      "nullCount" : 0,
+      "totalOccurrences" : 100
+    }
+  }, {
+    "fieldPath" : "listing_expanded.__v",
+    "businessName" : "Listing Version",
+    "sourceCollection" : "transactions",
+    "dataType" : "integer",
+    "include" : false,
+    "statistics" : {
+      "distinctNonNullValues" : 1,
+      "nullCount" : 0,
+      "totalOccurrences" : 100,
+      "sampleValues" : [ "0" ]
+    }
+  }, {
+    "fieldPath" : "listing_expanded._id",
+    "businessName" : "Listing",
+    "sourceCollection" : "transactions",
+    "dataType" : "objectId",
+    "include" : false,
+    "statistics" : {
+      "distinctNonNullValues" : 100,
+      "nullCount" : 0,
+      "totalOccurrences" : 100,
+      "sampleValues" : [ "5b6c6c0e116fa31f8a2bff5a", "5b6c6c0e116fa31f8a2bff61", "5b6c6c0e116fa31f8a2bff68", "5b6c6c0e116fa31f8a2bff70", "5b6c6c0e116fa31f8a2bff75" ]
+    },
+    "relationshipTarget" : "s"
+  }, {
+    "fieldPath" : "listing_expanded.appliances",
+    "businessName" : "Listing Appliances",
+    "sourceCollection" : "transactions",
+    "include" : false,
+    "statistics" : {
+      "distinctNonNullValues" : 0,
+      "nullCount" : 100,
+      "totalOccurrences" : 100
+    }
+  }, {
+    "fieldPath" : "listing_expanded.archived",
+    "businessName" : "Listing Archived",
+    "sourceCollection" : "transactions",
+    "dataType" : "string",
+    "include" : false,
+    "statistics" : {
+      "distinctNonNullValues" : 1,
+      "nullCount" : 0,
+      "totalOccurrences" : 100,
+      "sampleValues" : [ "2019-02-04" ]
+    }
+  }, {
+    "fieldPath" : "listing_expanded.coolingSystems",
+    "businessName" : "Listing Cooling Systems",
+    "sourceCollection" : "transactions",
+    "include" : false,
+    "statistics" : {
+      "distinctNonNullValues" : 0,
+      "nullCount" : 100,
+      "totalOccurrences" : 100
+    }
+  }, {
+    "fieldPath" : "listing_expanded.dateListed",
+    "businessName" : "Listing Date Listed",
+    "sourceCollection" : "transactions",
+    "dataType" : "date",
+    "include" : true,
+    "statistics" : {
+      "distinctNonNullValues" : 65,
+      "nullCount" : 0,
+      "totalOccurrences" : 99,
+      "sampleValues" : [ "Fri Apr 06 06:00:00 UTC 2018", "Fri Dec 08 07:00:00 UTC 2017", "Fri Feb 02 07:00:00 UTC 2018", "Fri Feb 16 07:00:00 UTC 2018", "Fri Jan 12 07:00:00 UTC 2018" ]
+    }
+  }, {
+    "fieldPath" : "listing_expanded.deleted",
+    "businessName" : "Listing Deleted",
+    "sourceCollection" : "transactions",
+    "dataType" : "boolean",
+    "include" : false,
+    "statistics" : {
+      "distinctNonNullValues" : 1,
+      "nullCount" : 0,
+      "totalOccurrences" : 100,
+      "sampleValues" : [ "false" ]
+    }
+  }, {
+    "fieldPath" : "listing_expanded.exteriorType",
+    "businessName" : "Listing Exterior Type",
+    "sourceCollection" : "transactions",
+    "include" : false,
+    "statistics" : {
+      "distinctNonNullValues" : 0,
+      "nullCount" : 100,
+      "totalOccurrences" : 100
+    }
+  }, {
+    "fieldPath" : "listing_expanded.fees",
+    "businessName" : "Listing Fees",
+    "sourceCollection" : "transactions",
+    "include" : false,
+    "statistics" : {
+      "distinctNonNullValues" : 0,
+      "nullCount" : 100,
+      "totalOccurrences" : 100
+    }
+  }, {
+    "fieldPath" : "listing_expanded.heatingSystems",
+    "businessName" : "Listing Heating Systems",
+    "sourceCollection" : "transactions",
+    "include" : false,
+    "statistics" : {
+      "distinctNonNullValues" : 0,
+      "nullCount" : 100,
+      "totalOccurrences" : 100
+    }
+  }, {
+    "fieldPath" : "listing_expanded.listingAgents",
+    "businessName" : "Listing Listing Agents",
+    "sourceCollection" : "transactions",
+    "include" : false,
+    "statistics" : {
+      "distinctNonNullValues" : 0,
+      "nullCount" : 100,
+      "totalOccurrences" : 100
+    }
+  }, {
+    "fieldPath" : "listing_expanded.mlsId",
+    "businessName" : "Listing Mls Id",
+    "sourceCollection" : "transactions",
+    "dataType" : "string",
+    "include" : false,
+    "statistics" : {
+      "distinctNonNullValues" : 94,
+      "nullCount" : 0,
+      "totalOccurrences" : 100,
+      "sampleValues" : [ "17-239484", "17-267364", "17-283552", "17-295704", "17-297356" ]
+    }
+  }, {
+    "fieldPath" : "listing_expanded.parkingTypes",
+    "businessName" : "Listing Parking Types",
+    "sourceCollection" : "transactions",
+    "include" : false,
+    "statistics" : {
+      "distinctNonNullValues" : 0,
+      "nullCount" : 100,
+      "totalOccurrences" : 100
+    }
+  }, {
+    "fieldPath" : "listing_expanded.pictures",
+    "businessName" : "Listing Pictures",
+    "sourceCollection" : "transactions",
+    "include" : false,
+    "statistics" : {
+      "distinctNonNullValues" : 0,
+      "nullCount" : 100,
+      "totalOccurrences" : 100
+    }
+  }, {
+    "fieldPath" : "listing_expanded.price",
+    "businessName" : "Listing Price",
+    "sourceCollection" : "transactions",
+    "dataType" : "object",
+    "include" : false,
+    "statistics" : {
+      "distinctNonNullValues" : 0,
+      "nullCount" : 0,
+      "totalOccurrences" : 100
+    }
+  }, {
+    "fieldPath" : "listing_expanded.price.amount",
+    "businessName" : "Listing Price Amount",
+    "sourceCollection" : "transactions",
+    "dataType" : "integer",
+    "include" : false,
+    "statistics" : {
+      "distinctNonNullValues" : 1,
+      "nullCount" : 0,
+      "totalOccurrences" : 100,
+      "sampleValues" : [ "0" ]
+    }
+  }, {
+    "fieldPath" : "listing_expanded.price.currency",
+    "businessName" : "Listing Price Currency",
+    "sourceCollection" : "transactions",
+    "dataType" : "string",
+    "include" : false,
+    "statistics" : {
+      "distinctNonNullValues" : 1,
+      "nullCount" : 0,
+      "totalOccurrences" : 100,
+      "sampleValues" : [ "USD" ]
+    }
+  }, {
+    "fieldPath" : "listing_expanded.propertyType",
+    "businessName" : "Listing Property Type",
+    "sourceCollection" : "transactions",
+    "dataType" : "string",
+    "include" : false,
+    "statistics" : {
+      "distinctNonNullValues" : 2,
+      "nullCount" : 0,
+      "totalOccurrences" : 52,
+      "sampleValues" : [ "Condo", "Single Family" ]
+    }
+  }, {
+    "fieldPath" : "listing_expanded.realmData",
+    "businessName" : "Listing Realm Data",
+    "sourceCollection" : "transactions",
+    "dataType" : "object",
+    "include" : false,
+    "statistics" : {
+      "distinctNonNullValues" : 0,
+      "nullCount" : 0,
+      "totalOccurrences" : 100
+    }
+  }, {
+    "fieldPath" : "listing_expanded.roofTypes",
+    "businessName" : "Listing Roof Types",
+    "sourceCollection" : "transactions",
+    "include" : false,
+    "statistics" : {
+      "distinctNonNullValues" : 0,
+      "nullCount" : 100,
+      "totalOccurrences" : 100
+    }
+  }, {
+    "fieldPath" : "listing_expanded.viewTypes",
+    "businessName" : "Listing View Types",
+    "sourceCollection" : "transactions",
+    "include" : false,
+    "statistics" : {
+      "distinctNonNullValues" : 0,
+      "nullCount" : 100,
+      "totalOccurrences" : 100
+    }
+  }, {
+    "fieldPath" : "loanAmount",
+    "businessName" : "Loan Amount",
+    "sourceCollection" : "transactions",
+    "dataType" : "string",
+    "include" : true,
+    "statistics" : {
+      "distinctNonNullValues" : 100,
+      "nullCount" : 0,
+      "totalOccurrences" : 1848,
+      "sampleValues" : [ "0.00", "1,000,000.00", "1,003,750.00", "1,050,000.00", "1,052,883.00" ]
+    }
+  }, {
+    "fieldPath" : "loanType",
+    "businessName" : "Loan Type",
+    "sourceCollection" : "transactions",
+    "dataType" : "string",
+    "include" : true,
+    "statistics" : {
+      "distinctNonNullValues" : 23,
+      "nullCount" : 0,
+      "totalOccurrences" : 7110,
+      "sampleValues" : [ "2 loans", "Cash", "Conv. Uninsured", "Conventional", "LOC" ]
+    }
+  }, {
+    "fieldPath" : "property",
+    "businessName" : "Property ID",
+    "sourceCollection" : "transactions",
+    "dataType" : "objectId",
+    "include" : true,
+    "statistics" : {
+      "distinctNonNullValues" : 100,
+      "nullCount" : 0,
+      "totalOccurrences" : 10099,
+      "sampleValues" : [ "5b6c6c0e116fa31f8a2bff54", "5b6c6c0e116fa31f8a2bff5c", "5b6c6c0e116fa31f8a2bff63", "5b6c6c0e116fa31f8a2bff6a", "5b6c6c0e116fa31f8a2bff72" ]
+    },
+    "relationshipTarget" : "properties"
+  }, {
+    "fieldPath" : "property_expanded",
+    "businessName" : "Property ID",
+    "sourceCollection" : "transactions",
+    "dataType" : "object",
+    "include" : false,
+    "statistics" : {
+      "distinctNonNullValues" : 0,
+      "nullCount" : 0,
+      "totalOccurrences" : 100
+    }
+  }, {
+    "fieldPath" : "property_expanded.__v",
+    "businessName" : "Property Version",
+    "sourceCollection" : "transactions",
+    "dataType" : "integer",
+    "include" : false,
+    "statistics" : {
+      "distinctNonNullValues" : 1,
+      "nullCount" : 0,
+      "totalOccurrences" : 100,
+      "sampleValues" : [ "0" ]
+    }
+  }, {
+    "fieldPath" : "property_expanded._id",
+    "businessName" : "Property Record ID",
+    "sourceCollection" : "transactions",
+    "dataType" : "objectId",
+    "include" : false,
+    "statistics" : {
+      "distinctNonNullValues" : 100,
+      "nullCount" : 0,
+      "totalOccurrences" : 100,
+      "sampleValues" : [ "5b6c6c0e116fa31f8a2bff54", "5b6c6c0e116fa31f8a2bff5c", "5b6c6c0e116fa31f8a2bff63", "5b6c6c0e116fa31f8a2bff6a", "5b6c6c0e116fa31f8a2bff72" ]
+    },
+    "relationshipTarget" : "s"
+  }, {
+    "fieldPath" : "property_expanded.city",
+    "businessName" : "Property City",
+    "sourceCollection" : "transactions",
+    "dataType" : "string",
+    "include" : true,
+    "statistics" : {
+      "distinctNonNullValues" : 38,
+      "nullCount" : 0,
+      "totalOccurrences" : 100,
+      "sampleValues" : [ "Alhambra", "Altadena", "Apple Valley", "Arcadia", "Beverly Hills" ]
+    }
+  }, {
+    "fieldPath" : "property_expanded.deleted",
+    "businessName" : "Property Deleted",
+    "sourceCollection" : "transactions",
+    "dataType" : "boolean",
+    "include" : false,
+    "statistics" : {
+      "distinctNonNullValues" : 1,
+      "nullCount" : 0,
+      "totalOccurrences" : 100,
+      "sampleValues" : [ "false" ]
+    }
+  }, {
+    "fieldPath" : "property_expanded.fullAddress",
+    "businessName" : "Property Full Address",
+    "sourceCollection" : "transactions",
+    "dataType" : "string",
+    "include" : true,
+    "statistics" : {
+      "distinctNonNullValues" : 100,
+      "nullCount" : 0,
+      "totalOccurrences" : 100,
+      "sampleValues" : [ "101 Ocean Ave., #A400,Santa Monica,CA,90402", "1012 N. Hidalgo Ave.,Alhambra,CA,91801", "10445 Wilshire Blvd., #903,Los Angeles,CA,90024", "10773 Wheatland Ave.,Shadow Hills,CA,91040", "10982 Roebling Ave., #456,Los Angeles,CA,90024" ]
+    }
+  }, {
+    "fieldPath" : "property_expanded.realmData",
+    "businessName" : "Property Realm Data",
+    "sourceCollection" : "transactions",
+    "dataType" : "object",
+    "include" : false,
+    "statistics" : {
+      "distinctNonNullValues" : 0,
+      "nullCount" : 0,
+      "totalOccurrences" : 100
+    }
+  }, {
+    "fieldPath" : "property_expanded.schools",
+    "businessName" : "Property Schools",
+    "sourceCollection" : "transactions",
+    "include" : false,
+    "statistics" : {
+      "distinctNonNullValues" : 0,
+      "nullCount" : 100,
+      "totalOccurrences" : 100
+    }
+  }, {
+    "fieldPath" : "property_expanded.state",
+    "businessName" : "Property State",
+    "sourceCollection" : "transactions",
+    "dataType" : "string",
+    "include" : false,
+    "statistics" : {
+      "distinctNonNullValues" : 1,
+      "nullCount" : 0,
+      "totalOccurrences" : 100,
+      "sampleValues" : [ "CA" ]
+    }
+  }, {
+    "fieldPath" : "property_expanded.streetAddress",
+    "businessName" : "Property Street Address",
+    "sourceCollection" : "transactions",
+    "dataType" : "string",
+    "include" : true,
+    "statistics" : {
+      "distinctNonNullValues" : 100,
+      "nullCount" : 0,
+      "totalOccurrences" : 100,
+      "sampleValues" : [ "101 Ocean Ave., #A400", "1012 N. Hidalgo Ave.", "10445 Wilshire Blvd., #903", "10773 Wheatland Ave.", "10982 Roebling Ave., #456" ]
+    }
+  }, {
+    "fieldPath" : "property_expanded.taxes",
+    "businessName" : "Property Taxes",
+    "sourceCollection" : "transactions",
+    "include" : false,
+    "statistics" : {
+      "distinctNonNullValues" : 0,
+      "nullCount" : 100,
+      "totalOccurrences" : 100
+    }
+  }, {
+    "fieldPath" : "property_expanded.zipcode",
+    "businessName" : "Property Zipcode",
+    "sourceCollection" : "transactions",
+    "dataType" : "string",
+    "include" : true,
+    "statistics" : {
+      "distinctNonNullValues" : 69,
+      "nullCount" : 0,
+      "totalOccurrences" : 100,
+      "sampleValues" : [ "90004", "90015", "90019", "90024", "90026" ]
+    }
+  }, {
+    "fieldPath" : "salePrice",
+    "businessName" : "Sale Price",
+    "sourceCollection" : "transactions",
+    "dataType" : "string",
+    "include" : true,
+    "statistics" : {
+      "distinctNonNullValues" : 100,
+      "nullCount" : 0,
+      "totalOccurrences" : 10099,
+      "sampleValues" : [ "$1,000,000.00", "$1,005,000.00", "$1,015,000.00", "$1,017,000.00", "$1,035,000.00" ]
+    }
+  }, {
+    "fieldPath" : "sellers",
+    "businessName" : "Sellers",
+    "sourceCollection" : "transactions",
+    "dataType" : "array",
+    "include" : true,
+    "statistics" : {
+      "distinctNonNullValues" : 100,
+      "nullCount" : 8252,
+      "totalOccurrences" : 10100,
+      "sampleValues" : [ "5b6c6c0e116fa31f8a2bff57", "5b6c6c0e116fa31f8a2bff5e", "5b6c6c0e116fa31f8a2bff65", "5b6c6c0e116fa31f8a2bff6d", "5b6c6c0e116fa31f8a2bff74" ],
+      "avgArrayLength" : 1.0,
+      "maxArrayLength" : 1
+    },
+    "arrayConfig" : {
+      "displayMode" : "comma_separated",
+      "sortOrder" : "alphanumeric",
+      "delimiter" : ", ",
+      "objectType" : "objectId",
+      "referenceCollection" : "people"
+    }
+  }, {
+    "fieldPath" : "sellingAgents",
+    "businessName" : "Selling Agents",
+    "sourceCollection" : "transactions",
+    "dataType" : "array",
+    "include" : true,
+    "statistics" : {
+      "distinctNonNullValues" : 100,
+      "nullCount" : 9093,
+      "totalOccurrences" : 10100,
+      "sampleValues" : [ "5b6c6c0e116fa31f8a2bff59", "5b6c6c0e116fa31f8a2bff67", "5b6c6c0e116fa31f8a2bff82", "5b6c6c0f116fa31f8a2bff91", "5b6c6c0f116fa31f8a2bff98" ],
+      "avgArrayLength" : 1.0,
+      "maxArrayLength" : 1
+    },
+    "arrayConfig" : {
+      "extractField" : "fullName",
+      "displayMode" : "comma_separated",
+      "sortOrder" : "alphanumeric",
+      "delimiter" : ", ",
+      "objectType" : "objectId",
+      "referenceCollection" : "agents",
+      "availableFields" : [ "createdAt", "deleted", "fullName", "lastUpdated", "privateURL", "updatedAt" ]
+    }
+  }, {
+    "fieldPath" : "type",
+    "businessName" : "Type",
+    "sourceCollection" : "transactions",
+    "dataType" : "string",
+    "include" : true,
+    "statistics" : {
+      "distinctNonNullValues" : 3,
+      "nullCount" : 0,
+      "totalOccurrences" : 1849,
+      "sampleValues" : [ "O/B List Our Sale", "Our List O/B Sale", "Our List and Sale" ]
+    }
+  }, {
+    "fieldPath" : "underContractDate",
+    "businessName" : "Under Contract Date",
+    "sourceCollection" : "transactions",
+    "dataType" : "date",
+    "include" : true,
+    "statistics" : {
+      "distinctNonNullValues" : 100,
+      "nullCount" : 0,
+      "totalOccurrences" : 3254,
+      "sampleValues" : [ "Fri Apr 19 06:00:00 UTC 2013", "Fri Dec 08 07:00:00 UTC 2006", "Fri Dec 18 07:00:00 UTC 2015", "Fri Feb 06 07:00:00 UTC 2015", "Fri Jan 04 07:00:00 UTC 2008" ]
+    }
+  } ],
+  "requiredCollections" : [ "properties", "s", "people", "agents", "listings" ],
+  "exportSettings" : {
+    "batchSize" : 5000,
+    "useBusinessNames" : true,
+    "outputFormat" : "csv",
+    "csvDelimiter" : ",",
+    "csvQuoteChar" : "\""
+  }
+}

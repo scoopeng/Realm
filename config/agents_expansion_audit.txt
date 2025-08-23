@@ -1,0 +1,170 @@
+=================================================================
+FIELD EXPANSION AUDIT TREE
+=================================================================
+Collection: agents
+Generated: Mon Aug 11 08:16:56 UTC 2025
+Total Fields: 137
+Included Fields: 25
+Expansion Depth: 3
+=================================================================
+
+__v [integer] (EXCLUDED) - 5 distinct values
+_id [objectId] (EXCLUDED) - 100 distinct values -> s
+  └─ EXPANDED:
+    _id_expanded [array] (EXCLUDED) - 8 distinct values -> leaders
+agentTypes [null] (EXCLUDED) - 0 distinct values
+archived [string] (EXCLUDED) - 42 distinct values
+brokerages [array] - 100 distinct values -> brokerages.name
+deleted [boolean] (EXCLUDED) - 1 distinct values
+fullName [string] - 100 distinct values
+lastUpdated [double] (EXCLUDED) - 100 distinct values
+licenseNumber [string] (EXCLUDED) - 1 distinct values
+mlsInfo [object] (EXCLUDED) - 0 distinct values
+  mlsInfo.mlsAgentId [string] (EXCLUDED) - 1 distinct values
+  mlsInfo.mlsName [string] (EXCLUDED) - 1 distinct values
+person [objectId] - 100 distinct values -> people
+  └─ EXPANDED:
+    person_expanded [object] (EXCLUDED) - 0 distinct values
+    person_expanded.__v [integer] (EXCLUDED) - 3 distinct values
+    person_expanded._id [objectId] (EXCLUDED) - 98 distinct values -> s
+    person_expanded.address [object] (EXCLUDED) - 0 distinct values
+    person_expanded.address.city [string] - 9 distinct values
+    person_expanded.address.country [string] (EXCLUDED) - 3 distinct values
+    person_expanded.address.displayAddress [string] (EXCLUDED) - 4 distinct values
+    person_expanded.address.housenumber [string] (EXCLUDED) - 2 distinct values
+    person_expanded.address.lat [double] - 10 distinct values
+    person_expanded.address.lng [double] - 10 distinct values
+    person_expanded.address.postalCode [string] (EXCLUDED) - 2 distinct values
+    person_expanded.address.state [string] - 5 distinct values
+    person_expanded.address.streetAddress [string] (EXCLUDED) - 6 distinct values
+    person_expanded.address.streetname [string] (EXCLUDED) - 2 distinct values
+    person_expanded.address.streetnameDirection [null] (EXCLUDED) - 0 distinct values
+    person_expanded.address.streetnamePrefix [string] (EXCLUDED) - 1 distinct values
+    person_expanded.address.streetnameSuffix [string] (EXCLUDED) - 1 distinct values
+    person_expanded.address.unit [string] (EXCLUDED) - 1 distinct values
+    person_expanded.deleted [boolean] (EXCLUDED) - 1 distinct values
+    person_expanded.demographics [object] (EXCLUDED) - 0 distinct values
+    person_expanded.demographics.gender [string] (EXCLUDED) - 1 distinct values
+    person_expanded.emails [array] - 100 distinct values
+    person_expanded.externalData [null] (EXCLUDED) - 0 distinct values
+    person_expanded.languages [null] (EXCLUDED) - 0 distinct values
+    person_expanded.location [object] (EXCLUDED) - 0 distinct values
+    person_expanded.location.coordinates [array] - 20 distinct values
+    person_expanded.location.type [string] (EXCLUDED) - 1 distinct values
+    person_expanded.name [object] (EXCLUDED) - 0 distinct values
+    person_expanded.name.firstName [string] - 97 distinct values
+    person_expanded.name.fullName [string] - 98 distinct values
+    person_expanded.name.lastName [string] - 97 distinct values
+    person_expanded.name.middleName [string] (EXCLUDED) - 1 distinct values
+    person_expanded.name.prefix [string] (EXCLUDED) - 7 distinct values
+    person_expanded.name.suffix [null] (EXCLUDED) - 0 distinct values
+    person_expanded.phones [array] - 100 distinct values
+    person_expanded.primaryEmail [string] - 98 distinct values
+    person_expanded.primaryPhone [string] - 96 distinct values
+    person_expanded.realmData [object] (EXCLUDED) - 0 distinct values
+    person_expanded.realmData.bio [string] (EXCLUDED) - 0 distinct values
+    person_expanded.realmData.completeness [array] (EXCLUDED) - 2 distinct values
+    person_expanded.realmData.etl [object] (EXCLUDED) - 0 distinct values
+    person_expanded.realmData.etl.completeness [array] - 2 distinct values
+    person_expanded.realmData.etl.importStatus [array] - 100 distinct values
+    person_expanded.realmData.externalData [array] - 100 distinct values -> sources
+    person_expanded.realmData.importStatus [array] (EXCLUDED) - 1 distinct values
+    person_expanded.realmData.photoUrl [string] - 92 distinct values
+    person_expanded.realmData.profileViews [object] (EXCLUDED) - 0 distinct values
+    person_expanded.realmData.profileViews.viewedBy [null] (EXCLUDED) - 0 distinct values
+    person_expanded.realmData.salesforceId [string] (EXCLUDED) - 11 distinct values
+    person_expanded.realmData.sendGrid [object] (EXCLUDED) - 0 distinct values
+    person_expanded.realmData.sendGrid._id [string] (EXCLUDED) - 3 distinct values
+    person_expanded.realmData.sendGrid.currList [string] (EXCLUDED) - 1 distinct values
+    person_expanded.realmData.sendGrid.jobId [string] (EXCLUDED) - 1 distinct values
+    person_expanded.realmData.sendGrid.lastUpdated [date] (EXCLUDED) - 3 distinct values
+    person_expanded.realmData.sendGrid.updated [boolean] (EXCLUDED) - 1 distinct values
+    person_expanded.realmData.socialAccounts [array] (EXCLUDED) - 33 distinct values
+    person_expanded.realmData.thumbnailUrl [string] - 91 distinct values
+    person_expanded.realmData.tutorialStatus [object] (EXCLUDED) - 0 distinct values
+    person_expanded.realmData.tutorialStatus.Account [integer] (EXCLUDED) - 1 distinct values
+    person_expanded.realmData.tutorialStatus.Agents [integer] (EXCLUDED) - 1 distinct values
+    person_expanded.realmData.tutorialStatus.Blog [integer] (EXCLUDED) - 1 distinct values
+    person_expanded.realmData.tutorialStatus.Brokerages [integer] (EXCLUDED) - 1 distinct values
+    person_expanded.realmData.tutorialStatus.Clients [integer] (EXCLUDED) - 1 distinct values
+    person_expanded.realmData.tutorialStatus.Dashboard [integer] (EXCLUDED) - 1 distinct values
+    person_expanded.realmData.tutorialStatus.MatchAlertDetails [integer] (EXCLUDED) - 1 distinct values
+    person_expanded.realmData.tutorialStatus.MatchAlerts [integer] (EXCLUDED) - 1 distinct values
+    person_expanded.realmData.tutorialStatus.Matching [integer] (EXCLUDED) - 1 distinct values
+    person_expanded.realmData.tutorialStatus.MatchingDetails [integer] (EXCLUDED) - 1 distinct values
+    person_expanded.realmData.tutorialStatus.Profile [integer] (EXCLUDED) - 1 distinct values
+    person_expanded.realmData.tutorialStatus.Properties [integer] (EXCLUDED) - 1 distinct values
+    person_expanded.realmData.userAccount [object] (EXCLUDED) - 0 distinct values
+    person_expanded.realmData.userAccount.acceptedTermsAt [date] (EXCLUDED) - 22 distinct values
+    person_expanded.realmData.userAccount.activatedAt [date] (EXCLUDED) - 20 distinct values
+    person_expanded.realmData.userAccount.invitedAt [date] (EXCLUDED) - 25 distinct values
+    person_expanded.realmData.userAccount.newMemberAt [date] (EXCLUDED) - 1 distinct values
+    person_expanded.realmData.userAccount.onBoardedAgentAt [date] (EXCLUDED) - 18 distinct values
+    person_expanded.realmData.userAccount.status [string] (EXCLUDED) - 2 distinct values
+    person_expanded.updatedAt [date] (EXCLUDED) - 19 distinct values
+personBUP [objectId] (EXCLUDED) - 1 distinct values -> people
+photoURL [string] (EXCLUDED) - 100 distinct values
+privateURL [string] - 100 distinct values
+professionalTitle [string] (EXCLUDED) - 1 distinct values
+profileURL [string] (EXCLUDED) - 1 distinct values
+realmData [object] (EXCLUDED) - 0 distinct values
+  realmData.clientCount [integer] - 15 distinct values
+  realmData.clientUpload [object] (EXCLUDED) - 0 distinct values
+    realmData.clientUpload.etl [object] (EXCLUDED) - 0 distinct values
+      realmData.clientUpload.etl.completedAt [date] (EXCLUDED) - 100 distinct values
+      realmData.clientUpload.etl.inProgressAt [date] (EXCLUDED) - 100 distinct values
+      realmData.clientUpload.etl.rejectedAt [date] (EXCLUDED) - 8 distinct values
+      realmData.clientUpload.etl.status [string] (EXCLUDED) - 4 distinct values
+    realmData.clientUpload.file [object] (EXCLUDED) - 0 distinct values
+      realmData.clientUpload.file.acl [string] (EXCLUDED) - 1 distinct values
+      realmData.clientUpload.file.bucket [string] (EXCLUDED) - 2 distinct values
+      realmData.clientUpload.file.contentDisposition [null] (EXCLUDED) - 0 distinct values
+      realmData.clientUpload.file.contentEncoding [null] (EXCLUDED) - 0 distinct values
+      realmData.clientUpload.file.contentType [string] (EXCLUDED) - 1 distinct values
+      realmData.clientUpload.file.encoding [string] (EXCLUDED) - 1 distinct values
+      realmData.clientUpload.file.etag [string] (EXCLUDED) - 100 distinct values
+      realmData.clientUpload.file.fieldname [string] (EXCLUDED) - 1 distinct values
+      realmData.clientUpload.file.key [string] (EXCLUDED) - 100 distinct values
+      realmData.clientUpload.file.location [string] (EXCLUDED) - 100 distinct values
+      realmData.clientUpload.file.metadata [object] (EXCLUDED) - 0 distinct values
+      realmData.clientUpload.file.mimetype [string] (EXCLUDED) - 5 distinct values
+      realmData.clientUpload.file.originalname [string] (EXCLUDED) - 100 distinct values
+      realmData.clientUpload.file.serverSideEncryption [null] (EXCLUDED) - 0 distinct values
+      realmData.clientUpload.file.size [integer] (EXCLUDED) - 100 distinct values
+      realmData.clientUpload.file.storageClass [string] (EXCLUDED) - 1 distinct values
+      realmData.clientUpload.file.versionId [string] (EXCLUDED) - 24 distinct values
+    realmData.clientUpload.fileId [string] (EXCLUDED) - 100 distinct values
+    realmData.clientUpload.source [string] (EXCLUDED) - 5 distinct values
+    realmData.clientUpload.uploadedAt [date] (EXCLUDED) - 100 distinct values
+    realmData.clientUpload.url [string] (EXCLUDED) - 100 distinct values
+  realmData.description [string] (EXCLUDED) - 0 distinct values
+  realmData.lifestyleNames [array] (EXCLUDED) - 14 distinct values
+  realmData.lifestyles [array] (EXCLUDED) - 15 distinct values -> lifestyles.lifestyleName
+  realmData.listingCount [integer] (EXCLUDED) - 51 distinct values
+  realmData.tagNames [array] - 100 distinct values
+  realmData.tags [array] - 100 distinct values -> tags.subCategory
+subscription [objectId] (EXCLUDED) - 100 distinct values -> subscriptions
+subscriptionOld [objectId] (EXCLUDED) - 4 distinct values -> subscriptionolds
+title [string] (EXCLUDED) - 1 distinct values
+updatedAt [date] - 100 distinct values
+
+=================================================================
+EXPANSION SUMMARY
+=================================================================
+
+Expanded Relationships:
+  - _id -> agents
+  - person -> agents
+
+Array References:
+  - _id_expanded -> leaders
+  - brokerages -> brokerages (extracting: name)
+  - person_expanded.realmData.externalData -> sources
+  - realmData.lifestyles -> lifestyles (extracting: lifestyleName)
+  - realmData.tags -> tags (extracting: subCategory)
+
+Unexpanded ObjectId Fields (potential relationships):
+  - person (guessed target: people)
+  - personBUP (guessed target: people)
+  - subscription (guessed target: subscriptions)
+  - subscriptionOld (guessed target: subscriptionolds)

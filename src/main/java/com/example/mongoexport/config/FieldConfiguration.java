@@ -39,6 +39,19 @@ public class FieldConfiguration
 
     @JsonProperty("relationshipTarget")
     private String relationshipTarget; // Target collection for ObjectId references
+    
+    // New fields for primary mode extraction
+    @JsonProperty("extractionMode")
+    private String extractionMode; // "primary", "count", "statistics", or null for default
+    
+    @JsonProperty("sourceField")
+    private String sourceField; // The array field this is extracted from
+    
+    @JsonProperty("extractionIndex")
+    private Integer extractionIndex; // Which element to extract (0 for first)
+    
+    @JsonProperty("statisticsConfig")
+    private StatisticsConfiguration statisticsConfig; // Configuration for statistics mode
 
     // Constructors
     public FieldConfiguration()
@@ -333,5 +346,205 @@ public class FieldConfiguration
     public void setRelationshipTarget(String target)
     {
         this.relationshipTarget = target;
+    }
+    
+    // Getters and setters for extraction mode fields
+    public String getExtractionMode()
+    {
+        return extractionMode;
+    }
+    
+    public void setExtractionMode(String mode)
+    {
+        this.extractionMode = mode;
+    }
+    
+    public String getSourceField()
+    {
+        return sourceField;
+    }
+    
+    public void setSourceField(String field)
+    {
+        this.sourceField = field;
+    }
+    
+    public Integer getExtractionIndex()
+    {
+        return extractionIndex;
+    }
+    
+    public void setExtractionIndex(Integer index)
+    {
+        this.extractionIndex = index;
+    }
+    
+    public StatisticsConfiguration getStatisticsConfig()
+    {
+        return statisticsConfig;
+    }
+    
+    public void setStatisticsConfig(StatisticsConfiguration config)
+    {
+        this.statisticsConfig = config;
+    }
+    
+    /**
+     * Configuration for statistics mode fields
+     */
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    public static class StatisticsConfiguration
+    {
+        @JsonProperty("sourceField")
+        private String sourceField; // The array field to calculate statistics for
+        
+        @JsonProperty("targetCollection")
+        private String targetCollection; // Collection to query for statistics
+        
+        @JsonProperty("aggregation")
+        private String aggregation; // Type: count, sum, avg, min, max, median
+        
+        @JsonProperty("targetField")
+        private String targetField; // Field in target collection to aggregate
+        
+        @JsonProperty("matchField")
+        private String matchField; // Field in target collection to match against
+        
+        @JsonProperty("dateFilter")
+        private DateFilterConfiguration dateFilter; // Optional date range filter
+        
+        @JsonProperty("groupBy")
+        private String groupBy; // Optional grouping (month, year, etc.)
+        
+        // Getters and setters
+        public String getSourceField()
+        {
+            return sourceField;
+        }
+        
+        public void setSourceField(String field)
+        {
+            this.sourceField = field;
+        }
+        
+        public String getTargetCollection()
+        {
+            return targetCollection;
+        }
+        
+        public void setTargetCollection(String collection)
+        {
+            this.targetCollection = collection;
+        }
+        
+        public String getAggregation()
+        {
+            return aggregation;
+        }
+        
+        public void setAggregation(String agg)
+        {
+            this.aggregation = agg;
+        }
+        
+        public String getTargetField()
+        {
+            return targetField;
+        }
+        
+        public void setTargetField(String field)
+        {
+            this.targetField = field;
+        }
+        
+        public String getMatchField()
+        {
+            return matchField;
+        }
+        
+        public void setMatchField(String field)
+        {
+            this.matchField = field;
+        }
+        
+        public DateFilterConfiguration getDateFilter()
+        {
+            return dateFilter;
+        }
+        
+        public void setDateFilter(DateFilterConfiguration filter)
+        {
+            this.dateFilter = filter;
+        }
+        
+        public String getGroupBy()
+        {
+            return groupBy;
+        }
+        
+        public void setGroupBy(String group)
+        {
+            this.groupBy = group;
+        }
+    }
+    
+    /**
+     * Date filter configuration for statistics
+     */
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    public static class DateFilterConfiguration
+    {
+        @JsonProperty("field")
+        private String field; // Date field to filter on
+        
+        @JsonProperty("range")
+        private String range; // Predefined range: last_year, last_month, last_30_days, etc.
+        
+        @JsonProperty("startDate")
+        private String startDate; // Custom start date (ISO format)
+        
+        @JsonProperty("endDate")
+        private String endDate; // Custom end date (ISO format)
+        
+        // Getters and setters
+        public String getField()
+        {
+            return field;
+        }
+        
+        public void setField(String field)
+        {
+            this.field = field;
+        }
+        
+        public String getRange()
+        {
+            return range;
+        }
+        
+        public void setRange(String range)
+        {
+            this.range = range;
+        }
+        
+        public String getStartDate()
+        {
+            return startDate;
+        }
+        
+        public void setStartDate(String date)
+        {
+            this.startDate = date;
+        }
+        
+        public String getEndDate()
+        {
+            return endDate;
+        }
+        
+        public void setEndDate(String date)
+        {
+            this.endDate = date;
+        }
     }
 }

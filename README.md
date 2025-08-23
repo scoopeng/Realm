@@ -2,6 +2,15 @@
 
 A sophisticated two-phase MongoDB to CSV export system with intelligent field discovery, relationship expansion, and human-editable configuration.
 
+## 🎉 What's New in v2.0
+
+- **Automatic Relationship Discovery**: Zero hardcoding - system tests ObjectIds against actual collections
+- **Primary Mode for Arrays**: Extract clean values from first array element (names, emails, phones)
+- **Count Mode for Arrays**: Get array lengths for all arrays
+- **Hierarchical Audit Trees**: Visual representation of all field expansions
+- **Smart Field Detection**: Uses patterns to identify useful fields generically
+- **100% Data-Driven**: Works with ANY MongoDB database without configuration
+
 ## 🚀 Quick Start
 
 ```bash
@@ -33,6 +42,9 @@ The configuration file (`config/listings_fields.json`) can be edited between pha
 - Configure array display (first value or comma-separated list)
 
 ### Smart Array Handling
+- **Primary Mode**: Extracts clean values from first array element (names, emails, phones)
+- **Count Mode**: Provides array lengths for all arrays
+- **Automatic Relationship Discovery**: Zero hardcoding, tests ObjectIds against actual collections
 - Automatically detects the best field to extract from array objects
 - Sorts array values alphanumerically
 - Configurable display modes per field

@@ -1,8 +1,7 @@
 package com.example.mongoexport;
 
 import com.mongodb.client.*;
-import com.opencsv.CSVWriter;
-import com.opencsv.ICSVWriter;
+// Removed OpenCSV imports - using simple custom CSV writer
 import org.bson.Document;
 import org.bson.types.ObjectId;
 import org.slf4j.Logger;
@@ -11,6 +10,7 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -226,6 +226,28 @@ public abstract class AbstractUltraExporter {
     }
     
     /**
+     * Write a CSV row with proper escaping (doubles quotes instead of backslash escaping)
+     */
+    protected void writeCSVRow(PrintWriter writer, String[] values) {
+        for (int i = 0; i < values.length; i++) {
+            if (i > 0) {
+                writer.print(',');
+            }
+            String value = values[i];
+            if (value == null || value.isEmpty()) {
+                // Write empty field (no quotes) - just the comma separator
+                // Don't use continue here! We need to preserve the field position
+            } else {
+                // Always quote non-empty fields and escape internal quotes by doubling them
+                writer.print('"');
+                writer.print(value.replace("\"", "\"\""));
+                writer.print('"');
+            }
+        }
+        writer.println();
+    }
+    
+    /**
      * Common export logic with statistics tracking
      */
     protected void exportWithStatistics(ExportProcessor processor) {
@@ -238,16 +260,11 @@ public abstract class AbstractUltraExporter {
         String suffix = (options != null && options.isUseSavedSummary()) ? "_filtered" : "_full";
         String outputPath = config.getOutputDirectory() + "/" + getCollectionName() + suffix + "_" + timestamp + ".csv";
         
-        try (FileWriter fileWriter = new FileWriter(outputPath); 
-             CSVWriter csvWriter = new CSVWriter(fileWriter, 
-                 ',',           // separator
-                 '"',           // quote char
-                 '"',           // escape char (same as quote for RFC 4180)
-                 "\r\n")) {     // line ending
+        try (PrintWriter writer = new PrintWriter(new FileWriter(outputPath))) {
             
             // Write headers
             String[] headers = buildComprehensiveHeaders();
-            csvWriter.writeNext(headers);
+            writeCSVRow(writer, headers);
             
             
             // Initialize field statistics collector if enabled
@@ -258,7 +275,7 @@ public abstract class AbstractUltraExporter {
             
             // Process data
             long startTime = System.currentTimeMillis();
-            int processedCount = processor.process(csvWriter);
+            int processedCount = processor.process(writer);
             
             // Synchronize totalRows with processedCount for statistics
             totalRows = processedCount;
@@ -324,7 +341,7 @@ public abstract class AbstractUltraExporter {
     
     // Functional interface for export processing
     protected interface ExportProcessor {
-        int process(CSVWriter csvWriter) throws IOException;
+        int process(PrintWriter writer) throws IOException;
     }
     
 }
