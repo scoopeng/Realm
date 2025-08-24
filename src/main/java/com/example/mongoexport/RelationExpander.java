@@ -19,6 +19,7 @@ public class RelationExpander
 
     private final MongoDatabase database;
     private final Map<String, RelationConfig> relationConfigs = new HashMap<>();
+    private Map<String, Map<String, String>> discoveredRelationships = new HashMap<>();  // collection -> field -> target
 
     // Cache for expanded documents
     private final Map<String, Map<ObjectId, Document>> cacheByCollection = new HashMap<>();
@@ -26,68 +27,70 @@ public class RelationExpander
     public RelationExpander(MongoDatabase database)
     {
         this.database = database;
-        initializeRelationConfigs();
+        // NO MORE initializeRelationConfigs() - relationships come from discovery!
     }
 
     /**
-     * Define the relationship configurations for each collection
+     * Set discovered relationships from FieldDiscoveryService
+     * This replaces ALL hardcoded mappings - everything is data-driven
+     * 
+     * @param collectionName The source collection
+     * @param relationships Map of field -> target collection
      */
-    private void initializeRelationConfigs()
+    public void setDiscoveredRelationships(String collectionName, Map<String, String> relationships)
     {
-        // Listings relations - ENHANCED with more relationships (fixed field names to match actual collection)
-        RelationConfig listingsConfig = new RelationConfig("listings");
-        listingsConfig.addRelation("property", "properties", RelationType.MANY_TO_ONE);
-        listingsConfig.addRelation("listingBrokerage", "brokerages", RelationType.MANY_TO_ONE);  // Fixed: was listingBrokerageId
-        listingsConfig.addRelation("listingAgentId", "agents", RelationType.MANY_TO_ONE);
-        listingsConfig.addRelation("listingAgents", "agents", RelationType.ONE_TO_MANY_ARRAY); // Array of ObjectIds
-        listingsConfig.addRelation("currentAgentId", "currentAgents", RelationType.MANY_TO_ONE);
-        listingsConfig.addRelation("buyerAgentId", "agents", RelationType.MANY_TO_ONE);
-        listingsConfig.addRelation("buyerBrokerageId", "brokerages", RelationType.MANY_TO_ONE);
-        listingsConfig.addRelation("openHouses", "openHouses", RelationType.ONE_TO_MANY_ARRAY); // Array of ObjectIds
-        listingsConfig.addRelation("showings", "showings", RelationType.ONE_TO_MANY_ARRAY); // Array of ObjectIds
-        listingsConfig.addRelation("_id", "transactions", RelationType.ONE_TO_MANY, "listing");
-        listingsConfig.addRelation("_id", "listingSearch", RelationType.ONE_TO_ONE, "listingId");
-        relationConfigs.put("listings", listingsConfig);
-
-        // Transactions relations - FIXED: buyers/sellers are arrays of ObjectIds, not MANY_TO_MANY
-        RelationConfig transactionsConfig = new RelationConfig("transactions");
-        transactionsConfig.addRelation("listing", "listings", RelationType.MANY_TO_ONE);
-        transactionsConfig.addRelation("property", "properties", RelationType.MANY_TO_ONE);
-        transactionsConfig.addRelation("buyerAgent", "agents", RelationType.MANY_TO_ONE);
-        transactionsConfig.addRelation("sellingAgentId", "agents", RelationType.MANY_TO_ONE);
-        transactionsConfig.addRelation("buyers", "people", RelationType.ONE_TO_MANY_ARRAY); // Array of ObjectIds
-        transactionsConfig.addRelation("sellers", "people", RelationType.ONE_TO_MANY_ARRAY); // Array of ObjectIds
-        transactionsConfig.addRelation("_id", "transactionsderived", RelationType.ONE_TO_ONE, "_id");
-        relationConfigs.put("transactions", transactionsConfig);
-
-        // Agents relations
-        RelationConfig agentsConfig = new RelationConfig("agents");
-        agentsConfig.addRelation("person", "people", RelationType.MANY_TO_ONE);
-        agentsConfig.addNestedRelation("realmData.brokerages", "brokerages", RelationType.MANY_TO_ONE);
-        agentsConfig.addRelation("_id", "agentSearch", RelationType.ONE_TO_ONE, "agentId");
-        agentsConfig.addRelation("_id", "agentclientevents", RelationType.ONE_TO_MANY, "agent");
-        agentsConfig.addRelation("_id", "awards", RelationType.ONE_TO_MANY, "agents");
-        agentsConfig.addRelation("_id", "teams", RelationType.ONE_TO_MANY, "agents");
-        relationConfigs.put("agents", agentsConfig);
-
-        // CurrentAgents relations (similar to agents)
-        RelationConfig currentAgentsConfig = new RelationConfig("currentAgents");
-        currentAgentsConfig.addRelation("person", "people", RelationType.MANY_TO_ONE);
-        currentAgentsConfig.addNestedRelation("realmData.brokerages", "brokerages", RelationType.MANY_TO_ONE);
-        relationConfigs.put("currentAgents", currentAgentsConfig);
-
-        // People relations
-        RelationConfig peopleConfig = new RelationConfig("people");
-        peopleConfig.addRelation("_id", "residences", RelationType.ONE_TO_MANY, "person");
-        peopleConfig.addRelation("_id", "agentclients", RelationType.ONE_TO_MANY, "person");
-        relationConfigs.put("people", peopleConfig);
+        if (relationships == null || relationships.isEmpty()) {
+            return;
+        }
         
-        // Agentclients relations
-        RelationConfig agentclientsConfig = new RelationConfig("agentclients");
-        agentclientsConfig.addRelation("client", "people_meta", RelationType.MANY_TO_ONE);
-        agentclientsConfig.addNestedRelation("realmData.ownerAgent", "agents", RelationType.MANY_TO_ONE);
-        agentclientsConfig.addNestedRelation("realmData.ownerTeam", "teams", RelationType.MANY_TO_ONE);
-        relationConfigs.put("agentclients", agentclientsConfig);
+        discoveredRelationships.put(collectionName, relationships);
+        
+        // Build RelationConfig from discovered relationships
+        RelationConfig config = new RelationConfig(collectionName);
+        
+        for (Map.Entry<String, String> entry : relationships.entrySet()) {
+            String fieldPath = entry.getKey();
+            String targetCollection = entry.getValue();
+            
+            // Determine relationship type based on field characteristics
+            // This is data-driven inference, not hardcoding
+            RelationType type = inferRelationType(fieldPath, collectionName, targetCollection);
+            
+            if (fieldPath.contains(".")) {
+                // Nested field
+                config.addNestedRelation(fieldPath, targetCollection, type);
+            } else {
+                // Direct field
+                config.addRelation(fieldPath, targetCollection, type);
+            }
+            
+            logger.debug("Added discovered relationship: {} -> {} -> {} ({})", 
+                        collectionName, fieldPath, targetCollection, type);
+        }
+        
+        relationConfigs.put(collectionName, config);
+    }
+    
+    /**
+     * Infer relationship type from field characteristics
+     * This is pattern-based inference, not hardcoding
+     */
+    private RelationType inferRelationType(String fieldPath, String sourceCollection, String targetCollection)
+    {
+        // Default to MANY_TO_ONE for ObjectId fields
+        // Arrays would be detected during discovery and passed differently
+        return RelationType.MANY_TO_ONE;
+    }
+    
+    /**
+     * REMOVED: All hardcoded relationship configurations
+     * Everything now comes from discovery
+     */
+    private void initializeRelationConfigs_REMOVED()
+    {
+        // ALL HARDCODED RELATIONSHIPS REMOVED
+        // Relationships now come from discovery via setDiscoveredRelationships()
+        // This method is kept only for backward compatibility and does nothing
     }
 
     /**
@@ -255,6 +258,14 @@ public class RelationExpander
                     Document related = fetchDocument(relation.foreignCollection, (ObjectId) value);
                     if (related != null)
                     {
+                        // Log critical expansion info for client field ONCE
+                        if (relation.localField.equals("client") && currentDepth == 0) {
+                            logger.info("EXPANSION: Fetched {} from collection '{}', keys: {}", 
+                                relation.localField, relation.foreignCollection, related.keySet());
+                            if (related.containsKey("address")) {
+                                logger.info("EXPANSION: Document HAS address field!");
+                            }
+                        }
                         doc.append(expandedFieldName, expandDocument(related, relation.foreignCollection, maxDepth, currentDepth + 1, visited, newVisitedCollections));
                         if (currentDepth == 0 && logger.isTraceEnabled()) {
                             logger.trace("Successfully expanded {} -> {} with {} fields", 

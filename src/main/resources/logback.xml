@@ -10,10 +10,11 @@
         <appender-ref ref="STDOUT" />
     </root>
     
-    <!-- Enable DEBUG for discovery and expansion to debug issues -->
+    <!-- Keep logging at INFO level for cleaner output -->
     <logger name="com.example.mongoexport.discovery.FieldDiscoveryService" level="INFO"/>
     <logger name="com.example.mongoexport.RelationExpander" level="INFO"/>
-    <logger name="com.example.mongoexport.discovery.RelationshipDiscovery" level="DEBUG"/>
+    <logger name="com.example.mongoexport.discovery.RelationshipDiscovery" level="INFO"/>
+    <logger name="com.example.mongoexport.export.ConfigurationBasedExporter" level="INFO"/>
     
     <!-- Suppress MongoDB driver debug messages -->
     <logger name="org.mongodb.driver" level="WARN" />

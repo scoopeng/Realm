@@ -78,19 +78,58 @@ public class RelationshipDiscovery {
         }
         
         // Find the collection with the most matches
+        // When there's a tie, prefer collections without suffixes (e.g., "people" over "people_meta")
         String bestMatch = null;
         int maxMatches = 0;
         
+        // First pass: find the max match count
         for (Map.Entry<String, Integer> entry : matchCounts.entrySet()) {
             if (entry.getValue() > maxMatches) {
                 maxMatches = entry.getValue();
-                bestMatch = entry.getKey();
             }
+        }
+        
+        // Second pass: among collections with max matches, prefer the cleanest name
+        List<String> topMatches = new ArrayList<>();
+        for (Map.Entry<String, Integer> entry : matchCounts.entrySet()) {
+            if (entry.getValue() == maxMatches) {
+                topMatches.add(entry.getKey());
+            }
+        }
+        
+        if (topMatches.size() == 1) {
+            bestMatch = topMatches.get(0);
+        } else if (topMatches.size() > 1) {
+            // Multiple collections have the same match count
+            // Apply heuristics to choose the best one:
+            // 1. Prefer base name without suffix (e.g., "people" over "people_meta")
+            // 2. Prefer collections with richer data (more fields)
+            
+            bestMatch = selectBestCollection(topMatches, fieldName, sampleIds);
+            logger.info("Multiple collections matched for '{}': {}. Selected: {}", 
+                       fieldName, topMatches, bestMatch);
         }
         
         if (bestMatch != null) {
             logger.info("Field '{}' references collection '{}' (found {} matches)", 
                        fieldName, bestMatch, maxMatches);
+            
+            // Log details for client field
+            if (fieldName.equals("client")) {
+                logger.info("RELATIONSHIP DISCOVERY: client -> {} (testing IDs in that collection)", bestMatch);
+                // Test if documents have address field
+                MongoCollection<Document> testCollection = database.getCollection(bestMatch);
+                Document sampleDoc = testCollection.find().first();
+                if (sampleDoc != null) {
+                    logger.info("RELATIONSHIP DISCOVERY: Sample doc from {} has keys: {}", bestMatch, sampleDoc.keySet());
+                    if (sampleDoc.containsKey("address")) {
+                        logger.info("RELATIONSHIP DISCOVERY: {} collection HAS address field!", bestMatch);
+                    } else {
+                        logger.info("RELATIONSHIP DISCOVERY: {} collection LACKS address field", bestMatch);
+                    }
+                }
+            }
+            
             discoveredRelationships.put(fieldName, bestMatch);
             
             // Track this discovery for potential patterns
@@ -123,6 +162,32 @@ public class RelationshipDiscovery {
             .replaceAll("(_id|id|_?ref|reference)$", "")
             .replaceAll("^(ref_|reference_)", "")
             .replaceAll("[_\\s]+", "");
+    }
+    
+    /**
+     * Select the best collection when multiple collections have the same match count
+     * Simple heuristic: prefer shortest name (Occam's razor - simplest is usually right)
+     */
+    private String selectBestCollection(List<String> candidates, String fieldName, Set<ObjectId> sampleIds) {
+        if (candidates.isEmpty()) {
+            return null;
+        }
+        if (candidates.size() == 1) {
+            return candidates.get(0);
+        }
+        
+        logger.info("Multiple collections ({}) matched for field '{}' with same match count", candidates, fieldName);
+        
+        // Simple: shortest name wins (e.g., "people" beats "people_meta" or "people.edgar-backup-2023-07-10")
+        String shortest = candidates.get(0);
+        for (String candidate : candidates) {
+            if (candidate.length() < shortest.length()) {
+                shortest = candidate;
+            }
+        }
+        
+        logger.info("Selected '{}' (shortest name)", shortest);
+        return shortest;
     }
     
     /**

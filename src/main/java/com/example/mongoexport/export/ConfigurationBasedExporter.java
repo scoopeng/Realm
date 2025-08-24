@@ -2,6 +2,7 @@ package com.example.mongoexport.export;
 
 import com.example.mongoexport.AbstractUltraExporter;
 import com.example.mongoexport.ExportOptions;
+import com.example.mongoexport.cache.CollectionCacheManager;
 import com.example.mongoexport.config.DiscoveryConfiguration;
 import com.example.mongoexport.config.FieldConfiguration;
 import com.mongodb.client.MongoCollection;
@@ -29,10 +30,8 @@ public class ConfigurationBasedExporter extends AbstractUltraExporter
 
     private final DiscoveryConfiguration configuration;
     private final List<FieldConfiguration> includedFields;
-    private final Map<String, Map<ObjectId, Document>> collectionCache = new HashMap<>();
+    private final CollectionCacheManager cacheManager;
     private final Map<String, Map<ObjectId, String>> displayValueCache = new HashMap<>();
-    private final Set<String> cachedCollectionNames = new HashSet<>();
-    private final Set<String> fullyLoadedCollections = new HashSet<>();  // Track collections that are fully cached
     private Integer rowLimit = null;
     private String[] cachedHeaders = null;
 
@@ -52,6 +51,7 @@ public class ConfigurationBasedExporter extends AbstractUltraExporter
         super(buildExportOptions(config));
         this.configuration = config;
         this.includedFields = config.getIncludedFields();
+        this.cacheManager = new CollectionCacheManager(database);
 
         logger.info("Loaded configuration for collection: {}", config.getCollection());
         logger.info("Total fields: {}, Included fields: {}", config.getFields().size(), includedFields.size());
@@ -149,10 +149,11 @@ public class ConfigurationBasedExporter extends AbstractUltraExporter
         // RelationExpander will use its own caching mechanism
         // Our local cache will be used for lookups during export
 
+        Map<String, Object> stats = cacheManager.getCacheStatistics();
         logger.info("Cached {} collections with {} total documents ({} fully loaded)", 
-                cachedCollectionNames.size(), 
-                collectionCache.values().stream().mapToInt(Map::size).sum(),
-                fullyLoadedCollections.size());
+                stats.get("cachedCollections"), 
+                stats.get("totalCachedDocuments"),
+                stats.get("fullyLoadedCollections"));
     }
 
     /**
@@ -160,57 +161,14 @@ public class ConfigurationBasedExporter extends AbstractUltraExporter
      */
     private void cacheCollection(String collectionName)
     {
-        if (cachedCollectionNames.contains(collectionName))
-        {
-            return;
-        }
+        // Use centralized cache manager - single source of truth for caching logic
+        boolean fullyLoaded = cacheManager.cacheCollection(collectionName, true, configuration.getCollection());
         
-        // NEVER cache the source collection being exported
-        if (collectionName.equals(configuration.getCollection()))
+        // Pre-compute display values for people collection to speed up lookups
+        if (fullyLoaded && "people".equals(collectionName))
         {
-            logger.info("Skipping cache for source collection {}", collectionName);
-            return;
-        }
-
-        // Check if collection exists
-        boolean exists = database.listCollectionNames().into(new ArrayList<>()).contains(collectionName);
-
-        if (!exists)
-        {
-            logger.warn("Collection {} does not exist, skipping", collectionName);
-            return;
-        }
-
-        MongoCollection<Document> collection = database.getCollection(collectionName);
-        long count = collection.estimatedDocumentCount();
-
-        // Cache collections up to 600K documents (matches discovery phase)
-        // This ensures people_meta (552K) is fully cached for performance
-        if (count <= 600000)
-        {
-            logger.info("Caching collection {} ({} documents)", collectionName, count);
-            Map<ObjectId, Document> cache = new HashMap<>();
-
-            try (MongoCursor<Document> cursor = collection.find().iterator())
-            {
-                while (cursor.hasNext())
-                {
-                    Document doc = cursor.next();
-                    Object id = doc.get("_id");
-                    if (id instanceof ObjectId)
-                    {
-                        cache.put((ObjectId) id, doc);
-                    }
-                }
-            }
-
-            collectionCache.put(collectionName, cache);
-            cachedCollectionNames.add(collectionName);
-            fullyLoadedCollections.add(collectionName);  // Mark as fully loaded
-            logger.info("  Cached {} documents (fully loaded)", cache.size());
-            
-            // Pre-compute display values for people collection to speed up lookups
-            if ("people".equals(collectionName))
+            Map<ObjectId, Document> cache = cacheManager.getCollectionCache(collectionName);
+            if (cache != null && !cache.isEmpty())
             {
                 logger.info("  Pre-computing display values for people collection...");
                 Map<ObjectId, String> peopleDisplayCache = new HashMap<>();
@@ -225,12 +183,6 @@ public class ConfigurationBasedExporter extends AbstractUltraExporter
                 displayValueCache.put(collectionName, peopleDisplayCache);
                 logger.info("  Pre-computed {} display values", peopleDisplayCache.size());
             }
-        } else
-        {
-            logger.info("Collection {} too large ({} docs), using lazy loading", collectionName, count);
-            cachedCollectionNames.add(collectionName);
-            // Create empty cache for lazy loading
-            collectionCache.put(collectionName, new HashMap<>());
         }
     }
 
@@ -381,54 +333,14 @@ public class ConfigurationBasedExporter extends AbstractUltraExporter
             String collectionName = entry.getKey();
             Set<ObjectId> ids = entry.getValue();
             
-            // Skip if collection doesn't exist or if we have all documents already cached
-            if (!cachedCollectionNames.contains(collectionName))
+            // Skip if collection isn't cached
+            if (!cacheManager.isCached(collectionName))
             {
                 continue;
             }
             
-            Map<ObjectId, Document> cache = collectionCache.get(collectionName);
-            if (cache == null)
-            {
-                continue;
-            }
-            
-            // Find IDs that aren't already cached
-            Set<ObjectId> missingIds = new HashSet<>();
-            for (ObjectId id : ids)
-            {
-                if (!cache.containsKey(id))
-                {
-                    missingIds.add(id);
-                }
-            }
-            
-            // Batch load missing documents
-            if (!missingIds.isEmpty())
-            {
-                MongoCollection<Document> collection = database.getCollection(collectionName);
-                Document query = new Document("_id", new Document("$in", new ArrayList<>(missingIds)));
-                
-                try (MongoCursor<Document> cursor = collection.find(query).iterator())
-                {
-                    int loaded = 0;
-                    while (cursor.hasNext())
-                    {
-                        Document doc = cursor.next();
-                        Object id = doc.get("_id");
-                        if (id instanceof ObjectId)
-                        {
-                            cache.put((ObjectId) id, doc);
-                            loaded++;
-                        }
-                    }
-                    
-                    if (loaded > 0)
-                    {
-                        logger.debug("Batch loaded {} documents from {} collection", loaded, collectionName);
-                    }
-                }
-            }
+            // Use cache manager's batch loading
+            cacheManager.batchLoadDocuments(collectionName, ids);
         }
     }
     
@@ -565,8 +477,8 @@ public class ConfigurationBasedExporter extends AbstractUltraExporter
             
             if (referencedDoc == null)
             {
-                // Get the base ObjectId
-                Object baseValue = doc.get(baseField);
+                // Get the base ObjectId - handle nested paths like realmData.ownerAgent
+                Object baseValue = extractNestedField(doc, baseField);
                 if (!(baseValue instanceof ObjectId))
                 {
                     return null;
@@ -579,11 +491,13 @@ public class ConfigurationBasedExporter extends AbstractUltraExporter
                     if (fc.getFieldPath().equals(baseField) && fc.getRelationshipTarget() != null)
                     {
                         targetCollection = fc.getRelationshipTarget();
+                        logger.debug("Found relationship target for {}: {}", baseField, targetCollection);
                         break;
                     }
                 }
                 if (targetCollection == null)
                 {
+                    logger.debug("No relationship target found for base field: {}", baseField);
                     return null;
                 }
                 
@@ -594,7 +508,8 @@ public class ConfigurationBasedExporter extends AbstractUltraExporter
                     logger.debug("Failed to find document {} in collection {}", baseValue, targetCollection);
                     return null;
                 }
-                logger.debug("Found document {} in collection {}", baseValue, targetCollection);
+                logger.debug("Found document {} in collection {}, keys: {}", 
+                    baseValue, targetCollection, referencedDoc.keySet());
                 
                 // Cache it for other expanded fields in this row
                 rowExpandedCache.put(baseField, referencedDoc);
@@ -693,7 +608,18 @@ public class ConfigurationBasedExporter extends AbstractUltraExporter
         // Handle ObjectIds - check if this field references another collection
         if (value instanceof ObjectId)
         {
-            // Check if this is a reference to another collection that we should expand
+            // Check if this field has expanded fields - if so, keep the ObjectId for expansion
+            // Only resolve to display value if there are NO expanded fields
+            boolean hasExpandedFields = includedFields.stream()
+                .anyMatch(f -> f.getFieldPath().startsWith(field.getFieldPath() + "_expanded"));
+            
+            // If field has expanded fields, return the ObjectId so expansion can work
+            if (hasExpandedFields)
+            {
+                return value.toString();
+            }
+            
+            // Check if this is a reference to another collection that we should display
             if (field.getRelationshipTarget() != null && !field.getRelationshipTarget().isEmpty())
             {
                 String targetCollection = field.getRelationshipTarget();
@@ -801,42 +727,8 @@ public class ConfigurationBasedExporter extends AbstractUltraExporter
      */
     private Document lookupDocument(String collectionName, ObjectId id)
     {
-        // First check if we have this collection cached
-        Map<ObjectId, Document> cache = collectionCache.get(collectionName);
-        
-        if (cache != null)
-        {
-            // Check if document is in cache
-            Document cached = cache.get(id);
-            if (cached != null)
-            {
-                return cached;
-            }
-            
-            // If cache exists but document not found
-            if (cachedCollectionNames.contains(collectionName))
-            {
-                // Skip database lookup if collection is fully cached
-                if (fullyLoadedCollections.contains(collectionName))
-                {
-                    // Document doesn't exist in the collection
-                    return null;
-                }
-                
-                // Only lazy load for partially cached collections
-                MongoCollection<Document> collection = database.getCollection(collectionName);
-                Document doc = collection.find(new Document("_id", id)).first();
-                
-                if (doc != null)
-                {
-                    // Add to cache for future use
-                    cache.put(id, doc);
-                    return doc;
-                }
-            }
-        }
-        
-        return null;
+        // Use centralized cache manager for all lookups
+        return cacheManager.getCachedDocument(collectionName, id);
     }
     
     /**
@@ -914,7 +806,7 @@ public class ConfigurationBasedExporter extends AbstractUltraExporter
         // Check if this array references another collection
         if (arrayConfig.getReferenceCollection() != null)
         {
-            Map<ObjectId, Document> cache = collectionCache.get(arrayConfig.getReferenceCollection());
+            Map<ObjectId, Document> cache = cacheManager.getCollectionCache(arrayConfig.getReferenceCollection());
 
             if (cache != null)
             {
@@ -1044,7 +936,7 @@ public class ConfigurationBasedExporter extends AbstractUltraExporter
         report.put("configFile", DiscoveryConfiguration.getConfigFile(configuration.getCollection()).getPath());
         report.put("fieldsExported", includedFields.size());
         report.put("totalFieldsAvailable", configuration.getFields().size());
-        report.put("cachedCollections", cachedCollectionNames);
+        report.put("cachedCollections", cacheManager.getCacheStatistics().get("collections"));
         report.put("exportTimestamp", new Date());
 
         // Log report

@@ -2,7 +2,7 @@
 FIELD EXPANSION AUDIT TREE
 =================================================================
 Collection: agentclients
-Generated: Sat Aug 23 23:06:47 UTC 2025
+Generated: Sun Aug 24 08:40:48 UTC 2025
 Total Fields: 212
 Included Fields: 67
 Expansion Depth: 3
@@ -13,7 +13,7 @@ _id [objectId] (EXCLUDED) - 10000 distinct values
 agents [array] (INCLUDED) - 50 distinct values -> agents.fullName
 agents[count] [integer] (EXCLUDED) - 50 distinct values
 archived [string] (INCLUDED) - 193 distinct values, 17234 nulls
-client [objectId] (INCLUDED) - 9838 distinct values -> people_meta
+client [objectId] (INCLUDED) - 9838 distinct values -> people
   └─ EXPANDED:
     client_expanded [object] (EXCLUDED) - 0 distinct values
     client_expanded.__v [integer] (EXCLUDED) - 2 distinct values
@@ -35,7 +35,7 @@ client [objectId] (INCLUDED) - 9838 distinct values -> people_meta
     client_expanded.address.unit [string] (INCLUDED) - 204 distinct values, 9722 nulls
     client_expanded.deleted [boolean] (EXCLUDED) - 2 distinct values
     client_expanded.demographics [object] (EXCLUDED) - 0 distinct values
-    client_expanded.demographics.birthDate [date] (INCLUDED) - 6 distinct values, 9506 nulls
+    client_expanded.demographics.birthDate [string] (INCLUDED) - 6 distinct values, 9506 nulls
     client_expanded.demographics.gender [string] (EXCLUDED) - 1 distinct values, 9026 nulls
     client_expanded.emails [array] (EXCLUDED) - 0 distinct values
     client_expanded.emails[count] [integer] (EXCLUDED) - 0 distinct values
@@ -218,7 +218,7 @@ EXPANSION SUMMARY
 =================================================================
 
 Expanded Relationships:
-  - client -> people_meta
+  - client -> people
   - realmData.ownerAgent -> agents
   - realmData.ownerTeam -> teams
 
@@ -228,7 +228,7 @@ Array References:
   - realmData.tags -> tags (extracting: subCategory)
 
 Unexpanded ObjectId Fields (potential relationships):
-  - client (guessed target: people_meta)
+  - client (guessed target: people)
   - clientOld
   - realmData.ownerAgent (guessed target: agents)
   - realmData.ownerTeam (guessed target: teams)

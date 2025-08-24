@@ -1,6 +1,7 @@
 package com.example.mongoexport.discovery;
 
 import com.example.mongoexport.RelationExpander;
+import com.example.mongoexport.cache.CollectionCacheManager;
 import com.example.mongoexport.config.DiscoveryConfiguration;
 import com.example.mongoexport.config.FieldConfiguration;
 import com.example.mongoexport.FieldNameMapper;
@@ -39,9 +40,8 @@ public class FieldDiscoveryService
     // Discovery tracking
     private final Map<String, FieldMetadata> fieldMetadataMap = new ConcurrentHashMap<>();
     private final Map<String, String> fieldToCollectionMap = new ConcurrentHashMap<>();
-    private final Set<String> cachedCollections = new HashSet<>();
     private Set<String> currentDocumentFields;  // Track fields in current document to avoid double-counting
-    private final Map<String, Map<ObjectId, Document>> collectionCache = new HashMap<>();
+    private final CollectionCacheManager cacheManager;
 
     // Track array internals separately - we'll consolidate them later
     private final Map<String, ArrayInternals> arrayInternalsMap = new HashMap<>();
@@ -122,6 +122,7 @@ public class FieldDiscoveryService
         this.minDistinctNonNullValues = minDistinctNonNullValues;
         this.sparseFieldThreshold = sparseFieldThreshold;
         this.relationshipDiscovery = new RelationshipDiscovery(database);
+        this.cacheManager = new CollectionCacheManager(database);
     }
 
     /**
@@ -546,7 +547,7 @@ public class FieldDiscoveryService
             }
         }
 
-        logger.info("Cached {} collections for relationships", cachedCollections.size());
+        logger.info("Cached {} collections for relationships", cacheManager.getCacheStatistics().get("cachedCollections"));
     }
 
     /**
@@ -554,47 +555,19 @@ public class FieldDiscoveryService
      */
     private void cacheAndAnalyzeCollection(String collectionName, Set<ObjectId> sampleIds)
     {
-        if (cachedCollections.contains(collectionName))
+        if (cacheManager.isCached(collectionName))
         {
             return;
         }
 
-        // Check if collection exists
-        boolean exists = database.listCollectionNames().into(new ArrayList<>()).contains(collectionName);
+        // Use centralized cache manager - single source of truth for caching logic
+        boolean fullyLoaded = cacheManager.cacheCollection(collectionName, false, null);
 
-        if (!exists)
+        // Analyze sample documents to find best display field if fully loaded
+        if (fullyLoaded && !sampleIds.isEmpty())
         {
-            logger.warn("Collection {} does not exist, skipping", collectionName);
-            return;
-        }
-
-        MongoCollection<Document> collection = database.getCollection(collectionName);
-        long count = collection.estimatedDocumentCount();
-
-        // Cache collections up to 600K documents (includes people_meta at 552K)
-        if (count <= 600000)
-        {
-            logger.info("Caching and analyzing collection {} ({} documents)", collectionName, count);
-            Map<ObjectId, Document> cache = new HashMap<>();
-
-            try (MongoCursor<Document> cursor = collection.find().iterator())
-            {
-                while (cursor.hasNext())
-                {
-                    Document doc = cursor.next();
-                    Object id = doc.get("_id");
-                    if (id instanceof ObjectId)
-                    {
-                        cache.put((ObjectId) id, doc);
-                    }
-                }
-            }
-
-            collectionCache.put(collectionName, cache);
-            cachedCollections.add(collectionName);
-
-            // Analyze sample documents to find best display field
-            if (!sampleIds.isEmpty())
+            Map<ObjectId, Document> cache = cacheManager.getCollectionCache(collectionName);
+            if (cache != null && !cache.isEmpty())
             {
                 String bestField = findBestDisplayField(collectionName, cache, sampleIds);
                 logger.info("  Best display field for {}: {}", collectionName, bestField);
@@ -608,12 +581,6 @@ public class FieldDiscoveryService
                     }
                 }
             }
-
-            logger.info("  Cached {} documents from {}", cache.size(), collectionName);
-        } else
-        {
-            logger.info("Collection {} too large ({} docs), will use lazy loading", collectionName, count);
-            cachedCollections.add(collectionName);
         }
     }
 
@@ -724,8 +691,26 @@ public class FieldDiscoveryService
         // Use RelationExpander to discover expanded field structure
         RelationExpander expander = new RelationExpander(database);
         
+        // CRITICAL: Pass discovered relationships to the expander
+        // This replaces ALL hardcoded mappings - everything is data-driven
+        Map<String, String> relationships = new HashMap<>();
+        for (Map.Entry<String, FieldMetadata> entry : fieldMetadataMap.entrySet()) {
+            FieldMetadata metadata = entry.getValue();
+            if (metadata.relationshipTarget != null && metadata.sourceCollection.equals(collectionName)) {
+                relationships.put(metadata.fieldPath, metadata.relationshipTarget);
+                logger.debug("Passing relationship to expander: {} -> {}", 
+                           metadata.fieldPath, metadata.relationshipTarget);
+            }
+        }
+        
+        if (!relationships.isEmpty()) {
+            logger.info("Passing {} discovered relationships to RelationExpander for collection '{}'", 
+                       relationships.size(), collectionName);
+            expander.setDiscoveredRelationships(collectionName, relationships);
+        }
+        
         // CRITICAL: Pass our cache to the expander so it uses memory lookups instead of database queries
-        expander.setCache(collectionCache);
+        expander.setCache(cacheManager.getAllCaches());
 
         // Sample some documents to discover expanded structure
         MongoCollection<Document> collection = database.getCollection(collectionName);
@@ -762,9 +747,25 @@ public class FieldDiscoveryService
                     try {
                         // Each thread needs its own expander to avoid thread safety issues
                         RelationExpander threadExpander = new RelationExpander(database);
-                        threadExpander.setCache(collectionCache);
+                        threadExpander.setDiscoveredRelationships(collectionName, relationships);
+                        threadExpander.setCache(cacheManager.getAllCaches());
                         
                         Document expanded = threadExpander.expandDocument(doc, collectionName, 1);
+                        
+                        // Log what we found in expansion ONCE per discovery (first doc only)
+                        if (processedCount.get() == 0 && expanded.containsKey("client_expanded")) {
+                            Document clientExpanded = (Document) expanded.get("client_expanded");
+                            if (clientExpanded != null) {
+                                logger.info("DISCOVERY EXPANSION: client_expanded keys: {}", clientExpanded.keySet());
+                                if (clientExpanded.containsKey("address")) {
+                                    logger.info("DISCOVERY EXPANSION: Found ADDRESS in client_expanded!");
+                                    Document addr = (Document) clientExpanded.get("address");
+                                    if (addr != null) {
+                                        logger.info("DISCOVERY EXPANSION: Address keys: {}", addr.keySet());
+                                    }
+                                }
+                            }
+                        }
                         
                         // Synchronize field discovery to avoid race conditions
                         synchronized (fieldMetadataMap)
@@ -1136,7 +1137,7 @@ public class FieldDiscoveryService
         // For arrays of ObjectIds that reference another collection
         if (arrayConfig.getReferenceCollection() != null)
         {
-            Map<ObjectId, Document> cache = collectionCache.get(arrayConfig.getReferenceCollection());
+            Map<ObjectId, Document> cache = cacheManager.getCollectionCache(arrayConfig.getReferenceCollection());
             if (cache != null && !cache.isEmpty())
             {
                 // Sample a few documents to find common meaningful fields
@@ -1275,7 +1276,7 @@ public class FieldDiscoveryService
                 arrayConfig.setReferenceCollection(internals.targetCollection);
 
                 // Find best display field and available fields from cached collection
-                Map<ObjectId, Document> cache = collectionCache.get(internals.targetCollection);
+                Map<ObjectId, Document> cache = cacheManager.getCollectionCache(internals.targetCollection);
                 if (cache != null)
                 {
                     String displayField = findBestDisplayField(internals.targetCollection, cache, internals.sampleIds);
@@ -1292,7 +1293,7 @@ public class FieldDiscoveryService
                 arrayConfig.setReferenceCollection(internals.targetCollection);
 
                 // Find best display field and available fields from cached collection
-                Map<ObjectId, Document> cache = collectionCache.get(internals.targetCollection);
+                Map<ObjectId, Document> cache = cacheManager.getCollectionCache(internals.targetCollection);
                 if (cache != null)
                 {
                     String displayField = findBestDisplayField(internals.targetCollection, cache, internals.sampleIds);

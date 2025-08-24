@@ -46,7 +46,7 @@
       "totalOccurrences" : 20000,
       "sampleValues" : [ "5b6c6c2d116fa31f8a2c0f7b", "5beb22790c1b8a02a38464b0", "5beb22790c1b8a02aa846494", "5beb22790c1b8a04ac8464af", "5beb22790c1b8a062d846497" ]
     },
-    "relationshipTarget" : "people_meta"
+    "relationshipTarget" : "people"
   }, {
     "fieldPath" : "client_expanded.address.city",
     "businessName" : "Client Address City",
@@ -195,7 +195,7 @@
     "fieldPath" : "client_expanded.demographics.birthDate",
     "businessName" : "Client Demographics Birth Date",
     "sourceCollection" : "agentclients",
-    "dataType" : "date",
+    "dataType" : "string",
     "include" : true,
     "statistics" : {
       "distinctNonNullValues" : 6,
@@ -859,7 +859,7 @@
     }
   } ],
   "collection" : "agentclients",
-  "discoveredAt" : 1755990210328,
+  "discoveredAt" : 1756024722083,
   "discoveryParameters" : {
     "sampleSize" : 10000,
     "expansionDepth" : 3,
@@ -1001,7 +1001,7 @@
       "totalOccurrences" : 20000,
       "sampleValues" : [ "5b6c6c2d116fa31f8a2c0f7b", "5beb22790c1b8a02a38464b0", "5beb22790c1b8a02aa846494", "5beb22790c1b8a04ac8464af", "5beb22790c1b8a062d846497" ]
     },
-    "relationshipTarget" : "people_meta"
+    "relationshipTarget" : "people"
   }, {
     "fieldPath" : "clientOld",
     "businessName" : "Client Old",
@@ -1255,7 +1255,7 @@
     "fieldPath" : "client_expanded.demographics.birthDate",
     "businessName" : "Client Demographics Birth Date",
     "sourceCollection" : "agentclients",
-    "dataType" : "date",
+    "dataType" : "string",
     "include" : true,
     "statistics" : {
       "distinctNonNullValues" : 6,
@@ -3525,7 +3525,7 @@
       "sampleValues" : [ "Fri Apr 25 09:49:29 UTC 2025", "Fri Dec 20 09:01:55 UTC 2024", "Sat Aug 23 10:00:32 UTC 2025", "Sat Aug 23 10:00:33 UTC 2025", "Sat Aug 23 10:00:37 UTC 2025" ]
     }
   } ],
-  "requiredCollections" : [ "teams", "agents", "tags", "people_meta", "lifestyles" ],
+  "requiredCollections" : [ "teams", "agents", "tags", "people", "lifestyles" ],
   "exportSettings" : {
     "batchSize" : 5000,
     "useBusinessNames" : true,
