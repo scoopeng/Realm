@@ -84,7 +84,7 @@ public class RelationExpander
         
         // Agentclients relations
         RelationConfig agentclientsConfig = new RelationConfig("agentclients");
-        agentclientsConfig.addRelation("client", "people", RelationType.MANY_TO_ONE);
+        agentclientsConfig.addRelation("client", "people_meta", RelationType.MANY_TO_ONE);
         agentclientsConfig.addNestedRelation("realmData.ownerAgent", "agents", RelationType.MANY_TO_ONE);
         agentclientsConfig.addNestedRelation("realmData.ownerTeam", "teams", RelationType.MANY_TO_ONE);
         relationConfigs.put("agentclients", agentclientsConfig);

@@ -341,7 +341,16 @@ public class ConfigurationBasedExporter extends AbstractUltraExporter
                     Object baseValue = doc.get(baseField);
                     if (baseValue instanceof ObjectId)
                     {
-                        String targetCollection = guessTargetCollection(baseField);
+                        // Find the base field configuration to get relationshipTarget
+                        String targetCollection = null;
+                        for (FieldConfiguration fc : configuration.getFields())
+                        {
+                            if (fc.getFieldPath().equals(baseField) && fc.getRelationshipTarget() != null)
+                            {
+                                targetCollection = fc.getRelationshipTarget();
+                                break;
+                            }
+                        }
                         if (targetCollection != null)
                         {
                             idsToLoad.computeIfAbsent(targetCollection, k -> new HashSet<>()).add((ObjectId) baseValue);
@@ -563,8 +572,16 @@ public class ConfigurationBasedExporter extends AbstractUltraExporter
                     return null;
                 }
                 
-                // Determine target collection from the base field
-                String targetCollection = guessTargetCollection(baseField);
+                // Find the base field configuration to get relationshipTarget
+                String targetCollection = null;
+                for (FieldConfiguration fc : configuration.getFields())
+                {
+                    if (fc.getFieldPath().equals(baseField) && fc.getRelationshipTarget() != null)
+                    {
+                        targetCollection = fc.getRelationshipTarget();
+                        break;
+                    }
+                }
                 if (targetCollection == null)
                 {
                     return null;
@@ -574,8 +591,10 @@ public class ConfigurationBasedExporter extends AbstractUltraExporter
                 referencedDoc = lookupDocument(targetCollection, (ObjectId) baseValue);
                 if (referencedDoc == null)
                 {
+                    logger.debug("Failed to find document {} in collection {}", baseValue, targetCollection);
                     return null;
                 }
+                logger.debug("Found document {} in collection {}", baseValue, targetCollection);
                 
                 // Cache it for other expanded fields in this row
                 rowExpandedCache.put(baseField, referencedDoc);
@@ -1079,38 +1098,4 @@ public class ConfigurationBasedExporter extends AbstractUltraExporter
         return current;
     }
     
-    /**
-     * Guess the target collection name from a field name
-     */
-    private String guessTargetCollection(String fieldName)
-    {
-        // Use the same logic as RelationExpander
-        if (fieldName.equals("property"))
-        {
-            return "properties";
-        }
-        else if (fieldName.equals("client"))
-        {
-            return "people";
-        }
-        else if (fieldName.equals("listingBrokerage"))
-        {
-            return "brokerages";
-        }
-        else if (fieldName.equals("listingAgent") || fieldName.equals("listingAgentId"))
-        {
-            return "agents";
-        }
-        else if (fieldName.equals("buyerAgent") || fieldName.equals("buyerAgentId"))
-        {
-            return "agents";
-        }
-        else if (fieldName.equals("buyerBrokerage"))
-        {
-            return "brokerages";
-        }
-        // Add more mappings as needed
-        
-        return null;
-    }
 }
