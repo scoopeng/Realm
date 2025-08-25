@@ -1,0 +1,66 @@
+Field Path,Business Name,Currently Included,Null %,Unique Values,Category,Sample Values,Recommendation,Reason
+realmData.ownerAgent_expanded.realmData.clientUpload.file,Realm Data Owner Agent Realm Data Client Upload File,Yes,0.95,1,SINGLE_VALUE,file,DISABLE,Single value only: file
+client_expanded.address.country,Client Address Country,Yes,98.23,90,SPARSE,"USA, United States, United States of America",DISABLE,Extremely sparse (98.2% null)
+client_expanded.address.postalCode,Client Address Postal Code,Yes,99.13,1723,SPARSE,"83001, 83014, 59901",DISABLE,Extremely sparse (99.1% null)
+client_expanded.demographics.birthDate,Client Demographics Birth Date,Yes,99.95,254,SPARSE,"1604-05-07, 11/28/2006, 1604-09-30 00:00:00",DISABLE,Extremely sparse (100.0% null)
+Client Golf Interest,Client Golf Interest,Yes,97.44,7,SPARSE,"7, 3, 8",CONSIDER,Very sparse (97.4% null)
+client_expanded.name.middleName,Client Name Middle Name,Yes,99.84,318,SPARSE,"(Mary Katharine), Cheek -, Freeze",DISABLE,Extremely sparse (99.8% null)
+client_expanded.name.prefix,Client Name Prefix,Yes,98.90,2489,SPARSE,"Mr & Mrs, Associate Broker, Mr.",DISABLE,Extremely sparse (98.9% null)
+client_expanded.name.suffix,Client Name Suffix,Yes,99.96,39,SPARSE,"Jr., Mrs, Mr",DISABLE,Extremely sparse (100.0% null)
+realmData.ownerTeam_expanded.websiteURL,Realm Data Owner Team Website URL,Yes,97.72,6,SPARSE,"https://jacksonholeexperts.com, https://livejacksonhole.com, https://jacksonholebrokers.com/about-us/",CONSIDER,Very sparse (97.7% null)
+agents,Agents,Yes,0.75,591,MEANINGFUL,"Emily Eldredge, Graham Faupel Mendenhall & Associates, Julie Faupel, Karen Terra, Luna Wang, Mack Mendenhall, Matt Faupel, tess hartnett, Christy Gillespie, garth gillespie, Richard Lewis, chopper grassell",KEEP,Good data coverage
+client_expanded._id,Client,Yes,0.00,563324,MEANINGFUL,"5beb22790c1b8a6083846422, 5beb22790c1b8a174284640b, 5beb22790c1b8a31fa846402",DISABLE,Raw ObjectId field
+client_expanded.address.city,Client Address City,Yes,75.31,7082,MEANINGFUL,"Jackson, Wilson, Kalispell",KEEP,Good data coverage
+client_expanded.address.state,Client Address State,Yes,75.03,770,MEANINGFUL,"WY, MT, FL",KEEP,Good data coverage
+Client Age,Client Age,Yes,67.54,82,MEANINGFUL,"71, 53, 76",KEEP,Good data coverage
+Client Area Median Home Value,Client Area Median Home Value,Yes,83.48,6328,MEANINGFUL,"79800, 360500, 158000",KEEP,Good data coverage
+Client Birth Year,Client Birth Year,Yes,67.55,85,MEANINGFUL,"1953, 1968, 1945",KEEP,Good data coverage
+Client Charity Interest,Client Charity Interest,Yes,73.21,2,MEANINGFUL,"1, 0",CONSIDER,Low variation (2 values)
+Client Data Source,Client Data Source,Yes,4.70,41,MEANINGFUL,"AA,Experian,AID, AA,AID, AA,Experian",KEEP,Good data coverage
+Client Dwelling Type,Client Dwelling Type,Yes,65.99,5,MEANINGFUL,"Multi Family Dwelling/Apartment, Single Family, Unknown",KEEP,Good data coverage
+Client Education Level,Client Education Level,Yes,67.14,8,MEANINGFUL,"Unknown, Completed College, Some College",KEEP,Good data coverage
+Client Education Ordinal,Client Education Ordinal,Yes,69.54,7,MEANINGFUL,"5, 4, 3",KEEP,Good data coverage
+Client Family Affinity,Client Family Affinity,Yes,85.39,9,MEANINGFUL,"9, 7, 3",CONSIDER,Sparse (85.4% null)
+Client Gender Male,Client Gender Male,Yes,76.18,2,MEANINGFUL,"1, 0",CONSIDER,Low variation (2 values)
+Client Health Interest,Client Health Interest,Yes,88.88,9,MEANINGFUL,"3, 5, 7",CONSIDER,Sparse (88.9% null)
+Client Home Owner,Client Home Owner,Yes,67.27,4,MEANINGFUL,"Home Owner, Unknown, Renter",CONSIDER,Low variation (4 values)
+Client Home Value,Client Home Value,Yes,76.54,35384,MEANINGFUL,"246500, 868000, 1009300",KEEP,Good data coverage
+Client Household Income,Client Household Income,Yes,67.29,25,MEANINGFUL,"M. $175,000-$199,999, K. $100,000-$149,999, 0. Unknown",KEEP,Good data coverage
+Client Household Income Midpoint,Client Household Income Midpoint,Yes,69.97,23,MEANINGFUL,"187500, 125000, 87500",KEEP,Good data coverage
+Client Household Net Worth,Client Household Net Worth,Yes,70.65,10,MEANINGFUL,"J. Greater than $499,999, H. $100,000 - $249,999, A. Unknown",KEEP,Good data coverage
+Client Household Size,Client Household Size,Yes,65.27,12,MEANINGFUL,"1, 2, 4",KEEP,Good data coverage
+Client Income Level,Client Income Level,Yes,67.29,11,MEANINGFUL,"GT_150K, 100K_150, Unknown",KEEP,Good data coverage
+Client Length of Residence,Client Length of Residence,Yes,69.16,47,MEANINGFUL,"25, 5, 15",KEEP,Good data coverage
+Client Luxury Lifestyle,Client Luxury Lifestyle,Yes,81.72,2,MEANINGFUL,"0, 1",CONSIDER,Low variation (2 values)
+Client Marital Status,Client Marital Status,Yes,77.27,2,MEANINGFUL,"0, 1",CONSIDER,Low variation (2 values)
+client_expanded.name.firstName,Client Name First Name,Yes,0.03,82186,MEANINGFUL,"Dave, Noa, Scott",KEEP,Good data coverage
+client_expanded.name.fullName,Client Name Full Name,Yes,0.03,489548,MEANINGFUL,"Dave Meyers, Noa Staryk, Dave Spackman",KEEP,Good data coverage
+client_expanded.name.lastName,Client Name Last Name,Yes,4.55,160464,MEANINGFUL,"Meyers, Staryk, Spackman",KEEP,Good data coverage
+Client Net Worth Midpoint,Client Net Worth Midpoint,Yes,76.65,9,MEANINGFUL,"175000, 750000, 1",KEEP,Good data coverage
+Client Number of Adults,Client Number of Adults,Yes,70.41,10,MEANINGFUL,"1, 2, 3",KEEP,Good data coverage
+Client Number of Children,Client Number of Children,Yes,81.91,9,MEANINGFUL,"1, 2, 3",KEEP,Good data coverage
+Client Number of Vehicles,Client Number of Vehicles,Yes,85.86,10,MEANINGFUL,"2, 3, 8",CONSIDER,Sparse (85.9% null)
+Client Outdoors Interest,Client Outdoors Interest,Yes,90.88,9,MEANINGFUL,"6, 4, 9",CONSIDER,Very sparse (90.9% null)
+client_expanded.primaryEmail,Client Primary Email,Yes,9.03,508819,MEANINGFUL,"dmeyers@wyoming.com, ted@cnoteoffice.com, Dave.spackman@jhsir.com",KEEP,Good data coverage
+client_expanded.primaryPhone,Client Primary Phone,Yes,87.18,60637,MEANINGFUL,"307-690-9547, 612-220-8076, 307-690-3290",CONSIDER,Sparse (87.2% null)
+Client Technology Interest,Client Technology Interest,Yes,90.67,9,MEANINGFUL,"1, 3, 6",CONSIDER,Very sparse (90.7% null)
+Client Travel Interest,Client Travel Interest,Yes,75.64,2,MEANINGFUL,"0, 1",CONSIDER,Low variation (2 values)
+Client Urbanicity,Client Urbanicity,Yes,65.28,4,MEANINGFUL,"1. Rural, 4. Urban, 3. Suburban",CONSIDER,Low variation (4 values)
+fullName,Full Name,Yes,0.00,493054,MEANINGFUL,"Dave Meyers, Theodore Staryk, Dave Spackman",KEEP,Good data coverage
+realmData.lifestyleNames,Realm Data Lifestyle Names,Yes,78.28,726,MEANINGFUL,"farm_ranch, mountains, entertain, family_estate, entertain, family_estate, farm_ranch, mountains",KEEP,Good data coverage
+realmData.lifestyles,Realm Data Lifestyles,Yes,77.08,752,MEANINGFUL,"farm_ranch, mountains, entertain, family_estate, entertain, family_estate, farm_ranch, mountains",KEEP,Good data coverage
+realmData.maxPrice,Realm Data Max Price,Yes,56.32,27818,MEANINGFUL,"0, 2625000, 431375",KEEP,Good data coverage
+realmData.ownerAgent_expanded._id,Realm Data Owner Agent,Yes,0.19,638,MEANINGFUL,"5b6c6b3f9e89b41f53e0e069, 5ca5254ff924ad305e7f33dd, 5b6c6b419e89b41f53e0e1c2",DISABLE,Raw ObjectId field
+realmData.ownerAgent_expanded.fullName,Realm Data Owner Agent Full Name,Yes,0.75,599,MEANINGFUL,"Julie Faupel, Emily Eldredge, Richard Lewis",KEEP,Good data coverage
+realmData.ownerAgent_expanded.person,Realm Data Owner Agent Person,Yes,0.75,599,MEANINGFUL,"5b6c6b3f9e89b41f53e0e068, 5beb22790c1b8ad599846415, 5b6c6b419e89b41f53e0e1c1",KEEP,Good data coverage
+realmData.ownerAgent_expanded.realmData.clientCount,Realm Data Owner Agent Realm Data Client Count,Yes,0.75,12,MEANINGFUL,"3593, 0, 1545",KEEP,Good data coverage
+realmData.ownerAgent_expanded.realmData.listingCount,Realm Data Owner Agent Realm Data Listing Count,Yes,49.28,41,MEANINGFUL,"85, 8, 61",KEEP,Good data coverage
+realmData.ownerAgent_expanded.subscription,Realm Data Owner Agent Subscription,Yes,1.82,559,MEANINGFUL,"5d02ba07f000318ce53bad7b, 6042730ca6028d00072afae5, 5d0d230885817f8357e8a6b3",KEEP,Good data coverage
+realmData.ownerTeam_expanded._id,Realm Data Owner Team,Yes,88.31,62,MEANINGFUL,"5c9e8520ffbec5380fd6754c, 5d8d3a25ba0be851a4d6ebeb, 5ca52f754c5e5faa929d21ab",DISABLE,Raw ObjectId field
+realmData.ownerTeam_expanded.displayName,Realm Data Owner Team Display Name,Yes,89.53,56,MEANINGFUL,"Graham Faupel Mendenhall, The Wards, Christy & Garth Gillespie",CONSIDER,Sparse (89.5% null)
+realmData.ownerTeam_expanded.leader,Realm Data Owner Team Leader,Yes,89.53,55,MEANINGFUL,"5c4ba9e8e3e54a1813c00065, 5d5c2c0db7624c6a5ca3b18d, 5ca5290931f5615cefc5fdb7",CONSIDER,Sparse (89.5% null)
+realmData.ownerTeam_expanded.name,Realm Data Owner Team Name,Yes,89.53,56,MEANINGFUL,"Graham-Faupel-Mendenhall, Jeff &amp; Kelli Ward, Christy & Garth Gillespie",CONSIDER,Sparse (89.5% null)
+realmData.ownerTeam_expanded.tier,Realm Data Owner Team Tier,Yes,89.64,3,MEANINGFUL,"M, S, L",CONSIDER,Sparse (89.6% null)
+realmData.tagNames,Realm Data Tag Names,Yes,52.73,69173,MEANINGFUL,"fish, hiking, hunt, outdoors, philanthropy, travel, car_collector, outdoors, over_one_million, philanthropy, ski, arts, philanthropy, technology",KEEP,Good data coverage
+realmData.tags,Realm Data Tags,Yes,50.45,398,MEANINGFUL,"Hobbies & Interests, Sports, Hobbies & Interests, Price, Sports, Hobbies & Interests",KEEP,Good data coverage
+statusIntent,Status Intent,Yes,56.09,2,MEANINGFUL,"Active, Inactive",CONSIDER,Low variation (2 values)

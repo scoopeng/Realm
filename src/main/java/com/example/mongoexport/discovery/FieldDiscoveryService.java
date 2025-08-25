@@ -48,10 +48,13 @@ public class FieldDiscoveryService
 
     // Track actual documents scanned for sparse field calculation
     private int actualDocumentsScanned = 0;
-    
+
+    // Track how many documents were expanded for each relationship prefix
+    private final Map<String, Integer> expandedDocumentCounts = new ConcurrentHashMap<>();
+
     // Relationship discovery - NO HARDCODING
     private final RelationshipDiscovery relationshipDiscovery;
-    
+
     // Statistics field generator
     private StatisticsFieldGenerator statisticsGenerator;
 
@@ -177,6 +180,8 @@ public class FieldDiscoveryService
     {
         MongoCollection<Document> collection = database.getCollection(collectionName);
         long totalDocs = collection.estimatedDocumentCount();
+
+        // Use standard sample size for discovery (full scan is too slow)
         logger.info("Scanning {} documents from {} (total: {})", Math.min(sampleSize, totalDocs), collectionName, totalDocs);
 
         int scanned = 0;
@@ -237,13 +242,13 @@ public class FieldDiscoveryService
 
                 // Check if value is non-empty before counting occurrence
                 boolean hasValue = fieldValue != null && !isEmptyValue(fieldValue);
-                
+
                 // Only count this field once per document AND only if it has a value
                 if (currentDocumentFields != null && !currentDocumentFields.contains(fieldPath) && hasValue)
                 {
                     metadata.totalOccurrences++;
                     currentDocumentFields.add(fieldPath);
-                    
+
                     // Debug logging for specific fields
                     if (fieldPath.equals("fees") || fieldPath.equals("viewTypes") || fieldPath.equals("belowGradeAreaFinished"))
                     {
@@ -259,6 +264,8 @@ public class FieldDiscoveryService
                 } else if (fieldValue instanceof Document)
                 {
                     metadata.dataType = "object";
+                    // Don't track sample values for objects - they should be evaluated by their children
+                    // trackSampleValue(metadata, "[object]");  // REMOVED: This was causing objects to have only 1 distinct value
                     discoverFieldsInDocument(fieldValue, fieldPath, sourceCollection, depth + 1);
                 } else if (fieldValue instanceof List)
                 {
@@ -473,25 +480,22 @@ public class FieldDiscoveryService
             {
                 // Discover which collection these IDs actually reference
                 String targetCollection = null;
-                
+
                 if (internals.hasDirectObjectIds)
                 {
                     // Array of ObjectIds - discover target
-                    targetCollection = relationshipDiscovery.discoverTargetCollection(
-                        internals.arrayPath, internals.sampleIds);
-                }
-                else if (internals.objectIdField != null)
+                    targetCollection = relationshipDiscovery.discoverTargetCollection(internals.arrayPath, internals.sampleIds);
+                } else if (internals.objectIdField != null)
                 {
                     // Array of documents with ObjectId field - discover target
-                    targetCollection = relationshipDiscovery.discoverArrayRelationship(
-                        internals.arrayPath, internals.objectIdField, internals.sampleIds);
+                    targetCollection = relationshipDiscovery.discoverArrayRelationship(internals.arrayPath, internals.objectIdField, internals.sampleIds);
                 }
-                
+
                 if (targetCollection != null)
                 {
                     internals.targetCollection = targetCollection;
                     logger.info("  Array {} references {} collection", internals.arrayPath, targetCollection);
-                    
+
                     // Cache the target collection and discover its fields
                     cacheAndAnalyzeCollection(targetCollection, internals.sampleIds);
                 }
@@ -499,10 +503,7 @@ public class FieldDiscoveryService
         }
 
         // Also handle direct ObjectId fields (non-array references)
-        Set<String> objectIdFields = fieldMetadataMap.entrySet().stream()
-            .filter(e -> "objectId".equals(e.getValue().dataType))
-            .map(Map.Entry::getKey)
-            .collect(Collectors.toSet());
+        Set<String> objectIdFields = fieldMetadataMap.entrySet().stream().filter(e -> "objectId".equals(e.getValue().dataType)).map(Map.Entry::getKey).collect(Collectors.toSet());
 
         logger.info("Found {} direct ObjectId reference fields", objectIdFields.size());
 
@@ -514,21 +515,23 @@ public class FieldDiscoveryService
                 logger.debug("  Skipping _id field (always refers to current collection)");
                 continue;
             }
-            
+
             FieldMetadata metadata = fieldMetadataMap.get(fieldPath);
-            
+
             // Collect sample ObjectIds from this field
             Set<ObjectId> sampleIds = new HashSet<>();
             for (String sampleValue : metadata.sampleValues)
             {
-                try {
+                try
+                {
                     sampleIds.add(new ObjectId(sampleValue));
                     if (sampleIds.size() >= 5) break;
-                } catch (Exception e) {
+                } catch (Exception e)
+                {
                     // Skip invalid ObjectIds
                 }
             }
-            
+
             if (!sampleIds.isEmpty())
             {
                 // Discover the target collection
@@ -539,8 +542,7 @@ public class FieldDiscoveryService
                     metadata.relationshipTarget = targetCollection;
                     logger.info("  {} -> {}", fieldPath, targetCollection);
                     cacheCollectionIfNeeded(targetCollection);
-                }
-                else if (targetCollection != null && targetCollection.equals(collectionName))
+                } else if (targetCollection != null && targetCollection.equals(collectionName))
                 {
                     logger.debug("  Skipping self-referential relationship: {} -> {}", fieldPath, targetCollection);
                 }
@@ -690,25 +692,26 @@ public class FieldDiscoveryService
     {
         // Use RelationExpander to discover expanded field structure
         RelationExpander expander = new RelationExpander(database);
-        
+
         // CRITICAL: Pass discovered relationships to the expander
         // This replaces ALL hardcoded mappings - everything is data-driven
         Map<String, String> relationships = new HashMap<>();
-        for (Map.Entry<String, FieldMetadata> entry : fieldMetadataMap.entrySet()) {
+        for (Map.Entry<String, FieldMetadata> entry : fieldMetadataMap.entrySet())
+        {
             FieldMetadata metadata = entry.getValue();
-            if (metadata.relationshipTarget != null && metadata.sourceCollection.equals(collectionName)) {
+            if (metadata.relationshipTarget != null && metadata.sourceCollection.equals(collectionName))
+            {
                 relationships.put(metadata.fieldPath, metadata.relationshipTarget);
-                logger.debug("Passing relationship to expander: {} -> {}", 
-                           metadata.fieldPath, metadata.relationshipTarget);
+                logger.debug("Passing relationship to expander: {} -> {}", metadata.fieldPath, metadata.relationshipTarget);
             }
         }
-        
-        if (!relationships.isEmpty()) {
-            logger.info("Passing {} discovered relationships to RelationExpander for collection '{}'", 
-                       relationships.size(), collectionName);
+
+        if (!relationships.isEmpty())
+        {
+            logger.info("Passing {} discovered relationships to RelationExpander for collection '{}'", relationships.size(), collectionName);
             expander.setDiscoveredRelationships(collectionName, relationships);
         }
-        
+
         // CRITICAL: Pass our cache to the expander so it uses memory lookups instead of database queries
         expander.setCache(cacheManager.getAllCaches());
 
@@ -717,9 +720,9 @@ public class FieldDiscoveryService
         int sampleCount = sampleSize;
 
         logger.info("Sampling {} documents to discover expanded field structure (PARALLEL)", sampleCount);
-        
+
         long startTime = System.currentTimeMillis();
-        
+
         // Load all documents into memory first (they're just samples)
         List<Document> documents = new ArrayList<>();
         try (MongoCursor<Document> cursor = collection.find().limit(sampleCount).iterator())
@@ -730,77 +733,91 @@ public class FieldDiscoveryService
             }
         }
         logger.info("Loaded {} documents into memory for parallel processing", documents.size());
-        
+
         // Use parallel processing with ForkJoinPool
         int parallelism = Runtime.getRuntime().availableProcessors();
         ForkJoinPool customThreadPool = new ForkJoinPool(parallelism);
         logger.info("Using {} threads for parallel expansion", parallelism);
-        
+
         try
         {
             // Process documents in parallel
             AtomicInteger processedCount = new AtomicInteger(0);
             AtomicLong lastLogTime = new AtomicLong(startTime);
-            
-            customThreadPool.submit(() ->
-                documents.parallelStream().forEach(doc -> {
-                    try {
-                        // Each thread needs its own expander to avoid thread safety issues
-                        RelationExpander threadExpander = new RelationExpander(database);
-                        threadExpander.setDiscoveredRelationships(collectionName, relationships);
-                        threadExpander.setCache(cacheManager.getAllCaches());
-                        
-                        Document expanded = threadExpander.expandDocument(doc, collectionName, 1);
-                        
-                        // Log what we found in expansion ONCE per discovery (first doc only)
-                        if (processedCount.get() == 0 && expanded.containsKey("client_expanded")) {
-                            Document clientExpanded = (Document) expanded.get("client_expanded");
-                            if (clientExpanded != null) {
-                                logger.info("DISCOVERY EXPANSION: client_expanded keys: {}", clientExpanded.keySet());
-                                if (clientExpanded.containsKey("address")) {
-                                    logger.info("DISCOVERY EXPANSION: Found ADDRESS in client_expanded!");
-                                    Document addr = (Document) clientExpanded.get("address");
-                                    if (addr != null) {
-                                        logger.info("DISCOVERY EXPANSION: Address keys: {}", addr.keySet());
-                                    }
+
+            customThreadPool.submit(() -> documents.parallelStream().forEach(doc ->
+            {
+                try
+                {
+                    // Each thread needs its own expander to avoid thread safety issues
+                    RelationExpander threadExpander = new RelationExpander(database);
+                    threadExpander.setDiscoveredRelationships(collectionName, relationships);
+                    threadExpander.setCache(cacheManager.getAllCaches());
+
+                    Document expanded = threadExpander.expandDocument(doc, collectionName, 1);
+
+                    // Track how many documents were successfully expanded for each relationship
+                    for (String key : expanded.keySet())
+                    {
+                        if (key.endsWith("_expanded"))
+                        {
+                            String prefix = key;
+                            expandedDocumentCounts.merge(prefix, 1, Integer::sum);
+                        }
+                    }
+
+                    // Log what we found in expansion ONCE per discovery (first doc only)
+                    if (processedCount.get() == 0 && expanded.containsKey("client_expanded"))
+                    {
+                        Document clientExpanded = (Document) expanded.get("client_expanded");
+                        if (clientExpanded != null)
+                        {
+                            logger.debug("DISCOVERY EXPANSION: client_expanded keys: {}", clientExpanded.keySet());
+                            if (clientExpanded.containsKey("address"))
+                            {
+                                logger.debug("DISCOVERY EXPANSION: Found ADDRESS in client_expanded!");
+                                Document addr = (Document) clientExpanded.get("address");
+                                if (addr != null)
+                                {
+                                    logger.debug("DISCOVERY EXPANSION: Address keys: {}", addr.keySet());
                                 }
                             }
                         }
-                        
-                        // Synchronize field discovery to avoid race conditions
-                        synchronized (fieldMetadataMap)
-                        {
-                            Set<String> docFields = new HashSet<>();
-                            discoverFieldsInDocumentThreadSafe(expanded, "", collectionName, 0, docFields);
-                        }
-                        
-                        int count = processedCount.incrementAndGet();
-                        
-                        // Progress logging every 1000 documents
-                        if (count % 1000 == 0)
-                        {
-                            long now = System.currentTimeMillis();
-                            long elapsed = now - startTime;
-                            long sinceLastLog = now - lastLogTime.getAndSet(now);
-                            double docsPerSec = 1000.0 / (sinceLastLog / 1000.0);
-                            double overallDocsPerSec = (double) count / (elapsed / 1000.0);
-                            logger.info("  Processed {} / {} documents ({} docs/sec, overall: {} docs/sec)", 
-                                count, sampleCount, 
-                                String.format("%.1f", docsPerSec), 
-                                String.format("%.1f", overallDocsPerSec));
-                        }
-                    } catch (Exception e) {
-                        logger.error("Error processing document: {}", e.getMessage());
                     }
-                })
-            ).get(); // Wait for completion
-            
-        } catch (Exception e) {
+
+                    // Synchronize field discovery to avoid race conditions
+                    synchronized (fieldMetadataMap)
+                    {
+                        Set<String> docFields = new HashSet<>();
+                        discoverFieldsInDocumentThreadSafe(expanded, "", collectionName, 0, docFields);
+                    }
+
+                    int count = processedCount.incrementAndGet();
+
+                    // Progress logging every 1000 documents
+                    if (count % 1000 == 0)
+                    {
+                        long now = System.currentTimeMillis();
+                        long elapsed = now - startTime;
+                        long sinceLastLog = now - lastLogTime.getAndSet(now);
+                        double docsPerSec = 1000.0 / (sinceLastLog / 1000.0);
+                        double overallDocsPerSec = (double) count / (elapsed / 1000.0);
+                        logger.info("  Processed {} / {} documents ({} docs/sec, overall: {} docs/sec)", count, sampleCount, String.format("%.1f", docsPerSec), String.format("%.1f", overallDocsPerSec));
+                    }
+                } catch (Exception e)
+                {
+                    logger.error("Error processing document: {}", e.getMessage());
+                }
+            })).get(); // Wait for completion
+
+        } catch (Exception e)
+        {
             logger.error("Error in parallel processing", e);
-        } finally {
+        } finally
+        {
             customThreadPool.shutdown();
         }
-        
+
         long totalTime = System.currentTimeMillis() - startTime;
         logger.info("Phase 3 expansion took {} seconds for {} documents", totalTime / 1000, sampleCount);
 
@@ -809,12 +826,11 @@ public class FieldDiscoveryService
 
         logger.info("Expanded field discovery complete");
     }
-    
+
     /**
      * Thread-safe version of discoverFieldsInDocument
      */
-    private void discoverFieldsInDocumentThreadSafe(Object value, String prefix, String sourceCollection, 
-                                                    int depth, Set<String> docFields)
+    private void discoverFieldsInDocumentThreadSafe(Object value, String prefix, String sourceCollection, int depth, Set<String> docFields)
     {
         if (value == null || depth > 5)
         {
@@ -837,7 +853,8 @@ public class FieldDiscoveryService
                 }
 
                 // Get or create metadata (thread-safe with ConcurrentHashMap)
-                FieldMetadata metadata = fieldMetadataMap.computeIfAbsent(fieldPath, k -> {
+                FieldMetadata metadata = fieldMetadataMap.computeIfAbsent(fieldPath, k ->
+                {
                     FieldMetadata m = new FieldMetadata();
                     m.fieldPath = k;
                     m.sourceCollection = sourceCollection;
@@ -852,24 +869,20 @@ public class FieldDiscoveryService
                     if (isEmptyValue(fieldValue))
                     {
                         metadata.nullCount++;
-                    }
-                    else if (fieldValue instanceof Document)
+                    } else if (fieldValue instanceof Document)
                     {
                         metadata.dataType = "object";
-                    }
-                    else if (fieldValue instanceof List)
+                    } else if (fieldValue instanceof List)
                     {
                         metadata.dataType = "array";
                         List<?> list = (List<?>) fieldValue;
                         metadata.arrayLengths.add(list.size());
                         // Array analysis is already done in Phase 2, skip here for performance
-                    }
-                    else if (fieldValue instanceof ObjectId)
+                    } else if (fieldValue instanceof ObjectId)
                     {
                         metadata.dataType = "objectId";
                         trackSampleValue(metadata, ((ObjectId) fieldValue).toHexString());
-                    }
-                    else
+                    } else
                     {
                         metadata.dataType = fieldValue.getClass().getSimpleName().toLowerCase();
                         trackSampleValue(metadata, String.valueOf(fieldValue));
@@ -893,6 +906,12 @@ public class FieldDiscoveryService
     {
         logger.info("Calculating expanded field sparsity from actual expansion results");
 
+        // Log the expansion counts
+        for (Map.Entry<String, Integer> entry : expandedDocumentCounts.entrySet())
+        {
+            logger.info("Expanded {} documents for relationship: {}", entry.getValue(), entry.getKey());
+        }
+
         // For each expanded field, calculate its actual sparsity
         for (Map.Entry<String, FieldMetadata> entry : fieldMetadataMap.entrySet())
         {
@@ -902,17 +921,27 @@ public class FieldDiscoveryService
             // Check if this is an expanded field
             if (fieldPath.contains("_expanded"))
             {
-                // Calculate the actual field sparsity based on how many documents it appeared in
-                // during the actual expansion (not a random sample)
-                double actualSparsity = (double) metadata.totalOccurrences / actualDocumentsScanned;
-                
-                metadata.expandedFieldSparsity = actualSparsity;
-                
-                if (actualSparsity < sparseFieldThreshold)
+                // Find the expansion prefix for this field (e.g., "client_expanded" for "client_expanded.address.city")
+                String expansionPrefix = null;
+                for (String prefix : expandedDocumentCounts.keySet())
                 {
-                    logger.debug("Expanded field '{}' has sparsity {}% based on actual expansion (occurrences: {}/{})",
-                            fieldPath, String.format("%.2f", actualSparsity * 100),
-                            metadata.totalOccurrences, actualDocumentsScanned);
+                    if (fieldPath.startsWith(prefix))
+                    {
+                        expansionPrefix = prefix;
+                        break;
+                    }
+                }
+
+                // Calculate sparsity based on expanded documents, not source documents
+                int expandedDocCount = expansionPrefix != null ? expandedDocumentCounts.get(expansionPrefix) : actualDocumentsScanned;
+
+                double actualSparsity = expandedDocCount > 0 ? (double) metadata.totalOccurrences / expandedDocCount : 0.0;
+
+                metadata.expandedFieldSparsity = actualSparsity;
+
+                if (actualSparsity < sparseFieldThreshold && expandedDocCount > 0)
+                {
+                    logger.debug("Expanded field '{}' has sparsity {}% based on {} expanded docs (occurrences: {})", fieldPath, String.format("%.2f", actualSparsity * 100), expandedDocCount, metadata.totalOccurrences);
                 }
             }
         }
@@ -975,25 +1004,23 @@ public class FieldDiscoveryService
                 {
                     config.addRequiredCollection(arrayConfig.getReferenceCollection());
                 }
-                
+
                 // Generate additional primary mode fields for important arrays
                 generatePrimaryModeFields(config, fieldPath, metadata, arrayConfig);
-                
+
                 // Generate statistics fields for transaction-like arrays
                 generateStatisticsFields(config, fieldPath, metadata, arrayConfig);
-                
+
                 // Check if this array produces human-readable output
                 // Arrays of embedded documents without a good extractField will show as "Document{...}"
                 // which is not useful for end users
-                if ("object".equals(arrayConfig.getObjectType()) && 
-                    (arrayConfig.getExtractField() == null || arrayConfig.getExtractField().isEmpty()))
+                if ("object".equals(arrayConfig.getObjectType()) && (arrayConfig.getExtractField() == null || arrayConfig.getExtractField().isEmpty()))
                 {
                     // This would produce non-readable Document output, exclude it
                     fieldConfig.setInclude(false);
                 }
                 // Also exclude arrays that we can't properly resolve
-                else if (arrayConfig.getReferenceCollection() != null && 
-                         (arrayConfig.getExtractField() == null || arrayConfig.getExtractField().isEmpty()))
+                else if (arrayConfig.getReferenceCollection() != null && (arrayConfig.getExtractField() == null || arrayConfig.getExtractField().isEmpty()))
                 {
                     // Can't extract meaningful values from references, exclude
                     fieldConfig.setInclude(false);
@@ -1017,45 +1044,38 @@ public class FieldDiscoveryService
     /**
      * Generate statistics fields for arrays that reference transaction-like collections
      */
-    private void generateStatisticsFields(DiscoveryConfiguration config, String arrayPath,
-                                         FieldMetadata metadata, FieldConfiguration.ArrayConfiguration arrayConfig)
+    private void generateStatisticsFields(DiscoveryConfiguration config, String arrayPath, FieldMetadata metadata, FieldConfiguration.ArrayConfiguration arrayConfig)
     {
         // Only generate statistics for arrays that reference other collections
         if (arrayConfig == null || arrayConfig.getReferenceCollection() == null)
         {
             return;
         }
-        
+
         // Check if we should generate statistics for this array
         // For now, we'll be selective and only do it for specific patterns
         String targetCollection = arrayConfig.getReferenceCollection();
-        
+
         // TEMPORARY: Only generate statistics for transactions-related collections
         // to avoid performance issues during testing
         if (!targetCollection.contains("transaction"))
         {
-            logger.debug("Skipping statistics for {} -> {} (not transaction-related)", 
-                arrayPath, targetCollection);
+            logger.debug("Skipping statistics for {} -> {} (not transaction-related)", arrayPath, targetCollection);
             return;
         }
-        
+
         // Initialize statistics generator if not already done
         if (statisticsGenerator == null)
         {
             statisticsGenerator = new StatisticsFieldGenerator(database);
         }
-        
+
         // Determine the reference field (how the target collection references back)
         String referenceField = determineReferenceField(arrayPath, targetCollection);
-        
+
         // Generate statistics fields
-        List<FieldConfiguration> statsFields = statisticsGenerator.generateStatisticsFields(
-            arrayPath, 
-            metadata.sourceCollection,
-            targetCollection,
-            referenceField
-        );
-        
+        List<FieldConfiguration> statsFields = statisticsGenerator.generateStatisticsFields(arrayPath, metadata.sourceCollection, targetCollection, referenceField);
+
         // Add generated statistics fields to configuration
         for (FieldConfiguration statsField : statsFields)
         {
@@ -1063,7 +1083,7 @@ public class FieldDiscoveryService
             logger.debug("Added statistics field: {}", statsField.getFieldPath());
         }
     }
-    
+
     /**
      * Determines how the target collection references back to the source
      * This is needed for the aggregation pipeline to match documents
@@ -1072,44 +1092,41 @@ public class FieldDiscoveryService
     {
         // Common patterns for reference fields
         // If arrayPath is "transactions", target might have "agentId", "clientId", etc.
-        
+
         // For now, use simple heuristics based on collection names
         // This should be made more intelligent based on actual schema analysis
-        
+
         if (targetCollection.contains("transaction"))
         {
             // Transactions might reference agents, clients, properties
             if (collectionName.equals("agents"))
             {
                 return "listingAgents"; // or "sellingAgents", "buyerAgents"
-            }
-            else if (collectionName.equals("agentclients"))
+            } else if (collectionName.equals("agentclients"))
             {
                 return "client"; // transactions reference clients
-            }
-            else if (collectionName.equals("properties"))
+            } else if (collectionName.equals("properties"))
             {
                 return "property";
             }
         }
-        
+
         // Default: assume the reference field is the singular form of the source collection
         // e.g., "agents" -> "agent", "clients" -> "client"
         if (collectionName.endsWith("s"))
         {
             return collectionName.substring(0, collectionName.length() - 1);
         }
-        
+
         return collectionName + "Id";
     }
-    
+
     /**
      * Generate additional primary mode fields for arrays
      * This creates separate field configurations for extracting specific values from the first element
      * Works generically for ANY collection by analyzing the array structure
      */
-    private void generatePrimaryModeFields(DiscoveryConfiguration config, String arrayPath, 
-                                          FieldMetadata metadata, FieldConfiguration.ArrayConfiguration arrayConfig)
+    private void generatePrimaryModeFields(DiscoveryConfiguration config, String arrayPath, FieldMetadata metadata, FieldConfiguration.ArrayConfiguration arrayConfig)
     {
         // Always generate count field for arrays with multiple items
         if (metadata.getAvgArrayLength() > 0)
@@ -1121,19 +1138,19 @@ public class FieldDiscoveryService
             countField.setInclude(false);  // Let user decide if they want counts
             countField.setExtractionMode("count");
             countField.setSourceField(arrayPath);
-            
+
             // Set statistics for count field
             FieldConfiguration.FieldStatistics countStats = new FieldConfiguration.FieldStatistics();
             countStats.setDistinctNonNullValues(metadata.sampleValues.size());
             countStats.setNullCount(metadata.nullCount);
             countField.setStatistics(countStats);
-            
+
             config.getFields().add(countField);
         }
-        
+
         // Determine which fields to extract based on array content
         List<String> fieldsToExtract = new ArrayList<>();
-        
+
         // For arrays of ObjectIds that reference another collection
         if (arrayConfig.getReferenceCollection() != null)
         {
@@ -1143,7 +1160,7 @@ public class FieldDiscoveryService
                 // Sample a few documents to find common meaningful fields
                 List<Document> samples = cache.values().stream().limit(5).collect(java.util.stream.Collectors.toList());
                 Set<String> commonFields = new HashSet<>();
-                
+
                 // Find fields that exist in all samples
                 boolean first = true;
                 for (Document doc : samples)
@@ -1152,13 +1169,12 @@ public class FieldDiscoveryService
                     {
                         commonFields.addAll(doc.keySet());
                         first = false;
-                    }
-                    else
+                    } else
                     {
                         commonFields.retainAll(doc.keySet());
                     }
                 }
-                
+
                 // Prioritize fields that are likely to be useful for display
                 for (String field : commonFields)
                 {
@@ -1187,42 +1203,42 @@ public class FieldDiscoveryService
                 }
             }
         }
-        
+
         // Only generate primary fields if we found useful fields to extract
         if (fieldsToExtract.isEmpty())
         {
             return;
         }
-        
+
         // Generate primary fields for each field to extract
         for (String fieldName : fieldsToExtract)
         {
             String primaryFieldPath = arrayPath + "[primary]." + fieldName;
-            
+
             FieldConfiguration primaryField = new FieldConfiguration(primaryFieldPath);
             primaryField.setSourceCollection(metadata.sourceCollection);
             primaryField.setDataType("string");  // Default to string, could be smarter later
-            
+
             // Generate a clean business name
             String arrayName = arrayPath.substring(arrayPath.lastIndexOf('.') + 1);
             String cleanFieldName = FieldNameMapper.getBusinessName(fieldName);
             primaryField.setBusinessName("Primary " + FieldNameMapper.getBusinessName(arrayName) + " " + cleanFieldName);
-            
+
             primaryField.setInclude(false);  // Don't include by default, let user choose
             primaryField.setExtractionMode("primary");
             primaryField.setSourceField(arrayPath);
             primaryField.setExtractionIndex(0);  // Extract from first element
-            
+
             // Set statistics (inherit from parent array)
             FieldConfiguration.FieldStatistics primaryStats = new FieldConfiguration.FieldStatistics();
             primaryStats.setDistinctNonNullValues(metadata.sampleValues.size()); // No limit!
             primaryStats.setNullCount(metadata.nullCount);
             primaryField.setStatistics(primaryStats);
-            
+
             config.getFields().add(primaryField);
         }
     }
-    
+
     /**
      * Determine if a field is useful for primary extraction
      * Prioritizes fields that are likely to contain meaningful display information
@@ -1234,30 +1250,25 @@ public class FieldDiscoveryService
         {
             return false;
         }
-        
+
         String lower = fieldName.toLowerCase();
-        
+
         // High priority fields - commonly useful across all collections
-        if (lower.contains("name") || lower.contains("title") || lower.contains("label") ||
-            lower.contains("email") || lower.contains("phone") || lower.contains("address") ||
-            lower.contains("description") || lower.contains("status") || lower.contains("type") ||
-            lower.contains("category") || lower.contains("url") || lower.contains("number") ||
-            lower.contains("code") || lower.contains("identifier") || lower.contains("value"))
+        if (lower.contains("name") || lower.contains("title") || lower.contains("label") || lower.contains("email") || lower.contains("phone") || lower.contains("address") || lower.contains("description") || lower.contains("status") || lower.contains("type") || lower.contains("category") || lower.contains("url") || lower.contains("number") || lower.contains("code") || lower.contains("identifier") || lower.contains("value"))
         {
             return true;
         }
-        
+
         // Medium priority - dates and amounts
-        if (lower.contains("date") || lower.contains("time") || lower.contains("amount") ||
-            lower.contains("price") || lower.contains("cost") || lower.contains("total"))
+        if (lower.contains("date") || lower.contains("time") || lower.contains("amount") || lower.contains("price") || lower.contains("cost") || lower.contains("total"))
         {
             return true;
         }
-        
+
         // Default: include if it's not obviously technical
         return !lower.contains("id") || lower.contains("businessid") || lower.contains("externalid");
     }
-    
+
     /**
      * Configure array based on its internal structure
      */
@@ -1356,6 +1367,55 @@ public class FieldDiscoveryService
     }
 
     /**
+     * Check if an object field has any child fields that would be included
+     * This helps us include container objects like 'demographics' and 'externalData'
+     * even when they themselves have 0 distinct values
+     */
+    private boolean hasIncludableChildFields(DiscoveryConfiguration config, String parentPath)
+    {
+        String prefix = parentPath + ".";
+
+        for (FieldConfiguration field : config.getFields())
+        {
+            String fieldPath = field.getFieldPath();
+
+            // Check if this is a child (at any depth) of the parent object
+            if (fieldPath.startsWith(prefix))
+            {
+                // Skip if this is an object field itself (we want to check leaf fields)
+                if ("object".equals(field.getDataType()))
+                {
+                    continue;
+                }
+                
+                // Check if this child field would be included
+                FieldConfiguration.FieldStatistics stats = field.getStatistics();
+                if (stats != null)
+                {
+                    int distinctValues = stats.getDistinctNonNullValues() != null ? stats.getDistinctNonNullValues() : 0;
+
+                    // Check if child meets inclusion criteria
+                    if (!isTechnicalId(fieldPath) && !fieldPath.contains(".etl.") && !fieldPath.endsWith(".etl") && distinctValues >= minDistinctNonNullValues)
+                    {
+                        // Check sparsity
+                        Integer totalOccurrences = stats.getTotalOccurrences();
+                        if (totalOccurrences != null && actualDocumentsScanned > 0)
+                        {
+                            double sparsity = (double) totalOccurrences / actualDocumentsScanned;
+                            if (sparsity >= sparseFieldThreshold)
+                            {
+                                return true; // Found at least one includable child
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        return false;
+    }
+
+    /**
      * Phase 5: Apply filtering rules to determine which fields to include
      */
     private void applyFilteringRules(DiscoveryConfiguration config)
@@ -1383,6 +1443,17 @@ public class FieldDiscoveryService
             else if (isTechnicalId(fieldPath))
             {
                 shouldInclude = false;
+            }
+            // Exclude ETL-related fields (not business data)
+            else if (fieldPath.contains(".etl.") || fieldPath.endsWith(".etl"))
+            {
+                shouldInclude = false;
+            }
+            // Special handling for object fields - include if they have meaningful child fields
+            else if ("object".equals(field.getDataType()))
+            {
+                // Check if this object has any child fields that would be included
+                shouldInclude = hasIncludableChildFields(config, fieldPath);
             }
             // Apply filtering rules
             else
@@ -1412,9 +1483,7 @@ public class FieldDiscoveryService
                                 {
                                     shouldInclude = false;
                                     sparseFieldsExcluded++;
-                                    logger.debug("Excluding sparse expanded field '{}': actual sparsity {}% (threshold: {}%)",
-                                            fieldPath, String.format("%.2f", metadata.expandedFieldSparsity * 100),
-                                            String.format("%.0f", sparseFieldThreshold * 100));
+                                    logger.debug("Excluding sparse expanded field '{}': actual sparsity {}% (threshold: {}%)", fieldPath, String.format("%.2f", metadata.expandedFieldSparsity * 100), String.format("%.0f", sparseFieldThreshold * 100));
                                 } else
                                 {
                                     shouldInclude = true;
@@ -1440,8 +1509,7 @@ public class FieldDiscoveryService
             }
         }
 
-        logger.info("Filtering complete: {} fields excluded ({} sparse), {} business IDs kept",
-                excluded, sparseFieldsExcluded, businessIdsKept);
+        logger.info("Filtering complete: {} fields excluded ({} sparse), {} business IDs kept", excluded, sparseFieldsExcluded, businessIdsKept);
     }
 
     /**
@@ -1588,8 +1656,7 @@ public class FieldDiscoveryService
                     FieldConfiguration.ArrayConfiguration arrayConfig = field.getArrayConfig();
                     if (arrayConfig.getReferenceCollection() != null)
                     {
-                        audit.append("  - ").append(field.getFieldPath()).append(" -> ")
-                                .append(arrayConfig.getReferenceCollection());
+                        audit.append("  - ").append(field.getFieldPath()).append(" -> ").append(arrayConfig.getReferenceCollection());
                         if (arrayConfig.getExtractField() != null)
                         {
                             audit.append(" (extracting: ").append(arrayConfig.getExtractField()).append(")");
@@ -1603,9 +1670,7 @@ public class FieldDiscoveryService
             audit.append("\nUnexpanded ObjectId Fields (potential relationships):\n");
             for (FieldConfiguration field : config.getFields())
             {
-                if ("objectId".equals(field.getDataType()) &&
-                        !field.getFieldPath().contains("_expanded") &&
-                        !field.getFieldPath().equals("_id"))
+                if ("objectId".equals(field.getDataType()) && !field.getFieldPath().contains("_expanded") && !field.getFieldPath().equals("_id"))
                 {
                     audit.append("  - ").append(field.getFieldPath());
                     if (field.getRelationshipTarget() != null)
@@ -1628,8 +1693,7 @@ public class FieldDiscoveryService
     /**
      * Append a field and its children to the audit output
      */
-    private void appendFieldToAudit(StringBuilder audit, FieldConfiguration field,
-                                    DiscoveryConfiguration config, int depth, Set<String> visited)
+    private void appendFieldToAudit(StringBuilder audit, FieldConfiguration field, DiscoveryConfiguration config, int depth, Set<String> visited)
     {
         // Prevent infinite recursion
         if (visited.contains(field.getFieldPath()))
@@ -1649,8 +1713,7 @@ public class FieldDiscoveryService
         if (field.isInclude())
         {
             audit.append(" (INCLUDED)");
-        }
-        else
+        } else
         {
             audit.append(" (EXCLUDED)");
         }
@@ -1715,8 +1778,7 @@ public class FieldDiscoveryService
         String expandedPath = field.getFieldPath() + "_expanded";
         for (FieldConfiguration expanded : config.getFields())
         {
-            if (expanded.getFieldPath().equals(expandedPath) ||
-                    expanded.getFieldPath().startsWith(expandedPath + "."))
+            if (expanded.getFieldPath().equals(expandedPath) || expanded.getFieldPath().startsWith(expandedPath + "."))
             {
                 if (expanded.getFieldPath().equals(expandedPath))
                 {

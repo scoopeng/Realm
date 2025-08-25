@@ -1,0 +1,1114 @@
+{
+  "summary": {
+    "file": "/home/ubuntu/IdeaProjects/Realm/output/agentclients_full_20250824_185345.csv",
+    "timestamp": "2025-08-24T21:55:53.885107",
+    "rows_analyzed": 1000,
+    "total_columns": 67,
+    "columns_with_data": 61,
+    "empty_columns": 6,
+    "sparse_columns": 7,
+    "well_populated": 44,
+    "data_types": {
+      "array/list": 6,
+      "string": 43,
+      "number": 6,
+      "empty": 6,
+      "datetime": 6
+    },
+    "category_counts": {
+      "direct_fields": 67
+    }
+  },
+  "categories": {
+    "direct_fields": [
+      "Agents",
+      "Archive Date",
+      "Client",
+      "Client Address City",
+      "Client Address Country",
+      "Client Address Display Address",
+      "Client Address Housenumber",
+      "Client Address Postal Code",
+      "Client Address State",
+      "Client Address Street Address",
+      "Client Address Streetname",
+      "Client Address Streetname Direction",
+      "Client Address Streetname Prefix",
+      "Client Address Streetname Suffix",
+      "Client Address Unit",
+      "Client Demographics Birth Date",
+      "Client Name First Name",
+      "Client Name Full Name",
+      "Client Name Last Name",
+      "Client Name Middle Name",
+      "Client Name Prefix",
+      "Client Name Suffix",
+      "Client Primary Email",
+      "Client Primary Phone",
+      "Client Updated At",
+      "Full Name",
+      "Last Name First",
+      "Realm Data Lifestyle Names",
+      "Realm Data Lifestyles",
+      "Realm Data Max Price",
+      "Realm Data Owner Agent",
+      "Realm Data Owner Agent Archived",
+      "Realm Data Owner Agent Full Name",
+      "Realm Data Owner Agent Last Updated",
+      "Realm Data Owner Agent Person",
+      "Realm Data Owner Agent Photo URL",
+      "Realm Data Owner Agent Private URL",
+      "Realm Data Owner Agent Realm Data Client Count",
+      "Realm Data Owner Agent Realm Data Client Upload Etl Completed At",
+      "Realm Data Owner Agent Realm Data Client Upload Etl In Progress At",
+      "Realm Data Owner Agent Realm Data Client Upload Etl Rejected At",
+      "Realm Data Owner Agent Realm Data Client Upload Etl Status",
+      "Realm Data Owner Agent Realm Data Client Upload File Bucket",
+      "Realm Data Owner Agent Realm Data Client Upload File Etag",
+      "Realm Data Owner Agent Realm Data Client Upload File Key",
+      "Realm Data Owner Agent Realm Data Client Upload File Location",
+      "Realm Data Owner Agent Realm Data Client Upload File Mimetype",
+      "Realm Data Owner Agent Realm Data Client Upload File Originalname",
+      "Realm Data Owner Agent Realm Data Client Upload File Size",
+      "Realm Data Owner Agent Realm Data Client Upload Source",
+      "Realm Data Owner Agent Realm Data Client Upload Uploaded At",
+      "Realm Data Owner Agent Realm Data Client Upload Url",
+      "Realm Data Owner Agent Realm Data Listing Count",
+      "Realm Data Owner Agent Subscription",
+      "Realm Data Owner Agent Updated At",
+      "Realm Data Owner Team",
+      "Realm Data Owner Team Display Name",
+      "Realm Data Owner Team Leader",
+      "Realm Data Owner Team Name",
+      "Realm Data Owner Team Photo URL",
+      "Realm Data Owner Team Thumbnail Photo URL",
+      "Realm Data Owner Team Tier",
+      "Realm Data Owner Team Website URL",
+      "Realm Data Tag Names",
+      "Realm Data Tags",
+      "Status Intent",
+      "Updated At"
+    ],
+    "client_expanded": [],
+    "realmData_ownerAgent_expanded": [],
+    "realmData_ownerTeam_expanded": [],
+    "address_fields": [],
+    "other_expanded": []
+  },
+  "column_analyses": {
+    "Agents": {
+      "non_null_count": 1000,
+      "null_count": 0,
+      "non_null_percentage": 100.0,
+      "data_type": "array/list",
+      "distinct_count": 1,
+      "sample_values": [
+        "Emily Eldredge, Graham Faupel Mendenhall & Associates, Julie Faupel, Karen Terra, Luna Wang, Mack Mendenhall, Matt Faupel, tess hartnett"
+      ],
+      "array_min_length": 8,
+      "array_max_length": 8,
+      "array_avg_length": 8.0,
+      "issues": [
+        "Only one unique value"
+      ],
+      "column_name": "Agents"
+    },
+    "Archive Date": {
+      "non_null_count": 6,
+      "null_count": 994,
+      "non_null_percentage": 0.6,
+      "data_type": "string",
+      "distinct_count": 6,
+      "sample_values": [
+        "dupe",
+        "Sun Nov 03 2019 21:53:50 GMT+0000 (UTC)",
+        "no person record - Thu Mar 24 2022 08:20:08 GMT-0600 (Mountain Daylight Time)",
+        "Mon Aug 26 2019 22:05:03 GMT+0000 (UTC)",
+        "today",
+        "Mon Aug 26 2019 22:04:54 GMT+0000 (UTC)"
+      ],
+      "issues": [
+        "Very sparse (0.6%)"
+      ],
+      "column_name": "Archive Date"
+    },
+    "Client": {
+      "non_null_count": 1000,
+      "null_count": 0,
+      "non_null_percentage": 100.0,
+      "data_type": "string",
+      "distinct_count": 1000,
+      "sample_values": [
+        "5beb227a0c1b8a62e2846603",
+        "5beb227c0c1b8a77218469ad",
+        "5beb227a0c1b8a7af98465cd",
+        "5beb227d0c1b8a26b5846a50",
+        "5beb227e0c1b8a5ec1846c31"
+      ],
+      "issues": [],
+      "column_name": "Client"
+    },
+    "Client Address City": {
+      "non_null_count": 413,
+      "null_count": 587,
+      "non_null_percentage": 41.3,
+      "data_type": "array/list",
+      "distinct_count": 179,
+      "sample_values": [
+        "Idaho Falls",
+        "Scottsdale",
+        "Hyattville",
+        "Sunnydale",
+        "Rancho Mirage"
+      ],
+      "array_min_length": 1,
+      "array_max_length": 3,
+      "array_avg_length": 1.06,
+      "issues": [],
+      "column_name": "Client Address City"
+    },
+    "Client Address Country": {
+      "non_null_count": 65,
+      "null_count": 935,
+      "non_null_percentage": 6.5,
+      "data_type": "string",
+      "distinct_count": 10,
+      "sample_values": [
+        "ma",
+        "us",
+        "India",
+        "Brazil",
+        "US",
+        "United States of America",
+        "USA",
+        "Scotland",
+        "Belgium",
+        "United States"
+      ],
+      "issues": [],
+      "column_name": "Client Address Country"
+    },
+    "Client Address Display Address": {
+      "non_null_count": 268,
+      "null_count": 732,
+      "non_null_percentage": 26.8,
+      "data_type": "string",
+      "distinct_count": 243,
+      "sample_values": [
+        "21 US RTE",
+        "ONE LETTERMAN DR",
+        "308 HELMSDALE DR",
+        "3290 NORTHSIDE PKWY NW",
+        "414 S 50 W"
+      ],
+      "issues": [],
+      "column_name": "Client Address Display Address"
+    },
+    "Client Address Housenumber": {
+      "non_null_count": 266,
+      "null_count": 734,
+      "non_null_percentage": 26.6,
+      "data_type": "number",
+      "distinct_count": 230,
+      "sample_values": [
+        "3410",
+        "630",
+        "335",
+        "118",
+        "1996"
+      ],
+      "issues": [],
+      "column_name": "Client Address Housenumber"
+    },
+    "Client Address Postal Code": {
+      "non_null_count": 398,
+      "null_count": 602,
+      "non_null_percentage": 39.8,
+      "data_type": "string",
+      "distinct_count": 216,
+      "sample_values": [
+        "34109",
+        "23024-9329",
+        "81621",
+        "6897",
+        "59901"
+      ],
+      "issues": [],
+      "column_name": "Client Address Postal Code"
+    },
+    "Client Address State": {
+      "non_null_count": 407,
+      "null_count": 593,
+      "non_null_percentage": 40.7,
+      "data_type": "string",
+      "distinct_count": 51,
+      "sample_values": [
+        "la",
+        "Colorado",
+        "NY",
+        "WY",
+        "MT"
+      ],
+      "issues": [],
+      "column_name": "Client Address State"
+    },
+    "Client Address Street Address": {
+      "non_null_count": 381,
+      "null_count": 619,
+      "non_null_percentage": 38.1,
+      "data_type": "string",
+      "distinct_count": 352,
+      "sample_values": [
+        "PO Box 9528",
+        "5989 Centre Avenue",
+        "414 S 50 W",
+        "One Teton Springs Parkway",
+        "812 Park Hill Lane"
+      ],
+      "issues": [],
+      "column_name": "Client Address Street Address"
+    },
+    "Client Address Streetname": {
+      "non_null_count": 264,
+      "null_count": 736,
+      "non_null_percentage": 26.4,
+      "data_type": "string",
+      "distinct_count": 216,
+      "sample_values": [
+        "MERIT",
+        "DARBY",
+        "PARK",
+        "ROCKEFELLER",
+        "EDGEMOOR"
+      ],
+      "issues": [],
+      "column_name": "Client Address Streetname"
+    },
+    "Client Address Streetname Direction": {
+      "non_null_count": 11,
+      "null_count": 989,
+      "non_null_percentage": 1.1,
+      "data_type": "string",
+      "distinct_count": 7,
+      "sample_values": [
+        "NW",
+        "E",
+        "W",
+        "NE",
+        "S",
+        "N",
+        "SE"
+      ],
+      "issues": [],
+      "column_name": "Client Address Streetname Direction"
+    },
+    "Client Address Streetname Prefix": {
+      "non_null_count": 72,
+      "null_count": 928,
+      "non_null_percentage": 7.2,
+      "data_type": "string",
+      "distinct_count": 7,
+      "sample_values": [
+        "NW",
+        "E",
+        "W",
+        "SW",
+        "NE",
+        "S",
+        "N"
+      ],
+      "issues": [],
+      "column_name": "Client Address Streetname Prefix"
+    },
+    "Client Address Streetname Suffix": {
+      "non_null_count": 229,
+      "null_count": 771,
+      "non_null_percentage": 22.9,
+      "data_type": "string",
+      "distinct_count": 24,
+      "sample_values": [
+        "HWY",
+        "RD",
+        "RTE",
+        "DR",
+        "PKWY"
+      ],
+      "issues": [],
+      "column_name": "Client Address Streetname Suffix"
+    },
+    "Client Address Unit": {
+      "non_null_count": 47,
+      "null_count": 953,
+      "non_null_percentage": 4.7,
+      "data_type": "string",
+      "distinct_count": 40,
+      "sample_values": [
+        "#PO Box 550",
+        "Suite 300",
+        "#6",
+        "#Suite 405",
+        "Suite 261"
+      ],
+      "issues": [],
+      "column_name": "Client Address Unit"
+    },
+    "Client Demographics Birth Date": {
+      "non_null_count": 0,
+      "null_count": 1000,
+      "non_null_percentage": 0.0,
+      "data_type": "empty",
+      "distinct_count": 0,
+      "sample_values": [],
+      "issues": [
+        "Very sparse (0.0%)",
+        "Empty column"
+      ],
+      "column_name": "Client Demographics Birth Date"
+    },
+    "Client Name First Name": {
+      "non_null_count": 998,
+      "null_count": 2,
+      "non_null_percentage": 99.8,
+      "data_type": "string",
+      "distinct_count": 489,
+      "sample_values": [
+        "Lyman",
+        "Sherry",
+        "Virginia",
+        "Teresa",
+        "Jim"
+      ],
+      "issues": [],
+      "column_name": "Client Name First Name"
+    },
+    "Client Name Full Name": {
+      "non_null_count": 998,
+      "null_count": 2,
+      "non_null_percentage": 99.8,
+      "data_type": "string",
+      "distinct_count": 951,
+      "sample_values": [
+        "Cheryl Bar-Or",
+        "Kelly O'Connor",
+        "Robert Wong",
+        "Steve Jury",
+        "Tim Estin"
+      ],
+      "issues": [],
+      "column_name": "Client Name Full Name"
+    },
+    "Client Name Last Name": {
+      "non_null_count": 998,
+      "null_count": 2,
+      "non_null_percentage": 99.8,
+      "data_type": "string",
+      "distinct_count": 816,
+      "sample_values": [
+        "May",
+        "Misner",
+        "Robuck",
+        "Teater",
+        "Eanes"
+      ],
+      "issues": [],
+      "column_name": "Client Name Last Name"
+    },
+    "Client Name Middle Name": {
+      "non_null_count": 5,
+      "null_count": 995,
+      "non_null_percentage": 0.5,
+      "data_type": "string",
+      "distinct_count": 5,
+      "sample_values": [
+        "Freeze",
+        "Cheek -",
+        "(Mary Katharine)",
+        "C.",
+        "L"
+      ],
+      "issues": [
+        "Very sparse (0.5%)"
+      ],
+      "column_name": "Client Name Middle Name"
+    },
+    "Client Name Prefix": {
+      "non_null_count": 1,
+      "null_count": 999,
+      "non_null_percentage": 0.1,
+      "data_type": "string",
+      "distinct_count": 1,
+      "sample_values": [
+        "Mr & Mrs"
+      ],
+      "issues": [
+        "Very sparse (0.1%)",
+        "Only one unique value"
+      ],
+      "column_name": "Client Name Prefix"
+    },
+    "Client Name Suffix": {
+      "non_null_count": 0,
+      "null_count": 1000,
+      "non_null_percentage": 0.0,
+      "data_type": "empty",
+      "distinct_count": 0,
+      "sample_values": [],
+      "issues": [
+        "Very sparse (0.0%)",
+        "Empty column"
+      ],
+      "column_name": "Client Name Suffix"
+    },
+    "Client Primary Email": {
+      "non_null_count": 998,
+      "null_count": 2,
+      "non_null_percentage": 99.8,
+      "data_type": "string",
+      "distinct_count": 954,
+      "sample_values": [
+        "david@doublechase.com",
+        "william.m.waterman@gmail.com",
+        "treychace@me.com",
+        "Joseyemoore@gmail.com",
+        "Dave.spackman@jhsir.com"
+      ],
+      "issues": [],
+      "column_name": "Client Primary Email"
+    },
+    "Client Primary Phone": {
+      "non_null_count": 629,
+      "null_count": 371,
+      "non_null_percentage": 62.9,
+      "data_type": "string",
+      "distinct_count": 582,
+      "sample_values": [
+        "+1 (208) 317-6111",
+        "307-690-1304",
+        "307-690-5558",
+        "+1 (917) 617-1569",
+        "305-416-4970"
+      ],
+      "issues": [],
+      "column_name": "Client Primary Phone"
+    },
+    "Client Updated At": {
+      "non_null_count": 993,
+      "null_count": 7,
+      "non_null_percentage": 99.3,
+      "data_type": "datetime",
+      "distinct_count": 3,
+      "sample_values": [
+        "2025-08-24 09:30:41",
+        "2025-08-24 09:30:40",
+        "2025-08-24 09:30:39"
+      ],
+      "issues": [],
+      "column_name": "Client Updated At"
+    },
+    "Full Name": {
+      "non_null_count": 1000,
+      "null_count": 0,
+      "non_null_percentage": 100.0,
+      "data_type": "string",
+      "distinct_count": 954,
+      "sample_values": [
+        "Cheryl Bar-Or",
+        "Kelly O'Connor",
+        "Robert Wong",
+        "Steve Jury",
+        "Tim Estin"
+      ],
+      "issues": [],
+      "column_name": "Full Name"
+    },
+    "Last Name First": {
+      "non_null_count": 994,
+      "null_count": 6,
+      "non_null_percentage": 99.4,
+      "data_type": "string",
+      "distinct_count": 948,
+      "sample_values": [
+        "Doyle Doug",
+        "Wait Jarett",
+        "Goldbecker Paul",
+        "Rockov Kolja",
+        "Ackerman Robert Jr."
+      ],
+      "issues": [],
+      "column_name": "Last Name First"
+    },
+    "Realm Data Lifestyle Names": {
+      "non_null_count": 429,
+      "null_count": 571,
+      "non_null_percentage": 42.9,
+      "data_type": "array/list",
+      "distinct_count": 62,
+      "sample_values": [
+        "family_estate",
+        "country_club_living",
+        "country_club_living, entertain, family_estate, on_the_water",
+        "entertain",
+        "country_club_living, entertain, on_the_water, suburban_estate"
+      ],
+      "array_min_length": 1,
+      "array_max_length": 7,
+      "array_avg_length": 2.16,
+      "issues": [],
+      "column_name": "Realm Data Lifestyle Names"
+    },
+    "Realm Data Lifestyles": {
+      "non_null_count": 474,
+      "null_count": 526,
+      "non_null_percentage": 47.4,
+      "data_type": "array/list",
+      "distinct_count": 63,
+      "sample_values": [
+        "family_estate",
+        "country_club_living",
+        "country_club_living, entertain, family_estate, on_the_water",
+        "entertain",
+        "country_club_living, entertain, on_the_water, suburban_estate"
+      ],
+      "array_min_length": 1,
+      "array_max_length": 7,
+      "array_avg_length": 2.14,
+      "issues": [],
+      "column_name": "Realm Data Lifestyles"
+    },
+    "Realm Data Max Price": {
+      "non_null_count": 791,
+      "null_count": 209,
+      "non_null_percentage": 79.1,
+      "data_type": "number",
+      "distinct_count": 325,
+      "sample_values": [
+        "771050",
+        "262500",
+        "1080625",
+        "358750",
+        "1774850"
+      ],
+      "issues": [],
+      "column_name": "Realm Data Max Price"
+    },
+    "Realm Data Owner Agent": {
+      "non_null_count": 1000,
+      "null_count": 0,
+      "non_null_percentage": 100.0,
+      "data_type": "string",
+      "distinct_count": 2,
+      "sample_values": [
+        "5b6c6b3f9e89b41f53e0e069",
+        "5ca5254ff924ad305e7f33dd"
+      ],
+      "issues": [],
+      "column_name": "Realm Data Owner Agent"
+    },
+    "Realm Data Owner Agent Archived": {
+      "non_null_count": 0,
+      "null_count": 1000,
+      "non_null_percentage": 0.0,
+      "data_type": "empty",
+      "distinct_count": 0,
+      "sample_values": [],
+      "issues": [
+        "Very sparse (0.0%)",
+        "Empty column"
+      ],
+      "column_name": "Realm Data Owner Agent Archived"
+    },
+    "Realm Data Owner Agent Full Name": {
+      "non_null_count": 1000,
+      "null_count": 0,
+      "non_null_percentage": 100.0,
+      "data_type": "string",
+      "distinct_count": 2,
+      "sample_values": [
+        "Emily Eldredge",
+        "Julie Faupel"
+      ],
+      "issues": [],
+      "column_name": "Realm Data Owner Agent Full Name"
+    },
+    "Realm Data Owner Agent Last Updated": {
+      "non_null_count": 1000,
+      "null_count": 0,
+      "non_null_percentage": 100.0,
+      "data_type": "number",
+      "distinct_count": 1,
+      "sample_values": [
+        "1748527704"
+      ],
+      "issues": [
+        "Only one unique value"
+      ],
+      "column_name": "Realm Data Owner Agent Last Updated"
+    },
+    "Realm Data Owner Agent Person": {
+      "non_null_count": 1000,
+      "null_count": 0,
+      "non_null_percentage": 100.0,
+      "data_type": "string",
+      "distinct_count": 2,
+      "sample_values": [
+        "5b6c6b3f9e89b41f53e0e068",
+        "5beb22790c1b8ad599846415"
+      ],
+      "issues": [],
+      "column_name": "Realm Data Owner Agent Person"
+    },
+    "Realm Data Owner Agent Photo URL": {
+      "non_null_count": 0,
+      "null_count": 1000,
+      "non_null_percentage": 0.0,
+      "data_type": "empty",
+      "distinct_count": 0,
+      "sample_values": [],
+      "issues": [
+        "Very sparse (0.0%)",
+        "Empty column"
+      ],
+      "column_name": "Realm Data Owner Agent Photo URL"
+    },
+    "Realm Data Owner Agent Private URL": {
+      "non_null_count": 1000,
+      "null_count": 0,
+      "non_null_percentage": 100.0,
+      "data_type": "string",
+      "distinct_count": 2,
+      "sample_values": [
+        "https://media.realm-global.com/Vista?referral=JFaupelWY",
+        "https://media.realm-global.com/Vista?referral=EEldredgeWY"
+      ],
+      "issues": [],
+      "column_name": "Realm Data Owner Agent Private URL"
+    },
+    "Realm Data Owner Agent Realm Data Client Count": {
+      "non_null_count": 1000,
+      "null_count": 0,
+      "non_null_percentage": 100.0,
+      "data_type": "number",
+      "distinct_count": 2,
+      "sample_values": [
+        "3593",
+        "0"
+      ],
+      "issues": [],
+      "column_name": "Realm Data Owner Agent Realm Data Client Count"
+    },
+    "Realm Data Owner Agent Realm Data Client Upload Etl Completed At": {
+      "non_null_count": 932,
+      "null_count": 68,
+      "non_null_percentage": 93.2,
+      "data_type": "datetime",
+      "distinct_count": 1,
+      "sample_values": [
+        "2023-01-04 15:13:47"
+      ],
+      "issues": [
+        "Only one unique value"
+      ],
+      "column_name": "Realm Data Owner Agent Realm Data Client Upload Etl Completed At"
+    },
+    "Realm Data Owner Agent Realm Data Client Upload Etl In Progress At": {
+      "non_null_count": 932,
+      "null_count": 68,
+      "non_null_percentage": 93.2,
+      "data_type": "datetime",
+      "distinct_count": 1,
+      "sample_values": [
+        "2023-01-04 15:13:18"
+      ],
+      "issues": [
+        "Only one unique value"
+      ],
+      "column_name": "Realm Data Owner Agent Realm Data Client Upload Etl In Progress At"
+    },
+    "Realm Data Owner Agent Realm Data Client Upload Etl Rejected At": {
+      "non_null_count": 0,
+      "null_count": 1000,
+      "non_null_percentage": 0.0,
+      "data_type": "empty",
+      "distinct_count": 0,
+      "sample_values": [],
+      "issues": [
+        "Very sparse (0.0%)",
+        "Empty column"
+      ],
+      "column_name": "Realm Data Owner Agent Realm Data Client Upload Etl Rejected At"
+    },
+    "Realm Data Owner Agent Realm Data Client Upload Etl Status": {
+      "non_null_count": 932,
+      "null_count": 68,
+      "non_null_percentage": 93.2,
+      "data_type": "string",
+      "distinct_count": 1,
+      "sample_values": [
+        "Completed"
+      ],
+      "issues": [
+        "Only one unique value"
+      ],
+      "column_name": "Realm Data Owner Agent Realm Data Client Upload Etl Status"
+    },
+    "Realm Data Owner Agent Realm Data Client Upload File Bucket": {
+      "non_null_count": 932,
+      "null_count": 68,
+      "non_null_percentage": 93.2,
+      "data_type": "string",
+      "distinct_count": 1,
+      "sample_values": [
+        "realm-uploads-bo-prod"
+      ],
+      "issues": [
+        "Only one unique value"
+      ],
+      "column_name": "Realm Data Owner Agent Realm Data Client Upload File Bucket"
+    },
+    "Realm Data Owner Agent Realm Data Client Upload File Etag": {
+      "non_null_count": 932,
+      "null_count": 68,
+      "non_null_percentage": 93.2,
+      "data_type": "string",
+      "distinct_count": 1,
+      "sample_values": [
+        "\"7fc8022743d360ffdec9cadf88cfe828\""
+      ],
+      "issues": [
+        "Only one unique value"
+      ],
+      "column_name": "Realm Data Owner Agent Realm Data Client Upload File Etag"
+    },
+    "Realm Data Owner Agent Realm Data Client Upload File Key": {
+      "non_null_count": 932,
+      "null_count": 68,
+      "non_null_percentage": 93.2,
+      "data_type": "string",
+      "distinct_count": 1,
+      "sample_values": [
+        "clientcsv-1672844990905"
+      ],
+      "issues": [
+        "Only one unique value"
+      ],
+      "column_name": "Realm Data Owner Agent Realm Data Client Upload File Key"
+    },
+    "Realm Data Owner Agent Realm Data Client Upload File Location": {
+      "non_null_count": 932,
+      "null_count": 68,
+      "non_null_percentage": 93.2,
+      "data_type": "string",
+      "distinct_count": 1,
+      "sample_values": [
+        "https://realm-uploads-bo-prod.s3.amazonaws.com/clientcsv-1672844990905"
+      ],
+      "issues": [
+        "Only one unique value"
+      ],
+      "column_name": "Realm Data Owner Agent Realm Data Client Upload File Location"
+    },
+    "Realm Data Owner Agent Realm Data Client Upload File Mimetype": {
+      "non_null_count": 932,
+      "null_count": 68,
+      "non_null_percentage": 93.2,
+      "data_type": "string",
+      "distinct_count": 1,
+      "sample_values": [
+        "text/csv"
+      ],
+      "issues": [
+        "Only one unique value"
+      ],
+      "column_name": "Realm Data Owner Agent Realm Data Client Upload File Mimetype"
+    },
+    "Realm Data Owner Agent Realm Data Client Upload File Originalname": {
+      "non_null_count": 932,
+      "null_count": 68,
+      "non_null_percentage": 93.2,
+      "data_type": "string",
+      "distinct_count": 1,
+      "sample_values": [
+        "Untitled spreadsheet - Sheet1 (6).csv"
+      ],
+      "issues": [
+        "Only one unique value"
+      ],
+      "column_name": "Realm Data Owner Agent Realm Data Client Upload File Originalname"
+    },
+    "Realm Data Owner Agent Realm Data Client Upload File Size": {
+      "non_null_count": 932,
+      "null_count": 68,
+      "non_null_percentage": 93.2,
+      "data_type": "number",
+      "distinct_count": 1,
+      "sample_values": [
+        "131"
+      ],
+      "issues": [
+        "Only one unique value"
+      ],
+      "column_name": "Realm Data Owner Agent Realm Data Client Upload File Size"
+    },
+    "Realm Data Owner Agent Realm Data Client Upload Source": {
+      "non_null_count": 932,
+      "null_count": 68,
+      "non_null_percentage": 93.2,
+      "data_type": "string",
+      "distinct_count": 1,
+      "sample_values": [
+        "MasterTemplate"
+      ],
+      "issues": [
+        "Only one unique value"
+      ],
+      "column_name": "Realm Data Owner Agent Realm Data Client Upload Source"
+    },
+    "Realm Data Owner Agent Realm Data Client Upload Uploaded At": {
+      "non_null_count": 932,
+      "null_count": 68,
+      "non_null_percentage": 93.2,
+      "data_type": "datetime",
+      "distinct_count": 1,
+      "sample_values": [
+        "2023-01-04 15:09:51"
+      ],
+      "issues": [
+        "Only one unique value"
+      ],
+      "column_name": "Realm Data Owner Agent Realm Data Client Upload Uploaded At"
+    },
+    "Realm Data Owner Agent Realm Data Client Upload Url": {
+      "non_null_count": 932,
+      "null_count": 68,
+      "non_null_percentage": 93.2,
+      "data_type": "string",
+      "distinct_count": 1,
+      "sample_values": [
+        "https://realm-uploads-bo-prod.s3.amazonaws.com/clientcsv-1672844990905"
+      ],
+      "issues": [
+        "Only one unique value"
+      ],
+      "column_name": "Realm Data Owner Agent Realm Data Client Upload Url"
+    },
+    "Realm Data Owner Agent Realm Data Listing Count": {
+      "non_null_count": 1000,
+      "null_count": 0,
+      "non_null_percentage": 100.0,
+      "data_type": "number",
+      "distinct_count": 1,
+      "sample_values": [
+        "85"
+      ],
+      "issues": [
+        "Only one unique value"
+      ],
+      "column_name": "Realm Data Owner Agent Realm Data Listing Count"
+    },
+    "Realm Data Owner Agent Subscription": {
+      "non_null_count": 1000,
+      "null_count": 0,
+      "non_null_percentage": 100.0,
+      "data_type": "string",
+      "distinct_count": 1,
+      "sample_values": [
+        "5d02ba07f000318ce53bad7b"
+      ],
+      "issues": [
+        "Only one unique value"
+      ],
+      "column_name": "Realm Data Owner Agent Subscription"
+    },
+    "Realm Data Owner Agent Updated At": {
+      "non_null_count": 1000,
+      "null_count": 0,
+      "non_null_percentage": 100.0,
+      "data_type": "datetime",
+      "distinct_count": 2,
+      "sample_values": [
+        "2025-08-24 18:40:22",
+        "2025-04-28 11:08:49"
+      ],
+      "issues": [],
+      "column_name": "Realm Data Owner Agent Updated At"
+    },
+    "Realm Data Owner Team": {
+      "non_null_count": 994,
+      "null_count": 6,
+      "non_null_percentage": 99.4,
+      "data_type": "string",
+      "distinct_count": 1,
+      "sample_values": [
+        "5c9e8520ffbec5380fd6754c"
+      ],
+      "issues": [
+        "Only one unique value"
+      ],
+      "column_name": "Realm Data Owner Team"
+    },
+    "Realm Data Owner Team Display Name": {
+      "non_null_count": 994,
+      "null_count": 6,
+      "non_null_percentage": 99.4,
+      "data_type": "string",
+      "distinct_count": 1,
+      "sample_values": [
+        "Graham Faupel Mendenhall"
+      ],
+      "issues": [
+        "Only one unique value"
+      ],
+      "column_name": "Realm Data Owner Team Display Name"
+    },
+    "Realm Data Owner Team Leader": {
+      "non_null_count": 994,
+      "null_count": 6,
+      "non_null_percentage": 99.4,
+      "data_type": "string",
+      "distinct_count": 1,
+      "sample_values": [
+        "5c4ba9e8e3e54a1813c00065"
+      ],
+      "issues": [
+        "Only one unique value"
+      ],
+      "column_name": "Realm Data Owner Team Leader"
+    },
+    "Realm Data Owner Team Name": {
+      "non_null_count": 994,
+      "null_count": 6,
+      "non_null_percentage": 99.4,
+      "data_type": "string",
+      "distinct_count": 1,
+      "sample_values": [
+        "Graham-Faupel-Mendenhall"
+      ],
+      "issues": [
+        "Only one unique value"
+      ],
+      "column_name": "Realm Data Owner Team Name"
+    },
+    "Realm Data Owner Team Photo URL": {
+      "non_null_count": 994,
+      "null_count": 6,
+      "non_null_percentage": 99.4,
+      "data_type": "string",
+      "distinct_count": 1,
+      "sample_values": [
+        "https://realm-uploaded-images.s3.amazonaws.com/1671654737457.png"
+      ],
+      "issues": [
+        "Only one unique value"
+      ],
+      "column_name": "Realm Data Owner Team Photo URL"
+    },
+    "Realm Data Owner Team Thumbnail Photo URL": {
+      "non_null_count": 994,
+      "null_count": 6,
+      "non_null_percentage": 99.4,
+      "data_type": "string",
+      "distinct_count": 1,
+      "sample_values": [
+        "https://realm-uploaded-images.s3.amazonaws.com/thumbnail/1671654737457.png"
+      ],
+      "issues": [
+        "Only one unique value"
+      ],
+      "column_name": "Realm Data Owner Team Thumbnail Photo URL"
+    },
+    "Realm Data Owner Team Tier": {
+      "non_null_count": 994,
+      "null_count": 6,
+      "non_null_percentage": 99.4,
+      "data_type": "string",
+      "distinct_count": 1,
+      "sample_values": [
+        "M"
+      ],
+      "issues": [
+        "Only one unique value"
+      ],
+      "column_name": "Realm Data Owner Team Tier"
+    },
+    "Realm Data Owner Team Website URL": {
+      "non_null_count": 0,
+      "null_count": 1000,
+      "non_null_percentage": 0.0,
+      "data_type": "empty",
+      "distinct_count": 0,
+      "sample_values": [],
+      "issues": [
+        "Very sparse (0.0%)",
+        "Empty column"
+      ],
+      "column_name": "Realm Data Owner Team Website URL"
+    },
+    "Realm Data Tag Names": {
+      "non_null_count": 852,
+      "null_count": 148,
+      "non_null_percentage": 85.2,
+      "data_type": "array/list",
+      "distinct_count": 639,
+      "sample_values": [
+        "arts, boat_dock, boating, car_collector, climb, climbing_wall, family, fish, fly_fish, garden, hiking, multi_family, near_fishing, near_fly_fishing, near_lake, near_trails, near_yacht_club, outdoors, philanthropy, playground, river_stream, sailing, travel, vegetable_garden, work_from_home",
+        "cook, philanthropy, under_one_million, work_from_home",
+        "cook, garden, outdoors, philanthropy, three_seven_million, travel",
+        "technology, travel",
+        "fish, fly_fish, near_fishing, near_fly_fishing, outdoors, philanthropy, river_stream, seven_fifteen_million, work_from_home"
+      ],
+      "array_min_length": 1,
+      "array_max_length": 33,
+      "array_avg_length": 7.55,
+      "issues": [],
+      "column_name": "Realm Data Tag Names"
+    },
+    "Realm Data Tags": {
+      "non_null_count": 922,
+      "null_count": 78,
+      "non_null_percentage": 92.2,
+      "data_type": "array/list",
+      "distinct_count": 31,
+      "sample_values": [
+        "Hobbies & Interests, Price, Proximity, Sports",
+        "Price",
+        "Hobbies & Interests, Price, Sports",
+        "Hobbies & Interests, Luxury Feature, Price, Sports",
+        "Sports"
+      ],
+      "array_min_length": 1,
+      "array_max_length": 11,
+      "array_avg_length": 2.99,
+      "issues": [],
+      "column_name": "Realm Data Tags"
+    },
+    "Status Intent": {
+      "non_null_count": 940,
+      "null_count": 60,
+      "non_null_percentage": 94.0,
+      "data_type": "string",
+      "distinct_count": 2,
+      "sample_values": [
+        "Inactive",
+        "Active"
+      ],
+      "issues": [],
+      "column_name": "Status Intent"
+    },
+    "Updated At": {
+      "non_null_count": 994,
+      "null_count": 6,
+      "non_null_percentage": 99.4,
+      "data_type": "datetime",
+      "distinct_count": 52,
+      "sample_values": [
+        "2025-08-24 10:00:52",
+        "2025-08-24 10:01:03",
+        "2025-08-24 10:01:15",
+        "2025-08-24 10:00:54",
+        "2025-08-24 10:01:22"
+      ],
+      "issues": [],
+      "column_name": "Updated At"
+    }
+  }
+}

@@ -14,217 +14,243 @@ import java.util.concurrent.ConcurrentHashMap;
  * Automatically discovers relationships between collections by testing ObjectIds
  * NO HARDCODING - learns from actual data
  */
-public class RelationshipDiscovery {
+public class RelationshipDiscovery
+{
     private static final Logger logger = LoggerFactory.getLogger(RelationshipDiscovery.class);
-    
+
     private final MongoDatabase database;
     private final Map<String, String> discoveredRelationships = new ConcurrentHashMap<>();
     private final Map<String, Set<String>> fieldToCollectionsMap = new ConcurrentHashMap<>();
-    
-    public RelationshipDiscovery(MongoDatabase database) {
+
+    public RelationshipDiscovery(MongoDatabase database)
+    {
         this.database = database;
     }
-    
+
     /**
      * Discover which collection an ObjectId field references
      * by testing sample IDs against all collections
      */
-    public String discoverTargetCollection(String fieldName, Set<ObjectId> sampleIds) {
-        if (sampleIds == null || sampleIds.isEmpty()) {
+    public String discoverTargetCollection(String fieldName, Set<ObjectId> sampleIds)
+    {
+        if (sampleIds == null || sampleIds.isEmpty())
+        {
             return null;
         }
-        
+
         // Check if we already discovered this relationship
         String cached = discoveredRelationships.get(fieldName);
-        if (cached != null) {
+        if (cached != null)
+        {
             return cached;
         }
-        
-        logger.debug("Discovering target collection for field '{}' with {} sample IDs", 
-                    fieldName, sampleIds.size());
-        
+
+        logger.debug("Discovering target collection for field '{}' with {} sample IDs", fieldName, sampleIds.size());
+
         // Get all collection names
         List<String> collectionNames = database.listCollectionNames().into(new ArrayList<>());
-        
+
         // Test each collection to see if it contains these IDs
         Map<String, Integer> matchCounts = new HashMap<>();
-        
-        for (String collectionName : collectionNames) {
-            try {
+
+        for (String collectionName : collectionNames)
+        {
+            try
+            {
                 MongoCollection<Document> collection = database.getCollection(collectionName);
-                
+
                 // Test a few sample IDs (not all, for performance)
                 int matches = 0;
                 int tested = 0;
-                for (ObjectId id : sampleIds) {
+                for (ObjectId id : sampleIds)
+                {
                     if (tested >= 3) break; // Test up to 3 IDs per collection
-                    
+
                     Document found = collection.find(new Document("_id", id)).first();
-                    if (found != null) {
+                    if (found != null)
+                    {
                         matches++;
                     }
                     tested++;
                 }
-                
-                if (matches > 0) {
+
+                if (matches > 0)
+                {
                     matchCounts.put(collectionName, matches);
                     logger.debug("  Found {} matches in collection '{}'", matches, collectionName);
                 }
-                
-            } catch (Exception e) {
+
+            } catch (Exception e)
+            {
                 // Skip collections we can't query
                 logger.trace("Skipping collection '{}': {}", collectionName, e.getMessage());
             }
         }
-        
+
         // Find the collection with the most matches
         // When there's a tie, prefer collections without suffixes (e.g., "people" over "people_meta")
         String bestMatch = null;
         int maxMatches = 0;
-        
+
         // First pass: find the max match count
-        for (Map.Entry<String, Integer> entry : matchCounts.entrySet()) {
-            if (entry.getValue() > maxMatches) {
+        for (Map.Entry<String, Integer> entry : matchCounts.entrySet())
+        {
+            if (entry.getValue() > maxMatches)
+            {
                 maxMatches = entry.getValue();
             }
         }
-        
+
         // Second pass: among collections with max matches, prefer the cleanest name
         List<String> topMatches = new ArrayList<>();
-        for (Map.Entry<String, Integer> entry : matchCounts.entrySet()) {
-            if (entry.getValue() == maxMatches) {
+        for (Map.Entry<String, Integer> entry : matchCounts.entrySet())
+        {
+            if (entry.getValue() == maxMatches)
+            {
                 topMatches.add(entry.getKey());
             }
         }
-        
-        if (topMatches.size() == 1) {
+
+        if (topMatches.size() == 1)
+        {
             bestMatch = topMatches.get(0);
-        } else if (topMatches.size() > 1) {
+        } else if (topMatches.size() > 1)
+        {
             // Multiple collections have the same match count
             // Apply heuristics to choose the best one:
             // 1. Prefer base name without suffix (e.g., "people" over "people_meta")
             // 2. Prefer collections with richer data (more fields)
-            
+
             bestMatch = selectBestCollection(topMatches, fieldName, sampleIds);
-            logger.info("Multiple collections matched for '{}': {}. Selected: {}", 
-                       fieldName, topMatches, bestMatch);
+            logger.info("Multiple collections matched for '{}': {}. Selected: {}", fieldName, topMatches, bestMatch);
         }
-        
-        if (bestMatch != null) {
-            logger.info("Field '{}' references collection '{}' (found {} matches)", 
-                       fieldName, bestMatch, maxMatches);
-            
+
+        if (bestMatch != null)
+        {
+            logger.info("Field '{}' references collection '{}' (found {} matches)", fieldName, bestMatch, maxMatches);
+
             // Log details for client field
-            if (fieldName.equals("client")) {
+            if (fieldName.equals("client"))
+            {
                 logger.info("RELATIONSHIP DISCOVERY: client -> {} (testing IDs in that collection)", bestMatch);
                 // Test if documents have address field
                 MongoCollection<Document> testCollection = database.getCollection(bestMatch);
                 Document sampleDoc = testCollection.find().first();
-                if (sampleDoc != null) {
+                if (sampleDoc != null)
+                {
                     logger.info("RELATIONSHIP DISCOVERY: Sample doc from {} has keys: {}", bestMatch, sampleDoc.keySet());
-                    if (sampleDoc.containsKey("address")) {
+                    if (sampleDoc.containsKey("address"))
+                    {
                         logger.info("RELATIONSHIP DISCOVERY: {} collection HAS address field!", bestMatch);
-                    } else {
+                    } else
+                    {
                         logger.info("RELATIONSHIP DISCOVERY: {} collection LACKS address field", bestMatch);
                     }
                 }
             }
-            
+
             discoveredRelationships.put(fieldName, bestMatch);
-            
+
             // Track this discovery for potential patterns
-            fieldToCollectionsMap.computeIfAbsent(normalizeFieldName(fieldName), 
-                k -> new HashSet<>()).add(bestMatch);
-        } else {
+            fieldToCollectionsMap.computeIfAbsent(normalizeFieldName(fieldName), k -> new HashSet<>()).add(bestMatch);
+        } else
+        {
             logger.debug("Could not determine target collection for field '{}'", fieldName);
         }
-        
+
         return bestMatch;
     }
-    
+
     /**
      * For arrays of embedded documents with an ObjectId field,
      * discover which collection that ObjectId references
      */
-    public String discoverArrayRelationship(String arrayFieldName, 
-                                           String objectIdFieldName, 
-                                           Set<ObjectId> sampleIds) {
+    public String discoverArrayRelationship(String arrayFieldName, String objectIdFieldName, Set<ObjectId> sampleIds)
+    {
         String combinedName = arrayFieldName + "." + objectIdFieldName;
         return discoverTargetCollection(combinedName, sampleIds);
     }
-    
+
     /**
      * Normalize field name for pattern detection
      */
-    private String normalizeFieldName(String fieldName) {
+    private String normalizeFieldName(String fieldName)
+    {
         // Remove common suffixes and prefixes to find patterns
-        return fieldName.toLowerCase()
-            .replaceAll("(_id|id|_?ref|reference)$", "")
-            .replaceAll("^(ref_|reference_)", "")
-            .replaceAll("[_\\s]+", "");
+        return fieldName.toLowerCase().replaceAll("(_id|id|_?ref|reference)$", "").replaceAll("^(ref_|reference_)", "").replaceAll("[_\\s]+", "");
     }
-    
+
     /**
      * Select the best collection when multiple collections have the same match count
      * Simple heuristic: prefer shortest name (Occam's razor - simplest is usually right)
      */
-    private String selectBestCollection(List<String> candidates, String fieldName, Set<ObjectId> sampleIds) {
-        if (candidates.isEmpty()) {
+    private String selectBestCollection(List<String> candidates, String fieldName, Set<ObjectId> sampleIds)
+    {
+        if (candidates.isEmpty())
+        {
             return null;
         }
-        if (candidates.size() == 1) {
+        if (candidates.size() == 1)
+        {
             return candidates.get(0);
         }
-        
+
         logger.info("Multiple collections ({}) matched for field '{}' with same match count", candidates, fieldName);
-        
+
         // Simple: shortest name wins (e.g., "people" beats "people_meta" or "people.edgar-backup-2023-07-10")
         String shortest = candidates.get(0);
-        for (String candidate : candidates) {
-            if (candidate.length() < shortest.length()) {
+        for (String candidate : candidates)
+        {
+            if (candidate.length() < shortest.length())
+            {
                 shortest = candidate;
             }
         }
-        
+
         logger.info("Selected '{}' (shortest name)", shortest);
         return shortest;
     }
-    
+
     /**
      * Get discovered relationships for saving to config
      */
-    public Map<String, String> getDiscoveredRelationships() {
+    public Map<String, String> getDiscoveredRelationships()
+    {
         return new HashMap<>(discoveredRelationships);
     }
-    
+
     /**
      * Load previously discovered relationships (from config file)
      */
-    public void loadDiscoveredRelationships(Map<String, String> relationships) {
-        if (relationships != null) {
+    public void loadDiscoveredRelationships(Map<String, String> relationships)
+    {
+        if (relationships != null)
+        {
             discoveredRelationships.putAll(relationships);
             logger.info("Loaded {} previously discovered relationships", relationships.size());
         }
     }
-    
+
     /**
      * Suggest potential relationships based on field name patterns
      * This is ONLY used as a last resort when we can't find actual data matches
      */
-    public String suggestBasedOnPattern(String fieldName) {
+    public String suggestBasedOnPattern(String fieldName)
+    {
         String normalized = normalizeFieldName(fieldName);
-        
+
         // Check if we've seen this pattern before
-        if (fieldToCollectionsMap.containsKey(normalized)) {
+        if (fieldToCollectionsMap.containsKey(normalized))
+        {
             Set<String> knownCollections = fieldToCollectionsMap.get(normalized);
-            if (knownCollections.size() == 1) {
+            if (knownCollections.size() == 1)
+            {
                 String suggestion = knownCollections.iterator().next();
-                logger.debug("Suggesting '{}' for field '{}' based on previous pattern", 
-                           suggestion, fieldName);
+                logger.debug("Suggesting '{}' for field '{}' based on previous pattern", suggestion, fieldName);
                 return suggestion;
             }
         }
-        
+
         // No pattern found - return null (no guessing!)
         return null;
     }

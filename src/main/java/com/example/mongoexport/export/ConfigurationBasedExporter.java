@@ -34,6 +34,7 @@ public class ConfigurationBasedExporter extends AbstractUltraExporter
     private final Map<String, Map<ObjectId, String>> displayValueCache = new HashMap<>();
     private Integer rowLimit = null;
     private String[] cachedHeaders = null;
+    private final Map<ObjectId, Document> personExternalDataCache = new HashMap<>();
 
     /**
      * Create exporter from configuration file
@@ -57,9 +58,7 @@ public class ConfigurationBasedExporter extends AbstractUltraExporter
         logger.info("Total fields: {}, Included fields: {}", config.getFields().size(), includedFields.size());
 
         // Log if there are any expanded fields
-        long expandedCount = includedFields.stream()
-                .filter(f -> f.getFieldPath().contains("_expanded"))
-                .count();
+        long expandedCount = includedFields.stream().filter(f -> f.getFieldPath().contains("_expanded")).count();
         if (expandedCount > 0)
         {
             logger.info("Found {} expanded fields in configuration - will resolve via cached lookups", expandedCount);
@@ -150,10 +149,7 @@ public class ConfigurationBasedExporter extends AbstractUltraExporter
         // Our local cache will be used for lookups during export
 
         Map<String, Object> stats = cacheManager.getCacheStatistics();
-        logger.info("Cached {} collections with {} total documents ({} fully loaded)", 
-                stats.get("cachedCollections"), 
-                stats.get("totalCachedDocuments"),
-                stats.get("fullyLoadedCollections"));
+        logger.info("Cached {} collections with {} total documents ({} fully loaded)", stats.get("cachedCollections"), stats.get("totalCachedDocuments"), stats.get("fullyLoadedCollections"));
     }
 
     /**
@@ -163,7 +159,7 @@ public class ConfigurationBasedExporter extends AbstractUltraExporter
     {
         // Use centralized cache manager - single source of truth for caching logic
         boolean fullyLoaded = cacheManager.cacheCollection(collectionName, true, configuration.getCollection());
-        
+
         // Pre-compute display values for people collection to speed up lookups
         if (fullyLoaded && "people".equals(collectionName))
         {
@@ -202,8 +198,7 @@ public class ConfigurationBasedExporter extends AbstractUltraExporter
             if (rowLimit != null && rowLimit > 0)
             {
                 docsToExport = Math.min(rowLimit, totalDocs);
-                logger.info("Exporting {} documents from {} (limited from {} total)",
-                        docsToExport, configuration.getCollection(), totalDocs);
+                logger.info("Exporting {} documents from {} (limited from {} total)", docsToExport, configuration.getCollection(), totalDocs);
             } else
             {
                 logger.info("Exporting {} documents from {}", totalDocs, configuration.getCollection());
@@ -216,9 +211,7 @@ public class ConfigurationBasedExporter extends AbstractUltraExporter
             // Apply limit to query if needed
             int queryLimit = rowLimit != null ? rowLimit : 0;
 
-            try (MongoCursor<Document> cursor = queryLimit > 0 ?
-                    collection.find().limit(queryLimit).batchSize(batchSize).iterator() :
-                    collection.find().batchSize(batchSize).iterator())
+            try (MongoCursor<Document> cursor = queryLimit > 0 ? collection.find().limit(queryLimit).batchSize(batchSize).iterator() : collection.find().batchSize(batchSize).iterator())
             {
                 List<Document> batch = new ArrayList<>(batchSize);
 
@@ -228,19 +221,21 @@ public class ConfigurationBasedExporter extends AbstractUltraExporter
 
                     if (batch.size() >= batchSize)
                     {
-                        try {
+                        try
+                        {
                             // Pre-cache required documents for this batch
                             preCacheRequiredDocuments(batch);
-                            
+
                             processBatch(batch, writer);
                             processedCount += batch.size();
                             logProgress(processedCount, docsToExport, startTime);
-                        } catch (Exception e) {
-                            logger.error("Error processing batch starting at document {}: {}", 
-                                processedCount + 1, e.getMessage(), e);
+                        } catch (Exception e)
+                        {
+                            logger.error("Error processing batch starting at document {}: {}", processedCount + 1, e.getMessage(), e);
                             // Skip this batch and continue
                             logger.warn("Skipping batch of {} documents due to error", batch.size());
-                        } finally {
+                        } finally
+                        {
                             // Always clear the batch to avoid infinite loops
                             batch.clear();
                         }
@@ -250,17 +245,19 @@ public class ConfigurationBasedExporter extends AbstractUltraExporter
                 // Process remaining documents
                 if (!batch.isEmpty())
                 {
-                    try {
+                    try
+                    {
                         // Pre-cache required documents for this batch
                         preCacheRequiredDocuments(batch);
-                        
+
                         processBatch(batch, writer);
                         processedCount += batch.size();
-                    } catch (Exception e) {
-                        logger.error("Error processing final batch starting at document {}: {}", 
-                            processedCount + 1, e.getMessage(), e);
+                    } catch (Exception e)
+                    {
+                        logger.error("Error processing final batch starting at document {}: {}", processedCount + 1, e.getMessage(), e);
                         logger.warn("Skipping final batch of {} documents due to error", batch.size());
-                    } finally {
+                    } finally
+                    {
                         batch.clear();
                     }
                 }
@@ -278,7 +275,7 @@ public class ConfigurationBasedExporter extends AbstractUltraExporter
     {
         // Find all ObjectId fields that reference other collections
         Map<String, Set<ObjectId>> idsToLoad = new HashMap<>();
-        
+
         for (Document doc : batch)
         {
             for (FieldConfiguration field : includedFields)
@@ -288,7 +285,7 @@ public class ConfigurationBasedExporter extends AbstractUltraExporter
                 {
                     String fieldPath = field.getFieldPath();
                     String baseField = fieldPath.substring(0, fieldPath.indexOf("_expanded"));
-                    
+
                     // Get the base ObjectId
                     Object baseValue = doc.get(baseField);
                     if (baseValue instanceof ObjectId)
@@ -312,38 +309,180 @@ public class ConfigurationBasedExporter extends AbstractUltraExporter
                 // Also handle regular relationship fields
                 else if (field.getRelationshipTarget() != null && !field.getRelationshipTarget().isEmpty())
                 {
-                    try {
+                    try
+                    {
                         Object value = extractFieldValue(doc, field, new HashMap<>());
                         if (value instanceof ObjectId)
                         {
                             String targetCollection = field.getRelationshipTarget();
                             idsToLoad.computeIfAbsent(targetCollection, k -> new HashSet<>()).add((ObjectId) value);
                         }
-                    } catch (Exception e) {
+                    } catch (Exception e)
+                    {
                         // Log but don't fail - field extraction during pre-caching is optional
                         logger.debug("Could not extract field {} for pre-caching: {}", field.getFieldPath(), e.getMessage());
                     }
                 }
             }
         }
-        
+
         // Batch load documents for each collection
         for (Map.Entry<String, Set<ObjectId>> entry : idsToLoad.entrySet())
         {
             String collectionName = entry.getKey();
             Set<ObjectId> ids = entry.getValue();
-            
+
             // Skip if collection isn't cached
             if (!cacheManager.isCached(collectionName))
             {
                 continue;
             }
-            
+
             // Use cache manager's batch loading
             cacheManager.batchLoadDocuments(collectionName, ids);
         }
+
+        // Handle personexternaldatas reverse lookup if needed
+        if (hasPersonExternalDataFields())
+        {
+            Set<ObjectId> clientIds = new HashSet<>();
+            for (Document doc : batch)
+            {
+                Object clientId = doc.get("client");
+                if (clientId instanceof ObjectId)
+                {
+                    clientIds.add((ObjectId) clientId);
+                }
+            }
+            if (!clientIds.isEmpty())
+            {
+                cachePersonExternalDatas(clientIds);
+            }
+        }
     }
-    
+
+    /**
+     * Check if we have any personexternaldatas fields to extract
+     */
+    private boolean hasPersonExternalDataFields()
+    {
+        return includedFields.stream().anyMatch(f -> f.getFieldPath().startsWith("client_personexternaldata."));
+    }
+
+    /**
+     * Cache personexternaldatas for a batch of client IDs
+     */
+    private void cachePersonExternalDatas(Set<ObjectId> clientIds)
+    {
+        if (clientIds.isEmpty()) return;
+
+        MongoCollection<Document> collection = database.getCollection("personexternaldatas");
+
+        // Find ALL personexternaldatas for these clients (multiple per person!)
+        Document query = new Document("person", new Document("$in", new ArrayList<>(clientIds)));
+
+        int foundCount = 0;
+        Map<ObjectId, Document> tempMerged = new HashMap<>();
+
+        try (MongoCursor<Document> cursor = collection.find(query).iterator())
+        {
+            while (cursor.hasNext())
+            {
+                Document doc = cursor.next();
+                ObjectId personId = doc.getObjectId("person");
+                if (personId != null)
+                {
+                    foundCount++;
+
+                    // Merge this record with any existing data for this person
+                    Document existing = tempMerged.get(personId);
+                    if (existing == null)
+                    {
+                        // First record for this person
+                        tempMerged.put(personId, doc);
+                    } else
+                    {
+                        // Merge data - prefer non-null values
+                        mergePersonExternalData(existing, doc);
+                    }
+                }
+            }
+        }
+
+        // Add merged records to cache
+        personExternalDataCache.putAll(tempMerged);
+
+        logger.info("Found {} personexternaldatas records for {} client IDs, merged to {} unique persons (cache size: {})", foundCount, clientIds.size(), tempMerged.size(), personExternalDataCache.size());
+    }
+
+    /**
+     * Merge personexternaldatas records, preferring non-null values
+     */
+    private void mergePersonExternalData(Document existing, Document newDoc)
+    {
+        // Get the tags from both documents
+        Document existingData = existing.get("externalData", Document.class);
+        Document newData = newDoc.get("externalData", Document.class);
+
+        if (existingData == null)
+        {
+            existing.put("externalData", newData);
+            return;
+        }
+
+        if (newData == null)
+        {
+            return;
+        }
+
+        Document existingDataTags = existingData.get("data", Document.class);
+        Document newDataTags = newData.get("data", Document.class);
+
+        if (existingDataTags == null)
+        {
+            existingData.put("data", newDataTags);
+            return;
+        }
+
+        if (newDataTags == null)
+        {
+            return;
+        }
+
+        Document existingTags = existingDataTags.get("tags", Document.class);
+        Document newTags = newDataTags.get("tags", Document.class);
+
+        if (existingTags == null)
+        {
+            existingDataTags.put("tags", newTags);
+            return;
+        }
+
+        if (newTags != null)
+        {
+            // Merge tags - for each field, prefer non-null/non-empty values
+            for (String key : newTags.keySet())
+            {
+                Object newValue = newTags.get(key);
+                Object existingValue = existingTags.get(key);
+
+                // Only override if existing is null/empty and new has a value
+                if ((existingValue == null || "".equals(existingValue)) && newValue != null && !"".equals(newValue))
+                {
+                    existingTags.put(key, newValue);
+                }
+            }
+
+            // Also track the source (append if multiple)
+            String existingSource = existingData.getString("source");
+            String newSource = newData.getString("source");
+            if (newSource != null && !newSource.equals(existingSource))
+            {
+                existingData.put("source", existingSource + "," + newSource);
+            }
+        }
+    }
+
     /**
      * Process a batch of documents
      */
@@ -352,7 +491,8 @@ public class ConfigurationBasedExporter extends AbstractUltraExporter
         int docIndex = 0;
         for (Document doc : batch)
         {
-            try {
+            try
+            {
                 // Extract values for included fields
                 String[] row = extractRow(doc);
                 writeCSVRow(writer, row);
@@ -363,10 +503,10 @@ public class ConfigurationBasedExporter extends AbstractUltraExporter
                     fieldStatisticsCollector.recordRow(row, buildComprehensiveHeaders());
                 }
                 docIndex++;
-            } catch (Exception e) {
+            } catch (Exception e)
+            {
                 ObjectId docId = doc.getObjectId("_id");
-                logger.error("Error processing document {} in batch (index {}): {}", 
-                    docId != null ? docId.toHexString() : "unknown", docIndex, e.getMessage());
+                logger.error("Error processing document {} in batch (index {}): {}", docId != null ? docId.toHexString() : "unknown", docIndex, e.getMessage());
                 // Continue processing other documents in the batch
             }
         }
@@ -379,7 +519,7 @@ public class ConfigurationBasedExporter extends AbstractUltraExporter
     private String[] extractRow(Document doc)
     {
         String[] row = new String[includedFields.size()];
-        
+
         // Cache for expanded documents in this row to avoid multiple lookups
         Map<String, Document> rowExpandedCache = new HashMap<>();
 
@@ -403,7 +543,7 @@ public class ConfigurationBasedExporter extends AbstractUltraExporter
         {
             String mode = field.getExtractionMode();
             String sourceField = field.getSourceField();
-            
+
             if ("count".equals(mode) && sourceField != null)
             {
                 // Extract count of array elements
@@ -413,8 +553,7 @@ public class ConfigurationBasedExporter extends AbstractUltraExporter
                     return ((List<?>) arrayValue).size();
                 }
                 return 0;
-            }
-            else if ("primary".equals(mode) && sourceField != null)
+            } else if ("primary".equals(mode) && sourceField != null)
             {
                 // Extract from first element of array
                 Object arrayValue = extractNestedField(doc, sourceField);
@@ -422,19 +561,16 @@ public class ConfigurationBasedExporter extends AbstractUltraExporter
                 {
                     List<?> list = (List<?>) arrayValue;
                     Object firstElement = list.get(0);
-                    
+
                     // Extract the specific field from the primary element
                     String fieldToExtract = field.getFieldPath().substring(field.getFieldPath().indexOf("[primary].") + 10);
-                    
+
                     // If it's an ObjectId array, we need to look up the document
                     if (firstElement instanceof ObjectId)
                     {
                         // Find the source field configuration to get the reference collection
-                        FieldConfiguration sourceFieldConfig = configuration.getFields().stream()
-                            .filter(f -> f.getFieldPath().equals(sourceField))
-                            .findFirst()
-                            .orElse(null);
-                        
+                        FieldConfiguration sourceFieldConfig = configuration.getFields().stream().filter(f -> f.getFieldPath().equals(sourceField)).findFirst().orElse(null);
+
                         if (sourceFieldConfig != null && sourceFieldConfig.getArrayConfig() != null)
                         {
                             String targetCollection = sourceFieldConfig.getArrayConfig().getReferenceCollection();
@@ -457,7 +593,7 @@ public class ConfigurationBasedExporter extends AbstractUltraExporter
                 return null;
             }
         }
-        
+
         // Handle expanded fields by looking up the base ObjectId and extracting nested fields
         if (field.getFieldPath().contains("_expanded"))
         {
@@ -465,16 +601,16 @@ public class ConfigurationBasedExporter extends AbstractUltraExporter
             String fieldPath = field.getFieldPath();
             String baseField = fieldPath.substring(0, fieldPath.indexOf("_expanded"));
             String nestedPath = fieldPath.substring(fieldPath.indexOf("_expanded") + "_expanded".length());
-            
+
             // Remove leading dot if present
             if (nestedPath.startsWith("."))
             {
                 nestedPath = nestedPath.substring(1);
             }
-            
+
             // Check if we already have this expanded document cached for this row
             Document referencedDoc = rowExpandedCache.get(baseField);
-            
+
             if (referencedDoc == null)
             {
                 // Get the base ObjectId - handle nested paths like realmData.ownerAgent
@@ -483,7 +619,7 @@ public class ConfigurationBasedExporter extends AbstractUltraExporter
                 {
                     return null;
                 }
-                
+
                 // Find the base field configuration to get relationshipTarget
                 String targetCollection = null;
                 for (FieldConfiguration fc : configuration.getFields())
@@ -500,7 +636,7 @@ public class ConfigurationBasedExporter extends AbstractUltraExporter
                     logger.debug("No relationship target found for base field: {}", baseField);
                     return null;
                 }
-                
+
                 // Look up the referenced document
                 referencedDoc = lookupDocument(targetCollection, (ObjectId) baseValue);
                 if (referencedDoc == null)
@@ -508,21 +644,44 @@ public class ConfigurationBasedExporter extends AbstractUltraExporter
                     logger.debug("Failed to find document {} in collection {}", baseValue, targetCollection);
                     return null;
                 }
-                logger.debug("Found document {} in collection {}, keys: {}", 
-                    baseValue, targetCollection, referencedDoc.keySet());
-                
+                logger.debug("Found document {} in collection {}, keys: {}", baseValue, targetCollection, referencedDoc.keySet());
+
                 // Cache it for other expanded fields in this row
                 rowExpandedCache.put(baseField, referencedDoc);
             }
-            
+
             // If no nested path, return the whole document (shouldn't happen in practice)
             if (nestedPath.isEmpty())
             {
                 return referencedDoc;
             }
-            
+
             // Extract the nested field from the referenced document
             return extractNestedField(referencedDoc, nestedPath);
+        }
+
+        // Handle personexternaldatas reverse lookup
+        if (field.getFieldPath().startsWith("client_personexternaldata."))
+        {
+            Object clientId = doc.get("client");
+            if (clientId instanceof ObjectId)
+            {
+                Document externalData = personExternalDataCache.get(clientId);
+                if (externalData != null)
+                {
+                    String remainingPath = field.getFieldPath().substring("client_personexternaldata.".length());
+                    Object result = extractNestedField(externalData, remainingPath);
+
+                    // Debug logging for first few lookups
+                    if (personExternalDataCache.size() < 100 && field.getFieldPath().contains("Income_Levels"))
+                    {
+                        logger.debug("Lookup for {}: clientId={}, found={}, value={}", field.getFieldPath(), clientId, externalData != null, result);
+                    }
+
+                    return result;
+                }
+            }
+            return null;
         }
 
         String[] pathParts = field.getFieldPath().split("\\.");
@@ -586,7 +745,7 @@ public class ConfigurationBasedExporter extends AbstractUltraExporter
         {
             return "";
         }
-        
+
         // Check if the value is the string "null" and treat it as empty
         if (value instanceof String && "null".equals(value))
         {
@@ -610,21 +769,20 @@ public class ConfigurationBasedExporter extends AbstractUltraExporter
         {
             // Check if this field has expanded fields - if so, keep the ObjectId for expansion
             // Only resolve to display value if there are NO expanded fields
-            boolean hasExpandedFields = includedFields.stream()
-                .anyMatch(f -> f.getFieldPath().startsWith(field.getFieldPath() + "_expanded"));
-            
+            boolean hasExpandedFields = includedFields.stream().anyMatch(f -> f.getFieldPath().startsWith(field.getFieldPath() + "_expanded"));
+
             // If field has expanded fields, return the ObjectId so expansion can work
             if (hasExpandedFields)
             {
                 return value.toString();
             }
-            
+
             // Check if this is a reference to another collection that we should display
             if (field.getRelationshipTarget() != null && !field.getRelationshipTarget().isEmpty())
             {
                 String targetCollection = field.getRelationshipTarget();
                 ObjectId objectId = (ObjectId) value;
-                
+
                 // Check if we have a cached display value
                 Map<ObjectId, String> collectionDisplayCache = displayValueCache.get(targetCollection);
                 if (collectionDisplayCache != null)
@@ -635,7 +793,7 @@ public class ConfigurationBasedExporter extends AbstractUltraExporter
                         return cachedDisplay;
                     }
                 }
-                
+
                 // Try to look up the referenced document
                 Document referencedDoc = lookupDocument(targetCollection, objectId);
                 if (referencedDoc != null)
@@ -655,7 +813,7 @@ public class ConfigurationBasedExporter extends AbstractUltraExporter
                     }
                 }
             }
-            
+
             // Fall back to just the ObjectId string
             return value.toString();
         }
@@ -665,22 +823,27 @@ public class ConfigurationBasedExporter extends AbstractUltraExporter
         {
             Document doc = (Document) value;
             // For description field with "en" key, extract just the text
-            if (doc.containsKey("en")) {
+            if (doc.containsKey("en"))
+            {
                 Object enValue = doc.get("en");
-                if (enValue != null) {
+                if (enValue != null)
+                {
                     return enValue.toString();
                 }
             }
-            
+
             // Try to extract the best display field for person documents
             String displayValue = extractBestDisplayField(doc);
-            if (displayValue != null && !displayValue.isEmpty()) {
+            if (displayValue != null && !displayValue.isEmpty())
+            {
                 return displayValue;
             }
-            
+
             // For other documents, just return first string value found
-            for (Object val : doc.values()) {
-                if (val != null && !(val instanceof Document) && !(val instanceof List)) {
+            for (Object val : doc.values())
+            {
+                if (val != null && !(val instanceof Document) && !(val instanceof List))
+                {
                     return val.toString();
                 }
             }
@@ -709,8 +872,7 @@ public class ConfigurationBasedExporter extends AbstractUltraExporter
                 if (d == Math.floor(d) && !Double.isInfinite(d))
                 {
                     return String.format("%.0f", d);
-                }
-                else
+                } else
                 {
                     return String.format("%.2f", d);
                 }
@@ -730,23 +892,22 @@ public class ConfigurationBasedExporter extends AbstractUltraExporter
         // Use centralized cache manager for all lookups
         return cacheManager.getCachedDocument(collectionName, id);
     }
-    
+
     /**
      * Extract the best display field from a document
      */
     private String extractBestDisplayField(Document doc)
     {
         // Priority order for display fields
-        String[] preferredFields = {
-            "fullAddress",    // For properties
-            "fullName",       // For agents/people
-            "name",           // Generic name field
-            "title",          // For various entities
-            "streetAddress",  // For addresses
-            "displayName",    // Display-specific field
-            "description"     // Fallback description
+        String[] preferredFields = {"fullAddress",    // For properties
+                "fullName",       // For agents/people
+                "name",           // Generic name field
+                "title",          // For various entities
+                "streetAddress",  // For addresses
+                "displayName",    // Display-specific field
+                "description"     // Fallback description
         };
-        
+
         for (String fieldName : preferredFields)
         {
             Object value = doc.get(fieldName);
@@ -765,13 +926,13 @@ public class ConfigurationBasedExporter extends AbstractUltraExporter
                     // Skip this Document field and continue to next preferred field
                     continue;
                 }
-                
+
                 // Skip Document values (we want string values)
                 if (value instanceof Document)
                 {
                     continue;
                 }
-                
+
                 String stringValue = value.toString();
                 if (!stringValue.trim().isEmpty())
                 {
@@ -779,7 +940,7 @@ public class ConfigurationBasedExporter extends AbstractUltraExporter
                 }
             }
         }
-        
+
         // If no preferred field found, return null to fall back to ID
         return null;
     }
@@ -893,7 +1054,7 @@ public class ConfigurationBasedExporter extends AbstractUltraExporter
 
         // Remove duplicates while preserving order
         List<String> uniqueValues = new ArrayList<>(new LinkedHashSet<>(values));
-        
+
         // Sort if requested
         if ("alphanumeric".equals(arrayConfig.getSortOrder()))
         {
@@ -919,11 +1080,7 @@ public class ConfigurationBasedExporter extends AbstractUltraExporter
         double rate = processed * 1000.0 / elapsed;
         long remaining = (long) ((total - processed) / rate);
 
-        logger.info("Progress: {}/{} documents ({}%), Rate: {} docs/sec, ETA: {} seconds",
-                processed, total,
-                String.format("%.1f", processed * 100.0 / total),
-                String.format("%.0f", rate),
-                remaining);
+        logger.info("Progress: {}/{} documents ({}%), Rate: {} docs/sec, ETA: {} seconds", processed, total, String.format("%.1f", processed * 100.0 / total), String.format("%.0f", rate), remaining);
     }
 
     /**
@@ -943,7 +1100,7 @@ public class ConfigurationBasedExporter extends AbstractUltraExporter
         logger.info("Export Report:");
         report.forEach((key, value) -> logger.info("  {}: {}", key, value));
     }
-    
+
     /**
      * Extract a nested field from a document using dot notation
      */
@@ -951,19 +1108,18 @@ public class ConfigurationBasedExporter extends AbstractUltraExporter
     {
         String[] parts = path.split("\\.");
         Object current = doc;
-        
+
         for (String part : parts)
         {
             if (current == null)
             {
                 return null;
             }
-            
+
             if (current instanceof Document)
             {
                 current = ((Document) current).get(part);
-            }
-            else if (current instanceof List && !part.matches("\\d+"))
+            } else if (current instanceof List && !part.matches("\\d+"))
             {
                 // Handle extracting from array of documents
                 List<?> list = (List<?>) current;
@@ -980,14 +1136,13 @@ public class ConfigurationBasedExporter extends AbstractUltraExporter
                     }
                 }
                 current = values.isEmpty() ? null : values;
-            }
-            else
+            } else
             {
                 return null;
             }
         }
-        
+
         return current;
     }
-    
+
 }

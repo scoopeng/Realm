@@ -1,0 +1,66 @@
+Field Name,Currently Included,Null %,Unique Values,Category,Sample Values,Recommendation,Reason
+"Realm Data Owner Agent Realm Data Client Upload File",Yes,0.95,1,SINGLE_VALUE,"file",DISABLE,Single value field - no variation in data
+"Client Address Country",Yes,98.23,90,SPARSE,"USA, United States, United States of America",DISABLE,Extremely sparse (>98% null)
+"Client Address Postal Code",Yes,99.13,1723,SPARSE,"83001, 83014, 59901",DISABLE,Extremely sparse (>98% null)
+"Client Demographics Birth Date",Yes,99.95,254,SPARSE,"1604-05-07, 11/28/2006, 1604-09-30 00:00:00",DISABLE,Extremely sparse (>98% null)
+"Client Golf Interest",Yes,97.44,7,SPARSE,"7, 3, 8",CONSIDER,High sparsity but could have niche value
+"Client Name Middle Name",Yes,99.84,318,SPARSE,"(Mary Katharine), Cheek -, Freeze",DISABLE,Extremely sparse (>98% null)
+"Client Name Prefix",Yes,98.90,2489,SPARSE,"Mr & Mrs, Associate Broker, Mr.",DISABLE,Extremely sparse (>98% null)
+"Client Name Suffix",Yes,99.96,39,SPARSE,"Jr., Mrs, Mr",DISABLE,Extremely sparse (>98% null)
+"Realm Data Owner Team Website URL",Yes,97.72,6,SPARSE,"https://jacksonholeexperts.com, https://livejacksonhole.com, https://jacksonholebrokers.com/about-us/",CONSIDER,High sparsity but useful for team info
+"Agents",Yes,0.75,591,MEANINGFUL,"Emily Eldredge..., Christy Gillespie..., Richard Lewis...",KEEP,Good coverage and meaningful data
+"Client",Yes,0.00,563324,MEANINGFUL,"5beb22790c1b8a6083846422, 5beb22790c1b8a174284640b, 5beb22790c1b8a31fa846402",DISABLE,Raw ObjectId field - technical identifier
+"Client Address City",Yes,75.31,7082,MEANINGFUL,"Jackson, Wilson, Kalispell",KEEP,25% coverage with useful geographic data
+"Client Address State",Yes,75.03,770,MEANINGFUL,"WY, MT, FL",KEEP,25% coverage with useful geographic data
+"Client Age",Yes,67.54,82,MEANINGFUL,"71, 53, 76",KEEP,32% coverage with valuable demographic data
+"Client Area Median Home Value",Yes,83.48,6328,MEANINGFUL,"79800, 360500, 158000",KEEP,17% coverage with useful economic indicator
+"Client Birth Year",Yes,67.55,85,MEANINGFUL,"1953, 1968, 1945",KEEP,32% coverage with demographic data
+"Client Charity Interest",Yes,73.21,2,MEANINGFUL,"1, 0",KEEP,27% coverage with behavioral data
+"Client Data Source",Yes,4.70,41,MEANINGFUL,"AA,Experian,AID, AA,AID, AA,Experian",KEEP,95% coverage - metadata about data provenance
+"Client Dwelling Type",Yes,65.99,5,MEANINGFUL,"Multi Family Dwelling/Apartment, Single Family, Unknown",KEEP,34% coverage with housing type data
+"Client Education Level",Yes,67.14,8,MEANINGFUL,"Unknown, Completed College, Some College",KEEP,33% coverage with valuable demographic data
+"Client Education Ordinal",Yes,69.54,7,MEANINGFUL,"5, 4, 3",KEEP,30% coverage with ordinal education data
+"Client Family Affinity",Yes,85.39,9,MEANINGFUL,"9, 7, 3",KEEP,15% coverage with family-related metric
+"Client Gender Male",Yes,76.18,2,MEANINGFUL,"1, 0",KEEP,24% coverage with demographic data
+"Client Health Interest",Yes,88.88,9,MEANINGFUL,"3, 5, 7",CONSIDER,11% coverage - sparse but could be valuable
+"Client Home Owner",Yes,67.27,4,MEANINGFUL,"Home Owner, Unknown, Renter",KEEP,33% coverage with ownership status
+"Client Home Value",Yes,76.54,35384,MEANINGFUL,"246500, 868000, 1009300",KEEP,23% coverage with property value data
+"Client Household Income",Yes,67.29,25,MEANINGFUL,"M. $175,000-$199,999, K. $100,000-$149,999, 0. Unknown",KEEP,33% coverage with income brackets
+"Client Household Income Midpoint",Yes,70.00,23,MEANINGFUL,"187500, 125000, 87500",KEEP,30% coverage with income data
+"Client Household Net Worth",Yes,70.65,10,MEANINGFUL,"J. Greater than $499,999, H. $100,000 - $249,999, A. Unknown",KEEP,29% coverage with wealth data
+"Client Household Size",Yes,65.27,12,MEANINGFUL,"1, 2, 4",KEEP,35% coverage with household composition
+"Client Income Level",Yes,67.29,11,MEANINGFUL,"GT_150K, 100K_150, Unknown",KEEP,33% coverage with income tiers
+"Client Length of Residence",Yes,69.16,47,MEANINGFUL,"25, 5, 15",KEEP,31% coverage with residency duration
+"Client Luxury Lifestyle",Yes,81.72,2,MEANINGFUL,"0, 1",KEEP,18% coverage with lifestyle indicator
+"Client Marital Status",Yes,77.27,2,MEANINGFUL,"0, 1",KEEP,23% coverage with marital status
+"Client Name First Name",Yes,0.03,82186,MEANINGFUL,"Dave, Noa, Scott",KEEP,Excellent coverage - essential name field
+"Client Name Full Name",Yes,0.03,489548,MEANINGFUL,"Dave Meyers, Noa Staryk, Dave Spackman",KEEP,Excellent coverage - full name field
+"Client Name Last Name",Yes,4.55,160464,MEANINGFUL,"Meyers, Staryk, Spackman",KEEP,95% coverage - essential name field
+"Client Net Worth Midpoint",Yes,76.65,9,MEANINGFUL,"175000, 750000, 1",KEEP,23% coverage with wealth metric
+"Client Number of Adults",Yes,70.41,10,MEANINGFUL,"1, 2, 3",KEEP,30% coverage with household composition
+"Client Number of Children",Yes,81.91,9,MEANINGFUL,"1, 2, 3",KEEP,18% coverage with family size data
+"Client Number of Vehicles",Yes,85.86,10,MEANINGFUL,"2, 3, 8",KEEP,14% coverage with vehicle ownership
+"Client Outdoors Interest",Yes,90.88,9,MEANINGFUL,"6, 4, 9",CONSIDER,9% coverage - sparse but potentially valuable
+"Client Primary Email",Yes,9.03,508819,MEANINGFUL,"dmeyers@wyoming.com, ted@cnoteoffice.com, Dave.spackman@jhsir.com",KEEP,91% coverage - essential contact field
+"Client Primary Phone",Yes,87.18,60637,MEANINGFUL,"307-690-9547, 612-220-8076, 307-690-3290",KEEP,13% coverage with contact data
+"Client Technology Interest",Yes,90.67,9,MEANINGFUL,"1, 3, 6",CONSIDER,9% coverage - sparse but potentially valuable
+"Client Travel Interest",Yes,75.64,2,MEANINGFUL,"0, 1",KEEP,24% coverage with interest indicator
+"Client Urbanicity",Yes,65.28,4,MEANINGFUL,"1. Rural, 4. Urban, 3. Suburban",KEEP,35% coverage with urban/rural classification
+"Full Name",Yes,0.00,493054,MEANINGFUL,"Dave Meyers, Theodore Staryk, Dave Spackman",KEEP,Complete coverage - essential name field
+"Realm Data Lifestyle Names",Yes,78.28,726,MEANINGFUL,"farm_ranch, mountains; entertain, family_estate",KEEP,22% coverage with lifestyle preferences
+"Realm Data Lifestyles",Yes,77.08,752,MEANINGFUL,"farm_ranch, mountains; entertain, family_estate",KEEP,23% coverage with lifestyle data
+"Realm Data Max Price",Yes,56.32,27818,MEANINGFUL,"0, 2625000, 431375",KEEP,44% coverage with price range data
+"Realm Data Owner Agent",Yes,0.19,638,MEANINGFUL,"5b6c6b3f9e89b41f53e0e069, 5ca5254ff924ad305e7f33dd, 5b6c6b419e89b41f53e0e1c2",DISABLE,Raw ObjectId field - use Full Name instead
+"Realm Data Owner Agent Full Name",Yes,0.75,599,MEANINGFUL,"Julie Faupel, Emily Eldredge, Richard Lewis",KEEP,99% coverage - agent name field
+"Realm Data Owner Agent Person",Yes,0.75,599,MEANINGFUL,"5b6c6b3f9e89b41f53e0e068, 5beb22790c1b8ad599846415, 5b6c6b419e89b41f53e0e1c1",DISABLE,Raw ObjectId field - use Full Name instead
+"Realm Data Owner Agent Realm Data Client Count",Yes,0.75,12,MEANINGFUL,"3593, 0, 1545",KEEP,99% coverage - agent activity metric
+"Realm Data Owner Agent Realm Data Listing Count",Yes,49.28,41,MEANINGFUL,"85, 8, 61",KEEP,51% coverage - agent listing activity
+"Realm Data Owner Agent Subscription",Yes,1.82,559,MEANINGFUL,"5d02ba07f000318ce53bad7b, 6042730ca6028d00072afae5, 5d0d230885817f8357e8a6b3",DISABLE,Raw ObjectId field - technical identifier
+"Realm Data Owner Team",Yes,88.31,62,MEANINGFUL,"5c9e8520ffbec5380fd6754c, 5d8d3a25ba0be851a4d6ebeb, 5ca52f754c5e5faa929d21ab",DISABLE,Raw ObjectId field - use Display Name instead
+"Realm Data Owner Team Display Name",Yes,89.53,56,MEANINGFUL,"Graham Faupel Mendenhall, The Wards, Christy & Garth Gillespie",CONSIDER,10% coverage but useful team names
+"Realm Data Owner Team Leader",Yes,89.53,55,MEANINGFUL,"5c4ba9e8e3e54a1813c00065, 5d5c2c0db7624c6a5ca3b18d, 5ca5290931f5615cefc5fdb7",DISABLE,Raw ObjectId field - technical identifier
+"Realm Data Owner Team Name",Yes,89.53,56,MEANINGFUL,"Graham-Faupel-Mendenhall, Jeff &amp; Kelli Ward, Christy & Garth Gillespie",CONSIDER,10% coverage but useful team names
+"Realm Data Owner Team Tier",Yes,89.64,3,MEANINGFUL,"M, S, L",CONSIDER,10% coverage with team tier classification
+"Realm Data Tag Names",Yes,52.73,69173,MEANINGFUL,"fish, hiking, hunt...; car_collector, outdoors...",KEEP,47% coverage with detailed interest tags
+"Realm Data Tags",Yes,50.45,398,MEANINGFUL,"Hobbies & Interests, Sports; Hobbies & Interests, Price, Sports",KEEP,50% coverage with tag categories
+"Status Intent",Yes,56.09,2,MEANINGFUL,"Active, Inactive",KEEP,44% coverage with activity status

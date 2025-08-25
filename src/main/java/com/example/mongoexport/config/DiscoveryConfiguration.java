@@ -1,9 +1,12 @@
 package com.example.mongoexport.config;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
@@ -18,6 +21,7 @@ import java.util.List;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class DiscoveryConfiguration
 {
+    private static final Logger logger = LoggerFactory.getLogger(DiscoveryConfiguration.class);
 
     @JsonProperty("collection")
     private String collection;
@@ -198,7 +202,17 @@ public class DiscoveryConfiguration
     public static DiscoveryConfiguration loadFromFile(File file) throws IOException
     {
         ObjectMapper mapper = new ObjectMapper();
-        return mapper.readValue(file, DiscoveryConfiguration.class);
+        DiscoveryConfiguration config = mapper.readValue(file, DiscoveryConfiguration.class);
+        
+        // Check for supplemental configuration
+        File supplementalFile = getSupplementalConfigFile(config.getCollection());
+        if (supplementalFile.exists()) {
+            logger.info("Loading supplemental configuration from: {}", supplementalFile.getAbsolutePath());
+            DiscoveryConfiguration supplemental = mapper.readValue(supplementalFile, DiscoveryConfiguration.class);
+            config.mergeSupplemental(supplemental);
+        }
+        
+        return config;
     }
 
     /**
@@ -207,6 +221,14 @@ public class DiscoveryConfiguration
     public static File getConfigFile(String collection)
     {
         return new File("config", collection + "_fields.json");
+    }
+    
+    /**
+     * Get supplemental configuration file path for a collection
+     */
+    public static File getSupplementalConfigFile(String collection)
+    {
+        return new File("config", collection + "_supplemental.json");
     }
 
     /**
@@ -223,6 +245,7 @@ public class DiscoveryConfiguration
     /**
      * Get all fields that should be included in export
      */
+    @JsonIgnore
     public List<FieldConfiguration> getIncludedFields()
     {
         return fields.stream()
@@ -239,6 +262,57 @@ public class DiscoveryConfiguration
         {
             requiredCollections.add(collectionName);
         }
+    }
+    
+    /**
+     * Merge supplemental configuration into this configuration
+     * Supplemental fields are added, existing fields can be updated
+     */
+    public void mergeSupplemental(DiscoveryConfiguration supplemental) {
+        if (supplemental == null) return;
+        
+        logger.info("Merging {} supplemental fields into configuration", 
+                   supplemental.getFields() != null ? supplemental.getFields().size() : 0);
+        
+        // Add new fields from supplemental
+        if (supplemental.getFields() != null) {
+            for (FieldConfiguration suppField : supplemental.getFields()) {
+                FieldConfiguration existing = findFieldByPath(suppField.getFieldPath());
+                if (existing == null) {
+                    // New field - add it
+                    fields.add(suppField);
+                    logger.debug("Added supplemental field: {}", suppField.getFieldPath());
+                } else {
+                    // Existing field - update include flag if supplemental says to include
+                    if (suppField.isInclude() && !existing.isInclude()) {
+                        existing.setInclude(true);
+                        logger.debug("Enabled field from supplemental: {}", suppField.getFieldPath());
+                    }
+                }
+            }
+        }
+        
+        // Merge required collections
+        if (supplemental.getRequiredCollections() != null) {
+            for (String collection : supplemental.getRequiredCollections()) {
+                addRequiredCollection(collection);
+            }
+        }
+        
+        // Merge discovery parameters if specified
+        if (supplemental.getDiscoveryParameters() != null) {
+            // Only override specific parameters if set in supplemental
+            DiscoveryParameters suppParams = supplemental.getDiscoveryParameters();
+            if (suppParams.getExpansionDepth() > 0) {
+                if (discoveryParameters == null) {
+                    discoveryParameters = new DiscoveryParameters();
+                }
+                discoveryParameters.setExpansionDepth(suppParams.getExpansionDepth());
+            }
+        }
+        
+        logger.info("Configuration after merge: {} total fields, {} included", 
+                   fields.size(), getIncludedFields().size());
     }
 
     // Main getters and setters

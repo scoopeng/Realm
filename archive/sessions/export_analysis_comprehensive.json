@@ -1,0 +1,1364 @@
+{
+  "analysis_timestamp": "2025-08-24T22:19:10.570046",
+  "file_analyzed": "/home/ubuntu/IdeaProjects/Realm/output/agentclients_full_20250824_185345.csv",
+  "rows_analyzed": 5000,
+  "summary": {
+    "total_columns": 67,
+    "columns_with_data": 66,
+    "empty_columns": 1,
+    "data_types": {
+      "array/list": 6,
+      "datetime": 9,
+      "objectId": 6,
+      "string": 39,
+      "number": 6,
+      "empty": 1
+    },
+    "categories": {
+      "direct_agentclients": 7,
+      "client_address": 12,
+      "client_profile": 7,
+      "client_contact": 2,
+      "client_other": 1,
+      "realm_data_tags": 4,
+      "realm_data_other": 1,
+      "owner_agent": 11,
+      "owner_agent_upload": 14,
+      "owner_team": 8
+    }
+  },
+  "column_headers": [
+    "Agents",
+    "Archive Date",
+    "Client",
+    "Client Address City",
+    "Client Address Country",
+    "Client Address Display Address",
+    "Client Address Housenumber",
+    "Client Address Postal Code",
+    "Client Address State",
+    "Client Address Street Address",
+    "Client Address Streetname",
+    "Client Address Streetname Direction",
+    "Client Address Streetname Prefix",
+    "Client Address Streetname Suffix",
+    "Client Address Unit",
+    "Client Demographics Birth Date",
+    "Client Name First Name",
+    "Client Name Full Name",
+    "Client Name Last Name",
+    "Client Name Middle Name",
+    "Client Name Prefix",
+    "Client Name Suffix",
+    "Client Primary Email",
+    "Client Primary Phone",
+    "Client Updated At",
+    "Full Name",
+    "Last Name First",
+    "Realm Data Lifestyle Names",
+    "Realm Data Lifestyles",
+    "Realm Data Max Price",
+    "Realm Data Owner Agent",
+    "Realm Data Owner Agent Archived",
+    "Realm Data Owner Agent Full Name",
+    "Realm Data Owner Agent Last Updated",
+    "Realm Data Owner Agent Person",
+    "Realm Data Owner Agent Photo URL",
+    "Realm Data Owner Agent Private URL",
+    "Realm Data Owner Agent Realm Data Client Count",
+    "Realm Data Owner Agent Realm Data Client Upload Etl Completed At",
+    "Realm Data Owner Agent Realm Data Client Upload Etl In Progress At",
+    "Realm Data Owner Agent Realm Data Client Upload Etl Rejected At",
+    "Realm Data Owner Agent Realm Data Client Upload Etl Status",
+    "Realm Data Owner Agent Realm Data Client Upload File Bucket",
+    "Realm Data Owner Agent Realm Data Client Upload File Etag",
+    "Realm Data Owner Agent Realm Data Client Upload File Key",
+    "Realm Data Owner Agent Realm Data Client Upload File Location",
+    "Realm Data Owner Agent Realm Data Client Upload File Mimetype",
+    "Realm Data Owner Agent Realm Data Client Upload File Originalname",
+    "Realm Data Owner Agent Realm Data Client Upload File Size",
+    "Realm Data Owner Agent Realm Data Client Upload Source",
+    "Realm Data Owner Agent Realm Data Client Upload Uploaded At",
+    "Realm Data Owner Agent Realm Data Client Upload Url",
+    "Realm Data Owner Agent Realm Data Listing Count",
+    "Realm Data Owner Agent Subscription",
+    "Realm Data Owner Agent Updated At",
+    "Realm Data Owner Team",
+    "Realm Data Owner Team Display Name",
+    "Realm Data Owner Team Leader",
+    "Realm Data Owner Team Name",
+    "Realm Data Owner Team Photo URL",
+    "Realm Data Owner Team Thumbnail Photo URL",
+    "Realm Data Owner Team Tier",
+    "Realm Data Owner Team Website URL",
+    "Realm Data Tag Names",
+    "Realm Data Tags",
+    "Status Intent",
+    "Updated At"
+  ],
+  "categories": {
+    "direct_agentclients": [
+      "Agents",
+      "Archive Date",
+      "Client",
+      "Full Name",
+      "Last Name First",
+      "Status Intent",
+      "Updated At"
+    ],
+    "client_address": [
+      "Client Address City",
+      "Client Address Country",
+      "Client Address Display Address",
+      "Client Address Housenumber",
+      "Client Address Postal Code",
+      "Client Address State",
+      "Client Address Street Address",
+      "Client Address Streetname",
+      "Client Address Streetname Direction",
+      "Client Address Streetname Prefix",
+      "Client Address Streetname Suffix",
+      "Client Address Unit"
+    ],
+    "client_profile": [
+      "Client Demographics Birth Date",
+      "Client Name First Name",
+      "Client Name Full Name",
+      "Client Name Last Name",
+      "Client Name Middle Name",
+      "Client Name Prefix",
+      "Client Name Suffix"
+    ],
+    "client_contact": [
+      "Client Primary Email",
+      "Client Primary Phone"
+    ],
+    "client_other": [
+      "Client Updated At"
+    ],
+    "realm_data_tags": [
+      "Realm Data Lifestyle Names",
+      "Realm Data Lifestyles",
+      "Realm Data Tag Names",
+      "Realm Data Tags"
+    ],
+    "realm_data_other": [
+      "Realm Data Max Price"
+    ],
+    "owner_agent": [
+      "Realm Data Owner Agent",
+      "Realm Data Owner Agent Archived",
+      "Realm Data Owner Agent Full Name",
+      "Realm Data Owner Agent Last Updated",
+      "Realm Data Owner Agent Person",
+      "Realm Data Owner Agent Photo URL",
+      "Realm Data Owner Agent Private URL",
+      "Realm Data Owner Agent Realm Data Client Count",
+      "Realm Data Owner Agent Realm Data Listing Count",
+      "Realm Data Owner Agent Subscription",
+      "Realm Data Owner Agent Updated At"
+    ],
+    "owner_agent_upload": [
+      "Realm Data Owner Agent Realm Data Client Upload Etl Completed At",
+      "Realm Data Owner Agent Realm Data Client Upload Etl In Progress At",
+      "Realm Data Owner Agent Realm Data Client Upload Etl Rejected At",
+      "Realm Data Owner Agent Realm Data Client Upload Etl Status",
+      "Realm Data Owner Agent Realm Data Client Upload File Bucket",
+      "Realm Data Owner Agent Realm Data Client Upload File Etag",
+      "Realm Data Owner Agent Realm Data Client Upload File Key",
+      "Realm Data Owner Agent Realm Data Client Upload File Location",
+      "Realm Data Owner Agent Realm Data Client Upload File Mimetype",
+      "Realm Data Owner Agent Realm Data Client Upload File Originalname",
+      "Realm Data Owner Agent Realm Data Client Upload File Size",
+      "Realm Data Owner Agent Realm Data Client Upload Source",
+      "Realm Data Owner Agent Realm Data Client Upload Uploaded At",
+      "Realm Data Owner Agent Realm Data Client Upload Url"
+    ],
+    "owner_team": [
+      "Realm Data Owner Team",
+      "Realm Data Owner Team Display Name",
+      "Realm Data Owner Team Leader",
+      "Realm Data Owner Team Name",
+      "Realm Data Owner Team Photo URL",
+      "Realm Data Owner Team Thumbnail Photo URL",
+      "Realm Data Owner Team Tier",
+      "Realm Data Owner Team Website URL"
+    ]
+  },
+  "analyses": {
+    "Agents": {
+      "non_null_count": 4952,
+      "null_count": 48,
+      "non_null_percentage": 99.04,
+      "data_type": "array/list",
+      "distinct_count": 4,
+      "distinct_percentage": 0.08,
+      "sample_values": [
+        "Richard Lewis, chopper grassell",
+        "Emily Eldredge, Graham Faupel Mendenhall & Associates, Julie Faupel, Karen Terra, Luna Wang, Mack Mendenhall, Matt Faupel, tess hartnett",
+        "Christy Gillespie, garth gillespie",
+        "Kristen Gentry, chris richardson"
+      ],
+      "array_min_length": 2,
+      "array_max_length": 8,
+      "array_avg_length": 6.4,
+      "issues": [],
+      "column_name": "Agents",
+      "category": "direct_agentclients"
+    },
+    "Archive Date": {
+      "non_null_count": 158,
+      "null_count": 4842,
+      "non_null_percentage": 3.16,
+      "data_type": "datetime",
+      "distinct_count": 42,
+      "distinct_percentage": 26.58,
+      "sample_values": [
+        "Tue Apr 28 2020 13:33:56 GMT+0000 (Coordinated Universal Time)",
+        "Sat Apr 11 2020 16:14:26 GMT+0000 (Coordinated Universal Time)",
+        "Tue Apr 28 2020 13:30:37 GMT+0000 (Coordinated Universal Time)",
+        "Tue Apr 28 2020 13:30:10 GMT+0000 (Coordinated Universal Time)",
+        "unsub-manually-06-06-23-agents-removed-but-team-present"
+      ],
+      "issues": [],
+      "column_name": "Archive Date",
+      "category": "direct_agentclients"
+    },
+    "Client": {
+      "non_null_count": 5000,
+      "null_count": 0,
+      "non_null_percentage": 100.0,
+      "data_type": "objectId",
+      "distinct_count": 5000,
+      "distinct_percentage": 100.0,
+      "sample_values": [
+        "5beb228b0c1b8a044b84849f",
+        "5beb22850c1b8a6ba4847b60",
+        "5beb2297532185752615257d",
+        "5beb2299532185e11715291a",
+        "5beb22830c1b8a17258477a0"
+      ],
+      "issues": [
+        "Unexpanded ObjectId reference"
+      ],
+      "column_name": "Client",
+      "category": "direct_agentclients"
+    },
+    "Client Address City": {
+      "non_null_count": 1900,
+      "null_count": 3100,
+      "non_null_percentage": 38.0,
+      "data_type": "array/list",
+      "distinct_count": 679,
+      "distinct_percentage": 35.74,
+      "sample_values": [
+        "Carbondale",
+        "Cheyenne",
+        "Sutter Creek",
+        "Orchard Park",
+        "Abilene"
+      ],
+      "array_min_length": 1,
+      "array_max_length": 3,
+      "array_avg_length": 1.07,
+      "issues": [],
+      "column_name": "Client Address City",
+      "category": "client_address"
+    },
+    "Client Address Country": {
+      "non_null_count": 685,
+      "null_count": 4315,
+      "non_null_percentage": 13.7,
+      "data_type": "string",
+      "distinct_count": 29,
+      "distinct_percentage": 4.23,
+      "sample_values": [
+        "ma",
+        "SA",
+        "Thailand",
+        "Scotland",
+        "Italy"
+      ],
+      "issues": [],
+      "column_name": "Client Address Country",
+      "category": "client_address"
+    },
+    "Client Address Display Address": {
+      "non_null_count": 1268,
+      "null_count": 3732,
+      "non_null_percentage": 25.36,
+      "data_type": "string",
+      "distinct_count": 1153,
+      "distinct_percentage": 90.93,
+      "sample_values": [
+        "444-F GR",
+        "308 HELMSDALE DR",
+        "955 WILLOW DR",
+        "68 COOMBS ST",
+        "4141 BOULDER"
+      ],
+      "issues": [],
+      "column_name": "Client Address Display Address",
+      "category": "client_address"
+    },
+    "Client Address Housenumber": {
+      "non_null_count": 1263,
+      "null_count": 3737,
+      "non_null_percentage": 25.26,
+      "data_type": "number",
+      "distinct_count": 904,
+      "distinct_percentage": 71.58,
+      "sample_values": [
+        "12700",
+        "99900",
+        "675210",
+        "36695",
+        "3850"
+      ],
+      "issues": [],
+      "column_name": "Client Address Housenumber",
+      "category": "client_address"
+    },
+    "Client Address Postal Code": {
+      "non_null_count": 1729,
+      "null_count": 3271,
+      "non_null_percentage": 34.58,
+      "data_type": "string",
+      "distinct_count": 884,
+      "distinct_percentage": 51.13,
+      "sample_values": [
+        "94562",
+        "48025",
+        "93924",
+        "10576",
+        "40383"
+      ],
+      "issues": [],
+      "column_name": "Client Address Postal Code",
+      "category": "client_address"
+    },
+    "Client Address State": {
+      "non_null_count": 2069,
+      "null_count": 2931,
+      "non_null_percentage": 41.38,
+      "data_type": "string",
+      "distinct_count": 128,
+      "distinct_percentage": 6.19,
+      "sample_values": [
+        "WY.",
+        "ma",
+        "il",
+        "Michigan",
+        "RI"
+      ],
+      "issues": [],
+      "column_name": "Client Address State",
+      "category": "client_address"
+    },
+    "Client Address Street Address": {
+      "non_null_count": 1709,
+      "null_count": 3291,
+      "non_null_percentage": 34.18,
+      "data_type": "string",
+      "distinct_count": 1575,
+      "distinct_percentage": 92.16,
+      "sample_values": [
+        "401 Edwards Street",
+        "PO Box 183",
+        "609 Buffaloe Road",
+        "326 Grant Ave.",
+        "PO Box 1383"
+      ],
+      "issues": [],
+      "column_name": "Client Address Street Address",
+      "category": "client_address"
+    },
+    "Client Address Streetname": {
+      "non_null_count": 1249,
+      "null_count": 3751,
+      "non_null_percentage": 24.98,
+      "data_type": "string",
+      "distinct_count": 915,
+      "distinct_percentage": 73.26,
+      "sample_values": [
+        "OAKLAND",
+        "CHUBBUCK",
+        "SOUTHSHORE",
+        "WHIMBREL WATCH",
+        "TROUT"
+      ],
+      "issues": [],
+      "column_name": "Client Address Streetname",
+      "category": "client_address"
+    },
+    "Client Address Streetname Direction": {
+      "non_null_count": 52,
+      "null_count": 4948,
+      "non_null_percentage": 1.04,
+      "data_type": "string",
+      "distinct_count": 8,
+      "distinct_percentage": 15.38,
+      "sample_values": [
+        "SE",
+        "NE",
+        "SW",
+        "NW",
+        "W",
+        "S",
+        "N",
+        "E"
+      ],
+      "issues": [],
+      "column_name": "Client Address Streetname Direction",
+      "category": "client_address"
+    },
+    "Client Address Streetname Prefix": {
+      "non_null_count": 346,
+      "null_count": 4654,
+      "non_null_percentage": 6.92,
+      "data_type": "string",
+      "distinct_count": 8,
+      "distinct_percentage": 2.31,
+      "sample_values": [
+        "SW",
+        "NE",
+        "SE",
+        "S",
+        "NW",
+        "W",
+        "N",
+        "E"
+      ],
+      "issues": [],
+      "column_name": "Client Address Streetname Prefix",
+      "category": "client_address"
+    },
+    "Client Address Streetname Suffix": {
+      "non_null_count": 1087,
+      "null_count": 3913,
+      "non_null_percentage": 21.74,
+      "data_type": "string",
+      "distinct_count": 50,
+      "distinct_percentage": 4.6,
+      "sample_values": [
+        "CV",
+        "MDWS",
+        "WAY",
+        "ST",
+        "CRST"
+      ],
+      "issues": [],
+      "column_name": "Client Address Streetname Suffix",
+      "category": "client_address"
+    },
+    "Client Address Unit": {
+      "non_null_count": 184,
+      "null_count": 4816,
+      "non_null_percentage": 3.68,
+      "data_type": "string",
+      "distinct_count": 147,
+      "distinct_percentage": 79.89,
+      "sample_values": [
+        "side Ave.",
+        "Apartment 3001",
+        "#101",
+        "#810",
+        "Suite 200"
+      ],
+      "issues": [],
+      "column_name": "Client Address Unit",
+      "category": "client_address"
+    },
+    "Client Demographics Birth Date": {
+      "non_null_count": 2,
+      "null_count": 4998,
+      "non_null_percentage": 0.04,
+      "data_type": "datetime",
+      "distinct_count": 2,
+      "distinct_percentage": 100.0,
+      "sample_values": [
+        "1604-05-07",
+        "11/28/2006"
+      ],
+      "issues": [
+        "Very sparse (0.04%)"
+      ],
+      "column_name": "Client Demographics Birth Date",
+      "category": "client_profile"
+    },
+    "Client Name First Name": {
+      "non_null_count": 4991,
+      "null_count": 9,
+      "non_null_percentage": 99.82,
+      "data_type": "string",
+      "distinct_count": 1440,
+      "distinct_percentage": 28.85,
+      "sample_values": [
+        "Daniel",
+        "Curt",
+        "Wayde",
+        "Alicia",
+        "Tom"
+      ],
+      "issues": [],
+      "column_name": "Client Name First Name",
+      "category": "client_profile"
+    },
+    "Client Name Full Name": {
+      "non_null_count": 4991,
+      "null_count": 9,
+      "non_null_percentage": 99.82,
+      "data_type": "string",
+      "distinct_count": 4631,
+      "distinct_percentage": 92.79,
+      "sample_values": [
+        "Jerald Barkmeier",
+        "Fred Balda",
+        "Ken Berdin",
+        "Brenard Schencker",
+        "Dan Castor"
+      ],
+      "issues": [],
+      "column_name": "Client Name Full Name",
+      "category": "client_profile"
+    },
+    "Client Name Last Name": {
+      "non_null_count": 4991,
+      "null_count": 9,
+      "non_null_percentage": 99.82,
+      "data_type": "string",
+      "distinct_count": 3279,
+      "distinct_percentage": 65.7,
+      "sample_values": [
+        "Greenway",
+        "Hendren",
+        "Musser",
+        "Vaka",
+        "Morales"
+      ],
+      "issues": [],
+      "column_name": "Client Name Last Name",
+      "category": "client_profile"
+    },
+    "Client Name Middle Name": {
+      "non_null_count": 16,
+      "null_count": 4984,
+      "non_null_percentage": 0.32,
+      "data_type": "string",
+      "distinct_count": 14,
+      "distinct_percentage": 87.5,
+      "sample_values": [
+        "C.",
+        "R.",
+        "L",
+        "J.",
+        "(Mary Katharine)"
+      ],
+      "issues": [
+        "Very sparse (0.32%)"
+      ],
+      "column_name": "Client Name Middle Name",
+      "category": "client_profile"
+    },
+    "Client Name Prefix": {
+      "non_null_count": 2,
+      "null_count": 4998,
+      "non_null_percentage": 0.04,
+      "data_type": "string",
+      "distinct_count": 2,
+      "distinct_percentage": 100.0,
+      "sample_values": [
+        "Mr & Mrs",
+        "Associate Broker"
+      ],
+      "issues": [
+        "Very sparse (0.04%)"
+      ],
+      "column_name": "Client Name Prefix",
+      "category": "client_profile"
+    },
+    "Client Name Suffix": {
+      "non_null_count": 1,
+      "null_count": 4999,
+      "non_null_percentage": 0.02,
+      "data_type": "string",
+      "distinct_count": 1,
+      "distinct_percentage": 100.0,
+      "sample_values": [
+        "Jr."
+      ],
+      "issues": [
+        "Very sparse (0.02%)",
+        "Only one unique value"
+      ],
+      "column_name": "Client Name Suffix",
+      "category": "client_profile"
+    },
+    "Client Primary Email": {
+      "non_null_count": 4991,
+      "null_count": 9,
+      "non_null_percentage": 99.82,
+      "data_type": "string",
+      "distinct_count": 4785,
+      "distinct_percentage": 95.87,
+      "sample_values": [
+        "tetonbill1@gmail.com",
+        "rcott@falcap.com",
+        "Mecoe@google.com",
+        "lparker@aspentravel.com",
+        "bwright478@windstream.net"
+      ],
+      "issues": [],
+      "column_name": "Client Primary Email",
+      "category": "client_contact"
+    },
+    "Client Primary Phone": {
+      "non_null_count": 3145,
+      "null_count": 1855,
+      "non_null_percentage": 62.9,
+      "data_type": "string",
+      "distinct_count": 2881,
+      "distinct_percentage": 91.61,
+      "sample_values": [
+        "307-733-8282",
+        "(307) 690-2735",
+        "(336) 688-3784",
+        "208-851-1520",
+        "808-292-5696"
+      ],
+      "issues": [],
+      "column_name": "Client Primary Phone",
+      "category": "client_contact"
+    },
+    "Client Updated At": {
+      "non_null_count": 4952,
+      "null_count": 48,
+      "non_null_percentage": 99.04,
+      "data_type": "datetime",
+      "distinct_count": 28,
+      "distinct_percentage": 0.57,
+      "sample_values": [
+        "2025-08-24 09:33:24",
+        "2022-12-21 05:31:16",
+        "2025-08-24 09:30:41",
+        "2025-08-24 09:30:40",
+        "2022-12-21 05:31:18"
+      ],
+      "issues": [],
+      "column_name": "Client Updated At",
+      "category": "client_other"
+    },
+    "Full Name": {
+      "non_null_count": 5000,
+      "null_count": 0,
+      "non_null_percentage": 100.0,
+      "data_type": "string",
+      "distinct_count": 4619,
+      "distinct_percentage": 92.38,
+      "sample_values": [
+        "Jerald Barkmeier",
+        "Fred Balda",
+        "Ken Berdin",
+        "Brenard Schencker",
+        "Dan Castor"
+      ],
+      "issues": [],
+      "column_name": "Full Name",
+      "category": "direct_agentclients"
+    },
+    "Last Name First": {
+      "non_null_count": 4954,
+      "null_count": 46,
+      "non_null_percentage": 99.08,
+      "data_type": "string",
+      "distinct_count": 4599,
+      "distinct_percentage": 92.83,
+      "sample_values": [
+        "Rambo Kym",
+        "Hughes Carolyn",
+        "Henderson Neal",
+        "Leideman Anders",
+        "Hollingsworth Rick"
+      ],
+      "issues": [],
+      "column_name": "Last Name First",
+      "category": "direct_agentclients"
+    },
+    "Realm Data Lifestyle Names": {
+      "non_null_count": 2260,
+      "null_count": 2740,
+      "non_null_percentage": 45.2,
+      "data_type": "array/list",
+      "distinct_count": 90,
+      "distinct_percentage": 3.98,
+      "sample_values": [
+        "country_club_living, entertain, family_estate",
+        "country_club_living, entertain, family_estate, farm_ranch, on_the_water, suburban_estate",
+        "art_architecture, family_estate, farm_ranch, investment, mountains, on_the_water, real_estate_collector",
+        "entertain, family_estate, mountains, on_the_water",
+        "family_estate, on_the_water, suburban_estate"
+      ],
+      "array_min_length": 1,
+      "array_max_length": 7,
+      "array_avg_length": 2.19,
+      "issues": [],
+      "column_name": "Realm Data Lifestyle Names",
+      "category": "realm_data_tags"
+    },
+    "Realm Data Lifestyles": {
+      "non_null_count": 2524,
+      "null_count": 2476,
+      "non_null_percentage": 50.48,
+      "data_type": "array/list",
+      "distinct_count": 91,
+      "distinct_percentage": 3.61,
+      "sample_values": [
+        "country_club_living, entertain, family_estate",
+        "country_club_living, entertain, family_estate, farm_ranch, on_the_water, suburban_estate",
+        "art_architecture, family_estate, farm_ranch, investment, mountains, on_the_water, real_estate_collector",
+        "entertain, family_estate, mountains, on_the_water",
+        "country_club_living, eco_friendly, entertain, family_estate, full_service, on_the_water"
+      ],
+      "array_min_length": 1,
+      "array_max_length": 8,
+      "array_avg_length": 2.17,
+      "issues": [],
+      "column_name": "Realm Data Lifestyles",
+      "category": "realm_data_tags"
+    },
+    "Realm Data Max Price": {
+      "non_null_count": 3877,
+      "null_count": 1123,
+      "non_null_percentage": 77.54,
+      "data_type": "number",
+      "distinct_count": 1385,
+      "distinct_percentage": 35.72,
+      "sample_values": [
+        "3578050",
+        "2508800",
+        "539350",
+        "1718500",
+        "511000"
+      ],
+      "min": 0.0,
+      "max": 282275000.0,
+      "mean": 2115287.04,
+      "issues": [],
+      "column_name": "Realm Data Max Price",
+      "category": "realm_data_other"
+    },
+    "Realm Data Owner Agent": {
+      "non_null_count": 5000,
+      "null_count": 0,
+      "non_null_percentage": 100.0,
+      "data_type": "objectId",
+      "distinct_count": 3,
+      "distinct_percentage": 0.06,
+      "sample_values": [
+        "5ca5254ff924ad305e7f33dd",
+        "5b6c6b3f9e89b41f53e0e069",
+        "5b6c6b419e89b41f53e0e1c2"
+      ],
+      "issues": [
+        "Unexpanded ObjectId reference"
+      ],
+      "column_name": "Realm Data Owner Agent",
+      "category": "owner_agent"
+    },
+    "Realm Data Owner Agent Archived": {
+      "non_null_count": 0,
+      "null_count": 5000,
+      "non_null_percentage": 0.0,
+      "data_type": "empty",
+      "distinct_count": 0,
+      "distinct_percentage": 0,
+      "sample_values": [],
+      "issues": [
+        "Very sparse (0.0%)",
+        "Empty column"
+      ],
+      "column_name": "Realm Data Owner Agent Archived",
+      "category": "owner_agent"
+    },
+    "Realm Data Owner Agent Full Name": {
+      "non_null_count": 5000,
+      "null_count": 0,
+      "non_null_percentage": 100.0,
+      "data_type": "string",
+      "distinct_count": 3,
+      "distinct_percentage": 0.06,
+      "sample_values": [
+        "Richard Lewis",
+        "Emily Eldredge",
+        "Julie Faupel"
+      ],
+      "issues": [],
+      "column_name": "Realm Data Owner Agent Full Name",
+      "category": "owner_agent"
+    },
+    "Realm Data Owner Agent Last Updated": {
+      "non_null_count": 5000,
+      "null_count": 0,
+      "non_null_percentage": 100.0,
+      "data_type": "number",
+      "distinct_count": 2,
+      "distinct_percentage": 0.04,
+      "sample_values": [
+        "1730321028",
+        "1748527704"
+      ],
+      "min": 1730321028.0,
+      "max": 1748527704.0,
+      "mean": 1743575488.13,
+      "issues": [],
+      "column_name": "Realm Data Owner Agent Last Updated",
+      "category": "owner_agent"
+    },
+    "Realm Data Owner Agent Person": {
+      "non_null_count": 5000,
+      "null_count": 0,
+      "non_null_percentage": 100.0,
+      "data_type": "objectId",
+      "distinct_count": 3,
+      "distinct_percentage": 0.06,
+      "sample_values": [
+        "5b6c6b3f9e89b41f53e0e068",
+        "5beb22790c1b8ad599846415",
+        "5b6c6b419e89b41f53e0e1c1"
+      ],
+      "issues": [
+        "Unexpanded ObjectId reference"
+      ],
+      "column_name": "Realm Data Owner Agent Person",
+      "category": "owner_agent"
+    },
+    "Realm Data Owner Agent Photo URL": {
+      "non_null_count": 1360,
+      "null_count": 3640,
+      "non_null_percentage": 27.2,
+      "data_type": "string",
+      "distinct_count": 1,
+      "distinct_percentage": 0.07,
+      "sample_values": [
+        "https://livejacksonhole.com/wp-content/uploads/2018/08/RichardLewis-1.jpg"
+      ],
+      "issues": [
+        "Only one unique value"
+      ],
+      "column_name": "Realm Data Owner Agent Photo URL",
+      "category": "owner_agent"
+    },
+    "Realm Data Owner Agent Private URL": {
+      "non_null_count": 5000,
+      "null_count": 0,
+      "non_null_percentage": 100.0,
+      "data_type": "string",
+      "distinct_count": 3,
+      "distinct_percentage": 0.06,
+      "sample_values": [
+        "https://media.realm-global.com/Vista?referral=EEldredgeWY",
+        "https://media.realm-global.com/Vista?referral=JFaupelWY",
+        "https://media.realm-global.com/Vista?referral=RLewisWY"
+      ],
+      "issues": [],
+      "column_name": "Realm Data Owner Agent Private URL",
+      "category": "owner_agent"
+    },
+    "Realm Data Owner Agent Realm Data Client Count": {
+      "non_null_count": 5000,
+      "null_count": 0,
+      "non_null_percentage": 100.0,
+      "data_type": "number",
+      "distinct_count": 3,
+      "distinct_percentage": 0.06,
+      "sample_values": [
+        "3593",
+        "1545",
+        "0"
+      ],
+      "min": 0.0,
+      "max": 3593.0,
+      "mean": 2830.42,
+      "issues": [],
+      "column_name": "Realm Data Owner Agent Realm Data Client Count",
+      "category": "owner_agent"
+    },
+    "Realm Data Owner Agent Realm Data Client Upload Etl Completed At": {
+      "non_null_count": 4714,
+      "null_count": 286,
+      "non_null_percentage": 94.28,
+      "data_type": "datetime",
+      "distinct_count": 2,
+      "distinct_percentage": 0.04,
+      "sample_values": [
+        "2023-01-04 15:13:47",
+        "2019-02-07 17:44:53"
+      ],
+      "issues": [],
+      "column_name": "Realm Data Owner Agent Realm Data Client Upload Etl Completed At",
+      "category": "owner_agent_upload"
+    },
+    "Realm Data Owner Agent Realm Data Client Upload Etl In Progress At": {
+      "non_null_count": 4714,
+      "null_count": 286,
+      "non_null_percentage": 94.28,
+      "data_type": "datetime",
+      "distinct_count": 2,
+      "distinct_percentage": 0.04,
+      "sample_values": [
+        "2023-01-04 15:13:18",
+        "2019-02-25 21:53:11"
+      ],
+      "issues": [],
+      "column_name": "Realm Data Owner Agent Realm Data Client Upload Etl In Progress At",
+      "category": "owner_agent_upload"
+    },
+    "Realm Data Owner Agent Realm Data Client Upload Etl Rejected At": {
+      "non_null_count": 1360,
+      "null_count": 3640,
+      "non_null_percentage": 27.2,
+      "data_type": "datetime",
+      "distinct_count": 1,
+      "distinct_percentage": 0.07,
+      "sample_values": [
+        "2019-02-25 21:53:11"
+      ],
+      "issues": [
+        "Only one unique value"
+      ],
+      "column_name": "Realm Data Owner Agent Realm Data Client Upload Etl Rejected At",
+      "category": "owner_agent_upload"
+    },
+    "Realm Data Owner Agent Realm Data Client Upload Etl Status": {
+      "non_null_count": 4714,
+      "null_count": 286,
+      "non_null_percentage": 94.28,
+      "data_type": "string",
+      "distinct_count": 2,
+      "distinct_percentage": 0.04,
+      "sample_values": [
+        "Completed",
+        "Rejected"
+      ],
+      "issues": [],
+      "column_name": "Realm Data Owner Agent Realm Data Client Upload Etl Status",
+      "category": "owner_agent_upload"
+    },
+    "Realm Data Owner Agent Realm Data Client Upload File Bucket": {
+      "non_null_count": 4714,
+      "null_count": 286,
+      "non_null_percentage": 94.28,
+      "data_type": "string",
+      "distinct_count": 2,
+      "distinct_percentage": 0.04,
+      "sample_values": [
+        "dev-admin-agents-test",
+        "realm-uploads-bo-prod"
+      ],
+      "issues": [],
+      "column_name": "Realm Data Owner Agent Realm Data Client Upload File Bucket",
+      "category": "owner_agent_upload"
+    },
+    "Realm Data Owner Agent Realm Data Client Upload File Etag": {
+      "non_null_count": 4714,
+      "null_count": 286,
+      "non_null_percentage": 94.28,
+      "data_type": "string",
+      "distinct_count": 2,
+      "distinct_percentage": 0.04,
+      "sample_values": [
+        "\"280d8dc52486532d464459a3d8d8a3de\"",
+        "\"7fc8022743d360ffdec9cadf88cfe828\""
+      ],
+      "issues": [],
+      "column_name": "Realm Data Owner Agent Realm Data Client Upload File Etag",
+      "category": "owner_agent_upload"
+    },
+    "Realm Data Owner Agent Realm Data Client Upload File Key": {
+      "non_null_count": 4714,
+      "null_count": 286,
+      "non_null_percentage": 94.28,
+      "data_type": "string",
+      "distinct_count": 2,
+      "distinct_percentage": 0.04,
+      "sample_values": [
+        "1545408817887",
+        "clientcsv-1672844990905"
+      ],
+      "issues": [],
+      "column_name": "Realm Data Owner Agent Realm Data Client Upload File Key",
+      "category": "owner_agent_upload"
+    },
+    "Realm Data Owner Agent Realm Data Client Upload File Location": {
+      "non_null_count": 4714,
+      "null_count": 286,
+      "non_null_percentage": 94.28,
+      "data_type": "string",
+      "distinct_count": 2,
+      "distinct_percentage": 0.04,
+      "sample_values": [
+        "https://dev-admin-agents-test.s3.amazonaws.com/1545408817887",
+        "https://realm-uploads-bo-prod.s3.amazonaws.com/clientcsv-1672844990905"
+      ],
+      "issues": [],
+      "column_name": "Realm Data Owner Agent Realm Data Client Upload File Location",
+      "category": "owner_agent_upload"
+    },
+    "Realm Data Owner Agent Realm Data Client Upload File Mimetype": {
+      "non_null_count": 4714,
+      "null_count": 286,
+      "non_null_percentage": 94.28,
+      "data_type": "string",
+      "distinct_count": 1,
+      "distinct_percentage": 0.02,
+      "sample_values": [
+        "text/csv"
+      ],
+      "issues": [
+        "Only one unique value"
+      ],
+      "column_name": "Realm Data Owner Agent Realm Data Client Upload File Mimetype",
+      "category": "owner_agent_upload"
+    },
+    "Realm Data Owner Agent Realm Data Client Upload File Originalname": {
+      "non_null_count": 4714,
+      "null_count": 286,
+      "non_null_percentage": 94.28,
+      "data_type": "string",
+      "distinct_count": 2,
+      "distinct_percentage": 0.04,
+      "sample_values": [
+        "Untitled spreadsheet - Sheet1 (6).csv",
+        "LiveJH - Richard Lewis_Contacts_TP.csv"
+      ],
+      "issues": [],
+      "column_name": "Realm Data Owner Agent Realm Data Client Upload File Originalname",
+      "category": "owner_agent_upload"
+    },
+    "Realm Data Owner Agent Realm Data Client Upload File Size": {
+      "non_null_count": 4714,
+      "null_count": 286,
+      "non_null_percentage": 94.28,
+      "data_type": "number",
+      "distinct_count": 2,
+      "distinct_percentage": 0.04,
+      "sample_values": [
+        "131",
+        "319202"
+      ],
+      "min": 131.0,
+      "max": 319202.0,
+      "mean": 92183.73,
+      "issues": [],
+      "column_name": "Realm Data Owner Agent Realm Data Client Upload File Size",
+      "category": "owner_agent_upload"
+    },
+    "Realm Data Owner Agent Realm Data Client Upload Source": {
+      "non_null_count": 4714,
+      "null_count": 286,
+      "non_null_percentage": 94.28,
+      "data_type": "string",
+      "distinct_count": 2,
+      "distinct_percentage": 0.04,
+      "sample_values": [
+        "TopProducer",
+        "MasterTemplate"
+      ],
+      "issues": [],
+      "column_name": "Realm Data Owner Agent Realm Data Client Upload Source",
+      "category": "owner_agent_upload"
+    },
+    "Realm Data Owner Agent Realm Data Client Upload Uploaded At": {
+      "non_null_count": 4714,
+      "null_count": 286,
+      "non_null_percentage": 94.28,
+      "data_type": "datetime",
+      "distinct_count": 2,
+      "distinct_percentage": 0.04,
+      "sample_values": [
+        "2023-01-04 15:09:51",
+        "2018-12-21 16:13:38"
+      ],
+      "issues": [],
+      "column_name": "Realm Data Owner Agent Realm Data Client Upload Uploaded At",
+      "category": "owner_agent_upload"
+    },
+    "Realm Data Owner Agent Realm Data Client Upload Url": {
+      "non_null_count": 4714,
+      "null_count": 286,
+      "non_null_percentage": 94.28,
+      "data_type": "string",
+      "distinct_count": 2,
+      "distinct_percentage": 0.04,
+      "sample_values": [
+        "https://dev-admin-agents-test.s3.amazonaws.com/1545408817887",
+        "https://realm-uploads-bo-prod.s3.amazonaws.com/clientcsv-1672844990905"
+      ],
+      "issues": [],
+      "column_name": "Realm Data Owner Agent Realm Data Client Upload Url",
+      "category": "owner_agent_upload"
+    },
+    "Realm Data Owner Agent Realm Data Listing Count": {
+      "non_null_count": 5000,
+      "null_count": 0,
+      "non_null_percentage": 100.0,
+      "data_type": "number",
+      "distinct_count": 2,
+      "distinct_percentage": 0.04,
+      "sample_values": [
+        "8",
+        "85"
+      ],
+      "min": 8.0,
+      "max": 85.0,
+      "mean": 64.06,
+      "issues": [],
+      "column_name": "Realm Data Owner Agent Realm Data Listing Count",
+      "category": "owner_agent"
+    },
+    "Realm Data Owner Agent Subscription": {
+      "non_null_count": 5000,
+      "null_count": 0,
+      "non_null_percentage": 100.0,
+      "data_type": "objectId",
+      "distinct_count": 2,
+      "distinct_percentage": 0.04,
+      "sample_values": [
+        "6042730ca6028d00072afae5",
+        "5d02ba07f000318ce53bad7b"
+      ],
+      "issues": [
+        "Unexpanded ObjectId reference"
+      ],
+      "column_name": "Realm Data Owner Agent Subscription",
+      "category": "owner_agent"
+    },
+    "Realm Data Owner Agent Updated At": {
+      "non_null_count": 5000,
+      "null_count": 0,
+      "non_null_percentage": 100.0,
+      "data_type": "datetime",
+      "distinct_count": 3,
+      "distinct_percentage": 0.06,
+      "sample_values": [
+        "2025-04-28 11:08:49",
+        "2023-10-23 17:07:57",
+        "2025-08-24 18:40:22"
+      ],
+      "issues": [],
+      "column_name": "Realm Data Owner Agent Updated At",
+      "category": "owner_agent"
+    },
+    "Realm Data Owner Team": {
+      "non_null_count": 4954,
+      "null_count": 46,
+      "non_null_percentage": 99.08,
+      "data_type": "objectId",
+      "distinct_count": 5,
+      "distinct_percentage": 0.1,
+      "sample_values": [
+        "5ca52e2ae5d6bb9fec120607",
+        "5ca52f754c5e5faa929d21ab",
+        "5c9e8520ffbec5380fd6754c",
+        "5d8d3a25ba0be851a4d6ebeb",
+        "5dcdba6f05a42e35b059aa18"
+      ],
+      "issues": [
+        "Unexpanded ObjectId reference"
+      ],
+      "column_name": "Realm Data Owner Team",
+      "category": "owner_team"
+    },
+    "Realm Data Owner Team Display Name": {
+      "non_null_count": 4954,
+      "null_count": 46,
+      "non_null_percentage": 99.08,
+      "data_type": "string",
+      "distinct_count": 5,
+      "distinct_percentage": 0.1,
+      "sample_values": [
+        "Chris | Kristen",
+        "Live Jackson Hole",
+        "The Wards",
+        "Graham Faupel Mendenhall",
+        "Christy & Garth Gillespie"
+      ],
+      "issues": [],
+      "column_name": "Realm Data Owner Team Display Name",
+      "category": "owner_team"
+    },
+    "Realm Data Owner Team Leader": {
+      "non_null_count": 4954,
+      "null_count": 46,
+      "non_null_percentage": 99.08,
+      "data_type": "objectId",
+      "distinct_count": 5,
+      "distinct_percentage": 0.1,
+      "sample_values": [
+        "5ca5290931f5615cefc5fdb7",
+        "5c4ba9e8e3e54a1813c00065",
+        "5d5c2c0db7624c6a5ca3b18d",
+        "5c7da3dc0bc3645305eb8333",
+        "5b6c6b419e89b41f53e0e1c2"
+      ],
+      "issues": [
+        "Unexpanded ObjectId reference"
+      ],
+      "column_name": "Realm Data Owner Team Leader",
+      "category": "owner_team"
+    },
+    "Realm Data Owner Team Name": {
+      "non_null_count": 4954,
+      "null_count": 46,
+      "non_null_percentage": 99.08,
+      "data_type": "string",
+      "distinct_count": 5,
+      "distinct_percentage": 0.1,
+      "sample_values": [
+        "LiveJacksonHole",
+        "Chris | Kristen",
+        "Graham-Faupel-Mendenhall",
+        "Jeff &amp; Kelli Ward",
+        "Christy & Garth Gillespie"
+      ],
+      "issues": [],
+      "column_name": "Realm Data Owner Team Name",
+      "category": "owner_team"
+    },
+    "Realm Data Owner Team Photo URL": {
+      "non_null_count": 4902,
+      "null_count": 98,
+      "non_null_percentage": 98.04,
+      "data_type": "string",
+      "distinct_count": 2,
+      "distinct_percentage": 0.04,
+      "sample_values": [
+        "https://realm-uploaded-images.s3.amazonaws.com/1671654737457.png",
+        "https://realm-uploaded-images.s3.amazonaws.com/1585933931986.jpeg"
+      ],
+      "issues": [],
+      "column_name": "Realm Data Owner Team Photo URL",
+      "category": "owner_team"
+    },
+    "Realm Data Owner Team Thumbnail Photo URL": {
+      "non_null_count": 4902,
+      "null_count": 98,
+      "non_null_percentage": 98.04,
+      "data_type": "string",
+      "distinct_count": 2,
+      "distinct_percentage": 0.04,
+      "sample_values": [
+        "https://realm-uploaded-images.s3.amazonaws.com/thumbnail/1585933931986.jpeg",
+        "https://realm-uploaded-images.s3.amazonaws.com/thumbnail/1671654737457.png"
+      ],
+      "issues": [],
+      "column_name": "Realm Data Owner Team Thumbnail Photo URL",
+      "category": "owner_team"
+    },
+    "Realm Data Owner Team Tier": {
+      "non_null_count": 4954,
+      "null_count": 46,
+      "non_null_percentage": 99.08,
+      "data_type": "string",
+      "distinct_count": 2,
+      "distinct_percentage": 0.04,
+      "sample_values": [
+        "M",
+        "S"
+      ],
+      "issues": [],
+      "column_name": "Realm Data Owner Team Tier",
+      "category": "owner_team"
+    },
+    "Realm Data Owner Team Website URL": {
+      "non_null_count": 1292,
+      "null_count": 3708,
+      "non_null_percentage": 25.84,
+      "data_type": "string",
+      "distinct_count": 2,
+      "distinct_percentage": 0.15,
+      "sample_values": [
+        "https://jacksonholeexperts.com",
+        "https://livejacksonhole.com"
+      ],
+      "issues": [],
+      "column_name": "Realm Data Owner Team Website URL",
+      "category": "owner_team"
+    },
+    "Realm Data Tag Names": {
+      "non_null_count": 4193,
+      "null_count": 807,
+      "non_null_percentage": 83.86,
+      "data_type": "array/list",
+      "distinct_count": 2732,
+      "distinct_percentage": 65.16,
+      "sample_values": [
+        "entertain, over_one_million, travel",
+        "family, indoor_pool, multi_family, outdoor_pool, over_one_million, playground, swimming",
+        "cook, entertain, family, fitness, garden, health, hunt, multi_family, outdoors, philanthropy, playground, travel, vegetable_garden",
+        "car_collector, cook, family, golf, hunt, multi_family, near_hunting, outdoors, philanthropy, playground, sustainability, technology, travel",
+        "cook, garden, indoor_pool, outdoor_pool, outdoors, philanthropy, sustainability, swimming, technology, vegetable_garden"
+      ],
+      "array_min_length": 1,
+      "array_max_length": 61,
+      "array_avg_length": 7.86,
+      "issues": [],
+      "column_name": "Realm Data Tag Names",
+      "category": "realm_data_tags"
+    },
+    "Realm Data Tags": {
+      "non_null_count": 4582,
+      "null_count": 418,
+      "non_null_percentage": 91.64,
+      "data_type": "array/list",
+      "distinct_count": 51,
+      "distinct_percentage": 1.11,
+      "sample_values": [
+        "Hobbies & Interests, Luxury Feature, Price",
+        "Hobbies & Interests, Luxury Feature, Price, Proximity",
+        "Hobbies & Interests, Luxury Feature, Price, Proximity, Sports",
+        "Hobbies & Interests, Luxury Feature, Price, Type",
+        "Architecture, Climate, Hobbies & Interests, Luxury Feature, Phase of Life, Price, Proximity, Region, Sports, State, Topography, Type"
+      ],
+      "array_min_length": 1,
+      "array_max_length": 12,
+      "array_avg_length": 3.01,
+      "issues": [],
+      "column_name": "Realm Data Tags",
+      "category": "realm_data_tags"
+    },
+    "Status Intent": {
+      "non_null_count": 4645,
+      "null_count": 355,
+      "non_null_percentage": 92.9,
+      "data_type": "string",
+      "distinct_count": 2,
+      "distinct_percentage": 0.04,
+      "sample_values": [
+        "Inactive",
+        "Active"
+      ],
+      "issues": [],
+      "column_name": "Status Intent",
+      "category": "direct_agentclients"
+    },
+    "Updated At": {
+      "non_null_count": 4954,
+      "null_count": 46,
+      "non_null_percentage": 99.08,
+      "data_type": "datetime",
+      "distinct_count": 307,
+      "distinct_percentage": 6.2,
+      "sample_values": [
+        "2025-08-24 10:04:43",
+        "2024-02-27 06:04:31",
+        "2025-07-10 10:00:50",
+        "2025-08-24 10:01:02",
+        "2025-08-24 10:05:24"
+      ],
+      "issues": [],
+      "column_name": "Updated At",
+      "category": "direct_agentclients"
+    }
+  }
+}

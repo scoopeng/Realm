@@ -1,0 +1,216 @@
+{
+  "collection": "agentclients",
+  "requiredCollections": ["personexternaldatas"],
+  "fields": [
+    {
+      "fieldPath": "client_personexternaldata.externalData.data.tags.Income_Levels",
+      "businessName": "Client Income Level",
+      "sourceCollection": "personexternaldatas",
+      "dataType": "string",
+      "include": true
+    },
+    {
+      "fieldPath": "client_personexternaldata.externalData.data.tags.Income_HH",
+      "businessName": "Client Household Income",
+      "sourceCollection": "personexternaldatas",
+      "dataType": "string",
+      "include": true
+    },
+    {
+      "fieldPath": "client_personexternaldata.externalData.data.tags.Income_Midpts_HH",
+      "businessName": "Client Household Income Midpoint",
+      "sourceCollection": "personexternaldatas",
+      "dataType": "string",
+      "include": true
+    },
+    {
+      "fieldPath": "client_personexternaldata.externalData.data.tags.Net_Worth_HH",
+      "businessName": "Client Household Net Worth",
+      "sourceCollection": "personexternaldatas",
+      "dataType": "string",
+      "include": true
+    },
+    {
+      "fieldPath": "client_personexternaldata.externalData.data.tags.Net_Worth_Midpt_HH",
+      "businessName": "Client Net Worth Midpoint",
+      "sourceCollection": "personexternaldatas",
+      "dataType": "string",
+      "include": true
+    },
+    {
+      "fieldPath": "client_personexternaldata.externalData.data.tags.Education",
+      "businessName": "Client Education Level",
+      "sourceCollection": "personexternaldatas",
+      "dataType": "string",
+      "include": true
+    },
+    {
+      "fieldPath": "client_personexternaldata.externalData.data.tags.Education_Ordinal",
+      "businessName": "Client Education Ordinal",
+      "sourceCollection": "personexternaldatas",
+      "dataType": "string",
+      "include": true
+    },
+    {
+      "fieldPath": "client_personexternaldata.externalData.data.tags.Age",
+      "businessName": "Client Age",
+      "sourceCollection": "personexternaldatas",
+      "dataType": "string",
+      "include": true
+    },
+    {
+      "fieldPath": "client_personexternaldata.externalData.data.tags.Birth_Year",
+      "businessName": "Client Birth Year",
+      "sourceCollection": "personexternaldatas",
+      "dataType": "string",
+      "include": true
+    },
+    {
+      "fieldPath": "client_personexternaldata.externalData.data.tags.Male",
+      "businessName": "Client Gender Male",
+      "sourceCollection": "personexternaldatas",
+      "dataType": "string",
+      "include": true
+    },
+    {
+      "fieldPath": "client_personexternaldata.externalData.data.tags.Married",
+      "businessName": "Client Marital Status",
+      "sourceCollection": "personexternaldatas",
+      "dataType": "string",
+      "include": true
+    },
+    {
+      "fieldPath": "client_personexternaldata.externalData.data.tags.Home_Owner",
+      "businessName": "Client Home Owner",
+      "sourceCollection": "personexternaldatas",
+      "dataType": "string",
+      "include": true
+    },
+    {
+      "fieldPath": "client_personexternaldata.externalData.data.tags.Home_Value",
+      "businessName": "Client Home Value",
+      "sourceCollection": "personexternaldatas",
+      "dataType": "string",
+      "include": true
+    },
+    {
+      "fieldPath": "client_personexternaldata.externalData.data.tags.Median_Home_Value",
+      "businessName": "Client Area Median Home Value",
+      "sourceCollection": "personexternaldatas",
+      "dataType": "string",
+      "include": true
+    },
+    {
+      "fieldPath": "client_personexternaldata.externalData.data.tags.Dwelling_Type",
+      "businessName": "Client Dwelling Type",
+      "sourceCollection": "personexternaldatas",
+      "dataType": "string",
+      "include": true
+    },
+    {
+      "fieldPath": "client_personexternaldata.externalData.data.tags.Length_of_Residence",
+      "businessName": "Client Length of Residence",
+      "sourceCollection": "personexternaldatas",
+      "dataType": "string",
+      "include": true
+    },
+    {
+      "fieldPath": "client_personexternaldata.externalData.data.tags.Num_Children_HH",
+      "businessName": "Client Number of Children",
+      "sourceCollection": "personexternaldatas",
+      "dataType": "string",
+      "include": true
+    },
+    {
+      "fieldPath": "client_personexternaldata.externalData.data.tags.Num_Adults_HH",
+      "businessName": "Client Number of Adults",
+      "sourceCollection": "personexternaldatas",
+      "dataType": "string",
+      "include": true
+    },
+    {
+      "fieldPath": "client_personexternaldata.externalData.data.tags.Num_Persons_HH",
+      "businessName": "Client Household Size",
+      "sourceCollection": "personexternaldatas",
+      "dataType": "string",
+      "include": true
+    },
+    {
+      "fieldPath": "client_personexternaldata.externalData.data.tags.Number_of_vehicles_in_HH",
+      "businessName": "Client Number of Vehicles",
+      "sourceCollection": "personexternaldatas",
+      "dataType": "string",
+      "include": true
+    },
+    {
+      "fieldPath": "client_personexternaldata.externalData.data.tags.Luxury_Life",
+      "businessName": "Client Luxury Lifestyle",
+      "sourceCollection": "personexternaldatas",
+      "dataType": "string",
+      "include": true
+    },
+    {
+      "fieldPath": "client_personexternaldata.externalData.data.tags.Family_Affinity",
+      "businessName": "Client Family Affinity",
+      "sourceCollection": "personexternaldatas",
+      "dataType": "string",
+      "include": true
+    },
+    {
+      "fieldPath": "client_personexternaldata.externalData.data.tags.Health_Affinity",
+      "businessName": "Client Health Interest",
+      "sourceCollection": "personexternaldatas",
+      "dataType": "string",
+      "include": true
+    },
+    {
+      "fieldPath": "client_personexternaldata.externalData.data.tags.High_Tech_Affinity",
+      "businessName": "Client Technology Interest",
+      "sourceCollection": "personexternaldatas",
+      "dataType": "string",
+      "include": true
+    },
+    {
+      "fieldPath": "client_personexternaldata.externalData.data.tags.Outdoors_Affinity",
+      "businessName": "Client Outdoors Interest",
+      "sourceCollection": "personexternaldatas",
+      "dataType": "string",
+      "include": true
+    },
+    {
+      "fieldPath": "client_personexternaldata.externalData.data.tags.Travel_Vacation",
+      "businessName": "Client Travel Interest",
+      "sourceCollection": "personexternaldatas",
+      "dataType": "string",
+      "include": true
+    },
+    {
+      "fieldPath": "client_personexternaldata.externalData.data.tags.Golf_Affinity",
+      "businessName": "Client Golf Interest",
+      "sourceCollection": "personexternaldatas",
+      "dataType": "string",
+      "include": true
+    },
+    {
+      "fieldPath": "client_personexternaldata.externalData.data.tags.Charity_Interest",
+      "businessName": "Client Charity Interest",
+      "sourceCollection": "personexternaldatas",
+      "dataType": "string",
+      "include": true
+    },
+    {
+      "fieldPath": "client_personexternaldata.externalData.data.tags.Urbanicity",
+      "businessName": "Client Urbanicity",
+      "sourceCollection": "personexternaldatas",
+      "dataType": "string",
+      "include": true
+    },
+    {
+      "fieldPath": "client_personexternaldata.externalData.source",
+      "businessName": "Client Data Source",
+      "sourceCollection": "personexternaldatas",
+      "dataType": "string",
+      "include": true
+    }
+  ]
+}

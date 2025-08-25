@@ -1,0 +1,55 @@
+Field Path,Business Name,Current Null %,Unique Values,Category,Final Recommendation,Priority,Reason
+Client,Client,0.00%,563324,MEANINGFUL,DISABLE,HIGH,ObjectId field with 563K unique values - technical field
+Realm Data Owner Agent Realm Data Client Upload File,Realm Data Owner Agent Realm Data Client Upload File,0.95%,1,SINGLE_VALUE,DISABLE,HIGH,Single value field - only has value: file
+Client Name Prefix,Client Name Prefix,98.90%,2489,SPARSE,DISABLE,MEDIUM,Extremely sparse (98.9% null) and low quality data
+Full Name,Full Name,0.00%,493054,MEANINGFUL,DISABLE,MEDIUM,"Redundant - duplicates ""Client Name Full Name"" field"
+Client Address Postal Code,Client Address Postal Code,99.13%,1723,SPARSE,OPTIONAL,MEDIUM,Very sparse (99.1% null) but could be useful for geo analysis
+Client Charity Interest,Client Charity Interest,73.21%,2,MEANINGFUL,OPTIONAL,LOW,Binary field with 73.2% null - limited value but harmless
+Client Gender Male,Client Gender Male,76.18%,2,MEANINGFUL,OPTIONAL,LOW,Binary field with 76.2% null - limited value but harmless
+Client Golf Interest,Client Golf Interest,97.44%,7,SPARSE,OPTIONAL,LOW,Interest field with 97.4% null - very sparse but harmless
+Client Luxury Lifestyle,Client Luxury Lifestyle,81.72%,2,MEANINGFUL,OPTIONAL,LOW,Binary luxury indicator - 81.7% null but could be valuable
+Client Marital Status,Client Marital Status,77.27%,2,MEANINGFUL,OPTIONAL,LOW,Binary field with 77.3% null - limited value but harmless
+Client Outdoors Interest,Client Outdoors Interest,90.88%,9,MEANINGFUL,OPTIONAL,LOW,Interest field with 90.9% null - very sparse but harmless
+Client Technology Interest,Client Technology Interest,90.67%,9,MEANINGFUL,OPTIONAL,LOW,Interest field with 90.7% null - very sparse but harmless
+Client Travel Interest,Client Travel Interest,75.64%,2,MEANINGFUL,OPTIONAL,LOW,Binary field with 75.6% null - limited value but harmless
+Client Address City,Client Address City,75.31%,7082,MEANINGFUL,KEEP,LOW,Moderate coverage (24.7%) with good variety
+Client Address State,Client Address State,75.03%,770,MEANINGFUL,KEEP,LOW,Moderate coverage (25.0%) with good variety
+Client Age,Client Age,67.54%,82,MEANINGFUL,KEEP,LOW,Fair coverage (32.5%) with useful data
+Client Area Median Home Value,Client Area Median Home Value,83.48%,6328,MEANINGFUL,KEEP,LOW,Moderate coverage (16.5%) with good variety
+Client Birth Year,Client Birth Year,67.55%,85,MEANINGFUL,KEEP,LOW,Fair coverage (32.4%) with useful data
+Client Data Source,Client Data Source,4.70%,41,MEANINGFUL,KEEP,LOW,Good coverage (95.3%) - valuable field
+Client Dwelling Type,Client Dwelling Type,65.99%,5,MEANINGFUL,KEEP,LOW,Fair coverage (34.0%) with useful data
+Client Education Level,Client Education Level,67.14%,8,MEANINGFUL,KEEP,LOW,Fair coverage (32.9%) with useful data
+Client Education Ordinal,Client Education Ordinal,69.54%,7,MEANINGFUL,KEEP,LOW,Fair coverage (30.5%) with useful data
+Client Family Affinity,Client Family Affinity,85.39%,9,MEANINGFUL,KEEP,LOW,Sparse (85.4% null) but meaningful when present
+Client Health Interest,Client Health Interest,88.88%,9,MEANINGFUL,KEEP,LOW,Sparse (88.9% null) but meaningful when present
+Client Home Owner,Client Home Owner,67.27%,4,MEANINGFUL,KEEP,LOW,Fair coverage (32.7%) with useful data
+Client Home Value,Client Home Value,76.54%,35384,MEANINGFUL,KEEP,LOW,Moderate coverage (23.5%) with good variety
+Client Household Income,Client Household Income,67.29%,25,MEANINGFUL,KEEP,LOW,Fair coverage (32.7%) with useful data
+Client Household Income Midpoint,Client Household Income Midpoint,69.97%,23,MEANINGFUL,KEEP,LOW,Fair coverage (30.0%) with useful data
+Client Household Net Worth,Client Household Net Worth,70.65%,10,MEANINGFUL,KEEP,LOW,Moderate coverage (29.3%) with good variety
+Client Household Size,Client Household Size,65.27%,12,MEANINGFUL,KEEP,LOW,Fair coverage (34.7%) with useful data
+Client Income Level,Client Income Level,67.29%,11,MEANINGFUL,KEEP,LOW,Fair coverage (32.7%) with useful data
+Client Length of Residence,Client Length of Residence,69.16%,47,MEANINGFUL,KEEP,LOW,Fair coverage (30.8%) with useful data
+Client Name First Name,Client Name First Name,0.03%,82186,MEANINGFUL,KEEP,LOW,Good coverage (100.0%) - valuable field
+Client Name Full Name,Client Name Full Name,0.03%,489548,MEANINGFUL,KEEP,LOW,Good coverage (100.0%) - valuable field
+Client Name Last Name,Client Name Last Name,4.55%,160464,MEANINGFUL,KEEP,LOW,Good coverage (95.5%) - valuable field
+Client Net Worth Midpoint,Client Net Worth Midpoint,76.65%,9,MEANINGFUL,KEEP,LOW,Moderate coverage (23.4%) with good variety
+Client Number of Adults,Client Number of Adults,70.41%,10,MEANINGFUL,KEEP,LOW,Moderate coverage (29.6%) with good variety
+Client Number of Children,Client Number of Children,81.91%,9,MEANINGFUL,KEEP,LOW,Moderate coverage (18.1%) with good variety
+Client Number of Vehicles,Client Number of Vehicles,85.86%,10,MEANINGFUL,KEEP,LOW,Sparse (85.9% null) but meaningful when present
+Client Primary Email,Client Primary Email,9.03%,508819,MEANINGFUL,KEEP,LOW,Good coverage (91.0%) - valuable field
+Client Primary Phone,Client Primary Phone,87.18%,60637,MEANINGFUL,KEEP,LOW,Sparse (87.2% null) but meaningful when present
+Client Urbanicity,Client Urbanicity,65.28%,4,MEANINGFUL,KEEP,LOW,Fair coverage (34.7%) with useful data
+Realm Data Lifestyle Names,Realm Data Lifestyle Names,78.28%,726,MEANINGFUL,KEEP,LOW,Moderate coverage (21.7%) with good variety
+Realm Data Lifestyles,Realm Data Lifestyles,77.08%,752,MEANINGFUL,KEEP,LOW,Moderate coverage (22.9%) with good variety
+Realm Data Max Price,Realm Data Max Price,56.32%,27818,MEANINGFUL,KEEP,LOW,Fair coverage (43.7%) with useful data
+Realm Data Owner Agent Full Name,Realm Data Owner Agent Full Name,0.75%,599,MEANINGFUL,KEEP,LOW,Good coverage (99.3%) - valuable field
+Realm Data Owner Agent Realm Data Client Count,Realm Data Owner Agent Realm Data Client Count,0.75%,12,MEANINGFUL,KEEP,LOW,Good coverage (99.2%) - valuable field
+Realm Data Owner Agent Realm Data Listing Count,Realm Data Owner Agent Realm Data Listing Count,49.28%,41,MEANINGFUL,KEEP,LOW,Good coverage (50.7%) - valuable field
+Realm Data Owner Team Display Name,Realm Data Owner Team Display Name,89.53%,56,MEANINGFUL,KEEP,LOW,Sparse (89.5% null) but meaningful when present
+Realm Data Owner Team Name,Realm Data Owner Team Name,89.53%,56,MEANINGFUL,KEEP,LOW,Sparse (89.5% null) but meaningful when present
+Realm Data Owner Team Tier,Realm Data Owner Team Tier,89.64%,3,MEANINGFUL,KEEP,LOW,
+Realm Data Tag Names,Realm Data Tag Names,52.73%,69173,MEANINGFUL,KEEP,LOW,Fair coverage (47.3%) with useful data
+Realm Data Tags,Realm Data Tags,50.45%,398,MEANINGFUL,KEEP,LOW,Fair coverage (49.5%) with useful data
+Status Intent,Status Intent,56.09%,2,MEANINGFUL,KEEP,LOW,Fair coverage (43.9%) with useful data
