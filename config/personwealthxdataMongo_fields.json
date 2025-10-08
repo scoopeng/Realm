@@ -1,0 +1,805 @@
+{
+  "collection" : "personwealthxdataMongo",
+  "discoveredAt" : 1759903458405,
+  "discoveryParameters" : {
+    "sampleSize" : 10000,
+    "expansionDepth" : 3,
+    "minDistinctNonNullValues" : 2,
+    "includeBusinessIds" : true
+  },
+  "fields" : [ {
+    "fieldPath" : "DOB",
+    "businessName" : "DOB",
+    "sourceCollection" : "personwealthxdataMongo",
+    "dataType" : "string",
+    "include" : true,
+    "statistics" : {
+      "distinctNonNullValues" : 2407,
+      "nullCount" : 6000,
+      "totalOccurrences" : 17000,
+      "sampleValues" : [ "1908-03-13", "1909-01-01", "1914-09-21", "1916-08-11", "1918-01-01" ]
+    }
+  }, {
+    "fieldPath" : "__v",
+    "businessName" : "Version",
+    "sourceCollection" : "personwealthxdataMongo",
+    "dataType" : "integer",
+    "include" : false,
+    "statistics" : {
+      "distinctNonNullValues" : 1,
+      "nullCount" : 0,
+      "totalOccurrences" : 20000,
+      "sampleValues" : [ "0" ]
+    }
+  }, {
+    "fieldPath" : "_id",
+    "businessName" : "Record ID",
+    "sourceCollection" : "personwealthxdataMongo",
+    "dataType" : "objectId",
+    "include" : false,
+    "statistics" : {
+      "distinctNonNullValues" : 10000,
+      "nullCount" : 0,
+      "totalOccurrences" : 20000,
+      "sampleValues" : [ "5d82388c40f45d31073bcb64", "5d82388c40f45d31073bcb65", "5d82388c40f45d31073bcb66", "5d82388c40f45d31073bcb67", "5d82388c40f45d31073bcb68" ]
+    }
+  }, {
+    "fieldPath" : "age",
+    "businessName" : "Age",
+    "sourceCollection" : "personwealthxdataMongo",
+    "dataType" : "integer",
+    "include" : true,
+    "statistics" : {
+      "distinctNonNullValues" : 86,
+      "nullCount" : 6000,
+      "totalOccurrences" : 17000,
+      "sampleValues" : [ "100", "101", "102", "103", "104" ]
+    }
+  }, {
+    "fieldPath" : "bio",
+    "businessName" : "Bio",
+    "sourceCollection" : "personwealthxdataMongo",
+    "dataType" : "string",
+    "include" : true,
+    "statistics" : {
+      "distinctNonNullValues" : 4727,
+      "nullCount" : 3634,
+      "totalOccurrences" : 18183,
+      "sampleValues" : [ "    Cheung is the Founder and Chairman of investment holding company, Allan International Holdings.", "   Chai is the Chairman of boiler and pressure vessel manufacturing company, Tianjin Baocheng Machinery Group. ", "   Dai is the Chairman of oil and gas exploration company, Sino Oil and Gas.", "   Du is the Chairman of steel producing company, Anhui Changjiang Steel.", "   Feng serves as the Chairman of metal processing firm, Guangdong Jingyi Metal." ]
+    }
+  }, {
+    "fieldPath" : "business",
+    "businessName" : "Business",
+    "sourceCollection" : "personwealthxdataMongo",
+    "dataType" : "object",
+    "include" : true,
+    "statistics" : {
+      "distinctNonNullValues" : 0,
+      "nullCount" : 0,
+      "totalOccurrences" : 20000
+    }
+  }, {
+    "fieldPath" : "business.address",
+    "businessName" : "Business Address",
+    "sourceCollection" : "personwealthxdataMongo",
+    "dataType" : "string",
+    "include" : true,
+    "statistics" : {
+      "distinctNonNullValues" : 6167,
+      "nullCount" : 6004,
+      "totalOccurrences" : 16998,
+      "sampleValues" : [ "\t27th Floor, King Palace Plaza, 55 King Yip Street", " 118 Main Street, Yang Town", " 1548 16th St", " 18-19 Floor, Block B, Triumphal Gate Square, No. 7 Xudong Road", " 214 Xinjian North Road, Yuecheng" ]
+    }
+  }, {
+    "fieldPath" : "business.city",
+    "businessName" : "Business City",
+    "sourceCollection" : "personwealthxdataMongo",
+    "dataType" : "string",
+    "include" : true,
+    "statistics" : {
+      "distinctNonNullValues" : 1037,
+      "nullCount" : 6038,
+      "totalOccurrences" : 16981,
+      "sampleValues" : [ "Abbotsford", "Abbott Park", "Abilene", "Abingdon", "Addison" ]
+    }
+  }, {
+    "fieldPath" : "business.company",
+    "businessName" : "Business Company",
+    "sourceCollection" : "personwealthxdataMongo",
+    "dataType" : "string",
+    "include" : true,
+    "statistics" : {
+      "distinctNonNullValues" : 6765,
+      "nullCount" : 1768,
+      "totalOccurrences" : 19116,
+      "sampleValues" : [ "(RED)", "137 Ventures", "1st Source", "20 Microns", "23andMe" ]
+    }
+  }, {
+    "fieldPath" : "business.country",
+    "businessName" : "Business Country",
+    "sourceCollection" : "personwealthxdataMongo",
+    "dataType" : "string",
+    "include" : true,
+    "statistics" : {
+      "distinctNonNullValues" : 45,
+      "nullCount" : 2312,
+      "totalOccurrences" : 18844,
+      "sampleValues" : [ "Argentina", "Australia", "Azerbaijan", "Bangladesh", "Belgium" ]
+    }
+  }, {
+    "fieldPath" : "business.email",
+    "businessName" : "Business Email",
+    "sourceCollection" : "personwealthxdataMongo",
+    "dataType" : "string",
+    "include" : true,
+    "statistics" : {
+      "distinctNonNullValues" : 1665,
+      "nullCount" : 16666,
+      "totalOccurrences" : 11667,
+      "sampleValues" : [ " alvin@qingsongfund.com", " james.foster@criver.com", " m.gambill@carystreetpartners.com", "Bradley.Barron@nustarenergy.com", "Carol@cct.org" ]
+    }
+  }, {
+    "fieldPath" : "business.phone",
+    "businessName" : "Business Phone",
+    "sourceCollection" : "personwealthxdataMongo",
+    "dataType" : "string",
+    "include" : true,
+    "statistics" : {
+      "distinctNonNullValues" : 5261,
+      "nullCount" : 7252,
+      "totalOccurrences" : 16374,
+      "sampleValues" : [ " 212 715 4000", " 650 241 1221", " 68 9414 7844", " 852 3710 6889", " 86 0458434 8141" ]
+    }
+  }, {
+    "fieldPath" : "business.position",
+    "businessName" : "Business Position",
+    "sourceCollection" : "personwealthxdataMongo",
+    "dataType" : "string",
+    "include" : true,
+    "statistics" : {
+      "distinctNonNullValues" : 135,
+      "nullCount" : 1782,
+      "totalOccurrences" : 19109,
+      "sampleValues" : [ "Actor", "Actress", "Advisor", "Advisory Board Member", "Agent" ]
+    }
+  }, {
+    "fieldPath" : "business.postalCode",
+    "businessName" : "Business Postal Code",
+    "sourceCollection" : "personwealthxdataMongo",
+    "dataType" : "string",
+    "include" : true,
+    "statistics" : {
+      "distinctNonNullValues" : 3577,
+      "nullCount" : 7952,
+      "totalOccurrences" : 16024,
+      "sampleValues" : [ "  230601 ", " 065000 ", " 100033 ", " 100094  ", " 102488  " ]
+    }
+  }, {
+    "fieldPath" : "business.state",
+    "businessName" : "Business State",
+    "sourceCollection" : "personwealthxdataMongo",
+    "dataType" : "string",
+    "include" : true,
+    "statistics" : {
+      "distinctNonNullValues" : 156,
+      "nullCount" : 5158,
+      "totalOccurrences" : 17421,
+      "sampleValues" : [ "Alabama", "Alaska", "Alberta", "Andhra Pradesh", "Anhui" ]
+    }
+  }, {
+    "fieldPath" : "cities",
+    "businessName" : "Cities",
+    "sourceCollection" : "personwealthxdataMongo",
+    "dataType" : "string",
+    "include" : true,
+    "statistics" : {
+      "distinctNonNullValues" : 3437,
+      "nullCount" : 4394,
+      "totalOccurrences" : 17803,
+      "sampleValues" : [ "Abbotsford|", "Abbott Park|Crowheart|Dubois|De Leon Springs|Dubois|Dubois|Dubois|Encino|Dubois|Dubois|De Leon Springs|De Leon Springs|Dubois|Dubois|De Leon Springs|Dubois|De Leon Springs|De Leon Springs|", "Abbott Park|Scottsdale|Winnetka|", "Abilene|Fort Worth|Graford|", "Abingdon|Bristol|" ]
+    }
+  }, {
+    "fieldPath" : "email",
+    "businessName" : "Email",
+    "sourceCollection" : "personwealthxdataMongo",
+    "dataType" : "string",
+    "include" : true,
+    "statistics" : {
+      "distinctNonNullValues" : 1665,
+      "nullCount" : 16666,
+      "totalOccurrences" : 11667,
+      "sampleValues" : [ " alvin@qingsongfund.com", " james.foster@criver.com", " m.gambill@carystreetpartners.com", "Bradley.Barron@nustarenergy.com", "Carol@cct.org" ]
+    }
+  }, {
+    "fieldPath" : "firstName",
+    "businessName" : "First Name",
+    "sourceCollection" : "personwealthxdataMongo",
+    "dataType" : "string",
+    "include" : true,
+    "statistics" : {
+      "distinctNonNullValues" : 5089,
+      "nullCount" : 0,
+      "totalOccurrences" : 20000,
+      "sampleValues" : [ "A.", "Aaron", "Aart", "Aarti", "Abby" ]
+    }
+  }, {
+    "fieldPath" : "fullName",
+    "businessName" : "Full Name",
+    "sourceCollection" : "personwealthxdataMongo",
+    "dataType" : "string",
+    "include" : true,
+    "statistics" : {
+      "distinctNonNullValues" : 9876,
+      "nullCount" : 0,
+      "totalOccurrences" : 20000,
+      "sampleValues" : [ "A. Allard", "A. Kirk", "A. Mazumdar", "A. Sudhindra", "A. Viswanadhan" ]
+    }
+  }, {
+    "fieldPath" : "interests",
+    "businessName" : "Interests",
+    "sourceCollection" : "personwealthxdataMongo",
+    "dataType" : "array",
+    "include" : true,
+    "statistics" : {
+      "distinctNonNullValues" : 12421,
+      "nullCount" : 0,
+      "totalOccurrences" : 13174,
+      "sampleValues" : [ "Document{{hobbyName=Agriculture - Beekeeping, hobbyDescription=Appears to have an interest in beekeeping.}}", "Document{{hobbyName=Agriculture - Beekeeping, hobbyDescription=Reportedly an amateur beekeeper.}}", "Document{{hobbyName=Agriculture - Beekeeping, hobbyDescription=She reportedly has her own colony of bees at one of her residences and intends to build a honey farm.}}", "Document{{hobbyName=Agriculture - Farming, hobbyDescription=Appears to own two organic farms, where he reportedly spends his weekends.}}", "Document{{hobbyName=Agriculture - Farming, hobbyDescription=Chairman of the East Hope Group, which produces livestock feed in China.  Liu has been referred to as the \"King of Pig Feed.\"}}" ],
+      "avgArrayLength" : 5.790411402656301,
+      "maxArrayLength" : 26
+    },
+    "arrayConfig" : {
+      "extractField" : "hobbyDescription",
+      "displayMode" : "comma_separated",
+      "sortOrder" : "alphanumeric",
+      "delimiter" : ", ",
+      "objectType" : "object",
+      "availableFields" : [ "hobbyDescription", "hobbyName" ]
+    }
+  }, {
+    "fieldPath" : "interests[count]",
+    "businessName" : "Interests Count",
+    "sourceCollection" : "personwealthxdataMongo",
+    "dataType" : "integer",
+    "include" : false,
+    "statistics" : {
+      "distinctNonNullValues" : 12421,
+      "nullCount" : 0
+    },
+    "extractionMode" : "count",
+    "sourceField" : "interests"
+  }, {
+    "fieldPath" : "interests[primary].hobbyDescription",
+    "businessName" : "Primary Interests Hobby Description",
+    "sourceCollection" : "personwealthxdataMongo",
+    "dataType" : "string",
+    "include" : false,
+    "statistics" : {
+      "distinctNonNullValues" : 12421,
+      "nullCount" : 0
+    },
+    "extractionMode" : "primary",
+    "sourceField" : "interests",
+    "extractionIndex" : 0
+  }, {
+    "fieldPath" : "interests[primary].hobbyName",
+    "businessName" : "Primary Interests Hobby Name",
+    "sourceCollection" : "personwealthxdataMongo",
+    "dataType" : "string",
+    "include" : false,
+    "statistics" : {
+      "distinctNonNullValues" : 12421,
+      "nullCount" : 0
+    },
+    "extractionMode" : "primary",
+    "sourceField" : "interests",
+    "extractionIndex" : 0
+  }, {
+    "fieldPath" : "lastIngestion",
+    "businessName" : "Last Ingestion",
+    "sourceCollection" : "personwealthxdataMongo",
+    "dataType" : "date",
+    "include" : true,
+    "statistics" : {
+      "distinctNonNullValues" : 54,
+      "nullCount" : 0,
+      "totalOccurrences" : 20000,
+      "sampleValues" : [ "Fri Jan 10 19:30:23 UTC 2020", "Fri Jan 17 08:00:33 UTC 2020", "Fri Jan 24 08:00:30 UTC 2020", "Mon Jan 13 19:30:24 UTC 2020", "Sat Jan 18 08:00:34 UTC 2020" ]
+    }
+  }, {
+    "fieldPath" : "lastName",
+    "businessName" : "Last Name",
+    "sourceCollection" : "personwealthxdataMongo",
+    "dataType" : "string",
+    "include" : true,
+    "statistics" : {
+      "distinctNonNullValues" : 3919,
+      "nullCount" : 0,
+      "totalOccurrences" : 20000,
+      "sampleValues" : [ "Abbasi", "Abel", "Abele", "Abiouness", "Abiouness Jr." ]
+    }
+  }, {
+    "fieldPath" : "lastWXUpdate",
+    "businessName" : "Last WX Update",
+    "sourceCollection" : "personwealthxdataMongo",
+    "dataType" : "string",
+    "include" : true,
+    "statistics" : {
+      "distinctNonNullValues" : 4196,
+      "nullCount" : 214,
+      "totalOccurrences" : 19893,
+      "sampleValues" : [ "2018-09-03 07:18:38", "2018-09-03 07:18:39", "2018-09-03 07:18:40", "2018-09-03 07:18:41", "2018-09-03 07:18:43" ]
+    }
+  }, {
+    "fieldPath" : "lifestyles",
+    "businessName" : "Lifestyles",
+    "sourceCollection" : "personwealthxdataMongo",
+    "include" : false,
+    "statistics" : {
+      "distinctNonNullValues" : 0,
+      "nullCount" : 20000,
+      "totalOccurrences" : 10000
+    }
+  }, {
+    "fieldPath" : "maritalStatus",
+    "businessName" : "Marital Status",
+    "sourceCollection" : "personwealthxdataMongo",
+    "dataType" : "string",
+    "include" : true,
+    "statistics" : {
+      "distinctNonNullValues" : 6,
+      "nullCount" : 2206,
+      "totalOccurrences" : 18897,
+      "sampleValues" : [ "Divorced", "Married", "Separated", "Single", "Unknown" ]
+    }
+  }, {
+    "fieldPath" : "names",
+    "businessName" : "Names",
+    "sourceCollection" : "personwealthxdataMongo",
+    "dataType" : "string",
+    "include" : true,
+    "statistics" : {
+      "distinctNonNullValues" : 9926,
+      "nullCount" : 0,
+      "totalOccurrences" : 20000,
+      "sampleValues" : [ "A. Allard|", "A. Kirk|Russ|", "A. Mazumdar|", "A. Sudhindra|", "A. Viswanadhan|" ]
+    }
+  }, {
+    "fieldPath" : "netWorth",
+    "businessName" : "Net Worth",
+    "sourceCollection" : "personwealthxdataMongo",
+    "dataType" : "object",
+    "include" : true,
+    "statistics" : {
+      "distinctNonNullValues" : 0,
+      "nullCount" : 0,
+      "totalOccurrences" : 20000
+    }
+  }, {
+    "fieldPath" : "netWorth.chartURL",
+    "businessName" : "Net Worth Chart URL",
+    "sourceCollection" : "personwealthxdataMongo",
+    "dataType" : "string",
+    "include" : true,
+    "statistics" : {
+      "distinctNonNullValues" : 10000,
+      "nullCount" : 0,
+      "totalOccurrences" : 20000,
+      "sampleValues" : [ "https://connect.wealthx.com/rest/v1/alldossiers/10/assetwheel", "https://connect.wealthx.com/rest/v1/alldossiers/100/assetwheel", "https://connect.wealthx.com/rest/v1/alldossiers/1000/assetwheel", "https://connect.wealthx.com/rest/v1/alldossiers/10000/assetwheel", "https://connect.wealthx.com/rest/v1/alldossiers/10001/assetwheel" ]
+    }
+  }, {
+    "fieldPath" : "netWorth.householdLiquidAsset",
+    "businessName" : "Net Worth Household Liquid Asset",
+    "sourceCollection" : "personwealthxdataMongo",
+    "dataType" : "string",
+    "include" : true,
+    "statistics" : {
+      "distinctNonNullValues" : 479,
+      "nullCount" : 0,
+      "totalOccurrences" : 3764,
+      "sampleValues" : [ "10000.00", "100000.00", "1000000.00", "10000000.00", "100000000.00" ]
+    }
+  }, {
+    "fieldPath" : "netWorth.householdNetWorth",
+    "businessName" : "Net Worth Household Net Worth",
+    "sourceCollection" : "personwealthxdataMongo",
+    "dataType" : "string",
+    "include" : true,
+    "statistics" : {
+      "distinctNonNullValues" : 958,
+      "nullCount" : 0,
+      "totalOccurrences" : 2964,
+      "sampleValues" : [ "100000000.00", "1000000000.00", "1001000000.00", "10011500000.00", "1005000000.00" ]
+    }
+  }, {
+    "fieldPath" : "netWorth.householdTotalAssetFound",
+    "businessName" : "Net Worth Household Total Asset Found",
+    "sourceCollection" : "personwealthxdataMongo",
+    "dataType" : "string",
+    "include" : true,
+    "statistics" : {
+      "distinctNonNullValues" : 289,
+      "nullCount" : 0,
+      "totalOccurrences" : 1238,
+      "sampleValues" : [ "10000000.00", "100000000.00", "1001000000.00", "1001500000.00", "100500000.00" ]
+    }
+  }, {
+    "fieldPath" : "netWorth.householdWealth",
+    "businessName" : "Net Worth Household Wealth",
+    "sourceCollection" : "personwealthxdataMongo",
+    "dataType" : "string",
+    "include" : true,
+    "statistics" : {
+      "distinctNonNullValues" : 1202,
+      "nullCount" : 0,
+      "totalOccurrences" : 4658,
+      "sampleValues" : [ "10000000.00", "100000000.00", "1000000000.00", "1001000000.00", "10011500000.00" ]
+    }
+  }, {
+    "fieldPath" : "netWorth.liquidLower",
+    "businessName" : "Net Worth Liquid Lower",
+    "sourceCollection" : "personwealthxdataMongo",
+    "dataType" : "string",
+    "include" : true,
+    "statistics" : {
+      "distinctNonNullValues" : 263,
+      "nullCount" : 0,
+      "totalOccurrences" : 8298,
+      "sampleValues" : [ "10000.00", "100000.00", "1000000.00", "10000000.00", "100000000.00" ]
+    }
+  }, {
+    "fieldPath" : "netWorth.liquidLowerInt",
+    "businessName" : "Net Worth Liquid Lower Int",
+    "sourceCollection" : "personwealthxdataMongo",
+    "dataType" : "integer",
+    "include" : true,
+    "statistics" : {
+      "distinctNonNullValues" : 264,
+      "nullCount" : 0,
+      "totalOccurrences" : 20000,
+      "sampleValues" : [ "0", "1.01E10", "1.07E10", "1.11E10", "1.16E10" ]
+    }
+  }, {
+    "fieldPath" : "netWorth.liquidUpper",
+    "businessName" : "Net Worth Liquid Upper",
+    "sourceCollection" : "personwealthxdataMongo",
+    "dataType" : "string",
+    "include" : false,
+    "statistics" : {
+      "distinctNonNullValues" : 1,
+      "nullCount" : 0,
+      "totalOccurrences" : 6,
+      "sampleValues" : [ ".00" ]
+    }
+  }, {
+    "fieldPath" : "netWorth.netWorthHoldings",
+    "businessName" : "Net Worth Net Worth Holdings",
+    "sourceCollection" : "personwealthxdataMongo",
+    "dataType" : "array",
+    "include" : true,
+    "statistics" : {
+      "distinctNonNullValues" : 5599,
+      "nullCount" : 0,
+      "totalOccurrences" : 12174,
+      "sampleValues" : [ "Document{{type=Alternative Assets, assetName=Aircraft, valueOfHoldings=20000, remarks=Value of aircraft.}}", "Document{{type=Alternative Assets, assetName=Commercial property in New Hope, Pennsylvania., valueOfHoldings=1000000, remarks=Estimated value of commercial property in New Hope, Pennsylvania.}}", "Document{{type=Alternative Assets, assetName=Home 1, valueOfHoldings=1000000, remarks=Value of home in Manhattan Beach, California.}}", "Document{{type=Alternative Assets, assetName=Home 1, valueOfHoldings=1000000, remarks=Value of home in Sunset, South Carolina.}}", "Document{{type=Alternative Assets, assetName=Home 1, valueOfHoldings=1500000, remarks=Value of home in Osprey, Florida.}}" ],
+      "avgArrayLength" : 3.4989321504846393,
+      "maxArrayLength" : 33
+    },
+    "arrayConfig" : {
+      "extractField" : "industryTypeName",
+      "displayMode" : "comma_separated",
+      "sortOrder" : "alphanumeric",
+      "delimiter" : ", ",
+      "objectType" : "object",
+      "availableFields" : [ "assetName", "assetType", "entityID", "entityTypeID", "entityTypeName", "industryTypeID", "industryTypeName", "remarks", "type", "valueOfHoldings" ]
+    }
+  }, {
+    "fieldPath" : "netWorth.netWorthHoldings[count]",
+    "businessName" : "Net Worth Net Worth Holdings Count",
+    "sourceCollection" : "personwealthxdataMongo",
+    "dataType" : "integer",
+    "include" : false,
+    "statistics" : {
+      "distinctNonNullValues" : 5599,
+      "nullCount" : 0
+    },
+    "extractionMode" : "count",
+    "sourceField" : "netWorth.netWorthHoldings"
+  }, {
+    "fieldPath" : "netWorth.netWorthHoldings[primary].assetName",
+    "businessName" : "Primary Net Worth Holdings Asset Name",
+    "sourceCollection" : "personwealthxdataMongo",
+    "dataType" : "string",
+    "include" : false,
+    "statistics" : {
+      "distinctNonNullValues" : 5599,
+      "nullCount" : 0
+    },
+    "extractionMode" : "primary",
+    "sourceField" : "netWorth.netWorthHoldings",
+    "extractionIndex" : 0
+  }, {
+    "fieldPath" : "netWorth.netWorthHoldings[primary].entityTypeName",
+    "businessName" : "Primary Net Worth Holdings Entity Type Name",
+    "sourceCollection" : "personwealthxdataMongo",
+    "dataType" : "string",
+    "include" : false,
+    "statistics" : {
+      "distinctNonNullValues" : 5599,
+      "nullCount" : 0
+    },
+    "extractionMode" : "primary",
+    "sourceField" : "netWorth.netWorthHoldings",
+    "extractionIndex" : 0
+  }, {
+    "fieldPath" : "netWorth.netWorthHoldings[primary].industryTypeID",
+    "businessName" : "Primary Net Worth Holdings Industry Type ID",
+    "sourceCollection" : "personwealthxdataMongo",
+    "dataType" : "string",
+    "include" : false,
+    "statistics" : {
+      "distinctNonNullValues" : 5599,
+      "nullCount" : 0
+    },
+    "extractionMode" : "primary",
+    "sourceField" : "netWorth.netWorthHoldings",
+    "extractionIndex" : 0
+  }, {
+    "fieldPath" : "netWorth.netWorthHoldings[primary].industryTypeName",
+    "businessName" : "Primary Net Worth Holdings Industry Type Name",
+    "sourceCollection" : "personwealthxdataMongo",
+    "dataType" : "string",
+    "include" : false,
+    "statistics" : {
+      "distinctNonNullValues" : 5599,
+      "nullCount" : 0
+    },
+    "extractionMode" : "primary",
+    "sourceField" : "netWorth.netWorthHoldings",
+    "extractionIndex" : 0
+  }, {
+    "fieldPath" : "netWorth.netWorthLower",
+    "businessName" : "Net Worth Net Worth Lower",
+    "sourceCollection" : "personwealthxdataMongo",
+    "dataType" : "string",
+    "include" : true,
+    "statistics" : {
+      "distinctNonNullValues" : 310,
+      "nullCount" : 0,
+      "totalOccurrences" : 6252,
+      "sampleValues" : [ "100000.00", "1000000.00", "10000000.00", "100000000.00", "1000000000.00" ]
+    }
+  }, {
+    "fieldPath" : "netWorth.netWorthLowerInt",
+    "businessName" : "Net Worth Net Worth Lower Int",
+    "sourceCollection" : "personwealthxdataMongo",
+    "dataType" : "integer",
+    "include" : true,
+    "statistics" : {
+      "distinctNonNullValues" : 311,
+      "nullCount" : 0,
+      "totalOccurrences" : 20000,
+      "sampleValues" : [ "0", "1.01E10", "1.03E10", "1.06E10", "1.0E10" ]
+    }
+  }, {
+    "fieldPath" : "netWorth.netWorthUpper",
+    "businessName" : "Net Worth Net Worth Upper",
+    "sourceCollection" : "personwealthxdataMongo",
+    "dataType" : "string",
+    "include" : false,
+    "statistics" : {
+      "distinctNonNullValues" : 1,
+      "nullCount" : 0,
+      "totalOccurrences" : 4,
+      "sampleValues" : [ ".00" ]
+    }
+  }, {
+    "fieldPath" : "netWorth.totalAssetFound",
+    "businessName" : "Net Worth Total Asset Found",
+    "sourceCollection" : "personwealthxdataMongo",
+    "dataType" : "string",
+    "include" : true,
+    "statistics" : {
+      "distinctNonNullValues" : 173,
+      "nullCount" : 0,
+      "totalOccurrences" : 5688,
+      "sampleValues" : [ "10000.00", "100000.00", "1000000.00", "10000000.00", "100000000.00" ]
+    }
+  }, {
+    "fieldPath" : "nickNames",
+    "businessName" : "Nick Names",
+    "sourceCollection" : "personwealthxdataMongo",
+    "dataType" : "array",
+    "include" : true,
+    "statistics" : {
+      "distinctNonNullValues" : 5301,
+      "nullCount" : 12798,
+      "totalOccurrences" : 13601,
+      "sampleValues" : [ "\"10亿先生\"", "50 Cent", "A Hok", "A Knaster", "A. Alfred Taubman" ],
+      "avgArrayLength" : 1.7100805331852262,
+      "maxArrayLength" : 15
+    },
+    "arrayConfig" : {
+      "displayMode" : "comma_separated",
+      "sortOrder" : "alphanumeric",
+      "delimiter" : ", ",
+      "objectType" : "string"
+    }
+  }, {
+    "fieldPath" : "nickNames[count]",
+    "businessName" : "Nick Names Count",
+    "sourceCollection" : "personwealthxdataMongo",
+    "dataType" : "integer",
+    "include" : false,
+    "statistics" : {
+      "distinctNonNullValues" : 5301,
+      "nullCount" : 12798
+    },
+    "extractionMode" : "count",
+    "sourceField" : "nickNames"
+  }, {
+    "fieldPath" : "photoUrl",
+    "businessName" : "Photo Url",
+    "sourceCollection" : "personwealthxdataMongo",
+    "dataType" : "string",
+    "include" : true,
+    "statistics" : {
+      "distinctNonNullValues" : 5487,
+      "nullCount" : 9026,
+      "totalOccurrences" : 15487,
+      "sampleValues" : [ "https://gsfiles.s3.amazonaws.com/images/folder10/SidneyKohl.jpg", "https://gsfiles.s3.amazonaws.com/images/folder100/712.JPG", "https://gsfiles.s3.amazonaws.com/images/folder1000/dean_taylor_new.jpg", "https://gsfiles.s3.amazonaws.com/images/folder10000/Dong xianjun1.jpg", "https://gsfiles.s3.amazonaws.com/images/folder10001/Fan guangchen1.JPG" ]
+    }
+  }, {
+    "fieldPath" : "primary",
+    "businessName" : "Primary",
+    "sourceCollection" : "personwealthxdataMongo",
+    "dataType" : "boolean",
+    "include" : false,
+    "statistics" : {
+      "distinctNonNullValues" : 1,
+      "nullCount" : 0,
+      "totalOccurrences" : 20000,
+      "sampleValues" : [ "true" ]
+    }
+  }, {
+    "fieldPath" : "residences",
+    "businessName" : "Residences",
+    "sourceCollection" : "personwealthxdataMongo",
+    "dataType" : "array",
+    "include" : true,
+    "statistics" : {
+      "distinctNonNullValues" : 5631,
+      "nullCount" : 0,
+      "totalOccurrences" : 20000,
+      "sampleValues" : [ "Document{{address= , city=Boston, state=Massachusetts, postalCode=, country=United States}}", "Document{{address= Haitian Yi Cun, Xiaogang Town, Beilun, city=Ningbo, state=Zhejiang, postalCode=315801, country=China}}", "Document{{address= Room B602, Building 5, Chuyang Garden, Guihua City, city=Hangzhou, state=Zhejiang, postalCode=, country=China}}", "Document{{address=# S 67, Golden Enclave, Airport Road, , city=Bengaluru, state=Karnataka, postalCode=560017, country=India}}", "Document{{address=#248, 19th Main, 15th Cross, HSR Layout, Stage IV, city=Bengaluru, state=Karnataka, postalCode=560034, country=India}}" ],
+      "avgArrayLength" : 1.3526,
+      "maxArrayLength" : 26
+    },
+    "arrayConfig" : {
+      "extractField" : "country",
+      "displayMode" : "comma_separated",
+      "sortOrder" : "alphanumeric",
+      "delimiter" : ", ",
+      "objectType" : "object",
+      "availableFields" : [ "address", "city", "country", "postalCode", "state" ]
+    }
+  }, {
+    "fieldPath" : "residences[count]",
+    "businessName" : "Residences Count",
+    "sourceCollection" : "personwealthxdataMongo",
+    "dataType" : "integer",
+    "include" : false,
+    "statistics" : {
+      "distinctNonNullValues" : 5631,
+      "nullCount" : 0
+    },
+    "extractionMode" : "count",
+    "sourceField" : "residences"
+  }, {
+    "fieldPath" : "residences[primary].address",
+    "businessName" : "Primary Residences Address",
+    "sourceCollection" : "personwealthxdataMongo",
+    "dataType" : "string",
+    "include" : false,
+    "statistics" : {
+      "distinctNonNullValues" : 5631,
+      "nullCount" : 0
+    },
+    "extractionMode" : "primary",
+    "sourceField" : "residences",
+    "extractionIndex" : 0
+  }, {
+    "fieldPath" : "residences[primary].city",
+    "businessName" : "Primary Residences City",
+    "sourceCollection" : "personwealthxdataMongo",
+    "dataType" : "string",
+    "include" : false,
+    "statistics" : {
+      "distinctNonNullValues" : 5631,
+      "nullCount" : 0
+    },
+    "extractionMode" : "primary",
+    "sourceField" : "residences",
+    "extractionIndex" : 0
+  }, {
+    "fieldPath" : "residences[primary].country",
+    "businessName" : "Primary Residences Country",
+    "sourceCollection" : "personwealthxdataMongo",
+    "dataType" : "string",
+    "include" : false,
+    "statistics" : {
+      "distinctNonNullValues" : 5631,
+      "nullCount" : 0
+    },
+    "extractionMode" : "primary",
+    "sourceField" : "residences",
+    "extractionIndex" : 0
+  }, {
+    "fieldPath" : "residences[primary].postalCode",
+    "businessName" : "Primary Residences Postal Code",
+    "sourceCollection" : "personwealthxdataMongo",
+    "dataType" : "string",
+    "include" : false,
+    "statistics" : {
+      "distinctNonNullValues" : 5631,
+      "nullCount" : 0
+    },
+    "extractionMode" : "primary",
+    "sourceField" : "residences",
+    "extractionIndex" : 0
+  }, {
+    "fieldPath" : "sex",
+    "businessName" : "Sex",
+    "sourceCollection" : "personwealthxdataMongo",
+    "dataType" : "integer",
+    "include" : true,
+    "statistics" : {
+      "distinctNonNullValues" : 3,
+      "nullCount" : 0,
+      "totalOccurrences" : 20000,
+      "sampleValues" : [ "0", "1", "3" ]
+    }
+  }, {
+    "fieldPath" : "tags",
+    "businessName" : "Tags",
+    "sourceCollection" : "personwealthxdataMongo",
+    "include" : false,
+    "statistics" : {
+      "distinctNonNullValues" : 0,
+      "nullCount" : 20000,
+      "totalOccurrences" : 10000
+    }
+  }, {
+    "fieldPath" : "updatedAt",
+    "businessName" : "Updated At",
+    "sourceCollection" : "personwealthxdataMongo",
+    "dataType" : "date",
+    "include" : true,
+    "statistics" : {
+      "distinctNonNullValues" : 41,
+      "nullCount" : 0,
+      "totalOccurrences" : 8076,
+      "sampleValues" : [ "Fri Oct 07 13:01:00 UTC 2022", "Fri Sep 16 13:01:19 UTC 2022", "Fri Sep 23 13:00:56 UTC 2022", "Fri Sep 30 13:01:24 UTC 2022", "Mon Oct 10 13:01:59 UTC 2022" ]
+    }
+  }, {
+    "fieldPath" : "wxId",
+    "businessName" : "Wx Id",
+    "sourceCollection" : "personwealthxdataMongo",
+    "dataType" : "integer",
+    "include" : false,
+    "statistics" : {
+      "distinctNonNullValues" : 10000,
+      "nullCount" : 0,
+      "totalOccurrences" : 20000,
+      "sampleValues" : [ "10", "100", "1000", "10000", "10001" ]
+    }
+  } ],
+  "requiredCollections" : [ ],
+  "exportSettings" : {
+    "batchSize" : 5000,
+    "useBusinessNames" : true,
+    "outputFormat" : "csv",
+    "csvDelimiter" : ",",
+    "csvQuoteChar" : "\""
+  }
+}

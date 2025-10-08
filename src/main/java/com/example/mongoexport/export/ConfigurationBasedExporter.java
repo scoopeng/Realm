@@ -41,7 +41,15 @@ public class ConfigurationBasedExporter extends AbstractUltraExporter
      */
     public ConfigurationBasedExporter(File configFile) throws IOException
     {
-        this(DiscoveryConfiguration.loadFromFile(configFile));
+        this(DiscoveryConfiguration.loadFromFile(configFile), null, null);
+    }
+
+    /**
+     * Create exporter from configuration file with environment/database overrides
+     */
+    public ConfigurationBasedExporter(File configFile, String environmentOverride, String databaseOverride) throws IOException
+    {
+        this(DiscoveryConfiguration.loadFromFile(configFile), environmentOverride, databaseOverride);
     }
 
     /**
@@ -49,7 +57,15 @@ public class ConfigurationBasedExporter extends AbstractUltraExporter
      */
     public ConfigurationBasedExporter(DiscoveryConfiguration config)
     {
-        super(buildExportOptions(config));
+        this(config, null, null);
+    }
+
+    /**
+     * Create exporter from configuration object with environment/database overrides
+     */
+    public ConfigurationBasedExporter(DiscoveryConfiguration config, String environmentOverride, String databaseOverride)
+    {
+        super(buildExportOptions(config), environmentOverride, databaseOverride);
         this.configuration = config;
         this.includedFields = config.getIncludedFields();
         this.cacheManager = new CollectionCacheManager(database);

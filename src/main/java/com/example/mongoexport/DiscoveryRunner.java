@@ -19,16 +19,19 @@ public class DiscoveryRunner {
     
     public static void main(String[] args) {
         if (args.length < 1) {
-            System.err.println("Usage: DiscoveryRunner <collection>");
+            System.err.println("Usage: DiscoveryRunner <collection> [environment] [database]");
             System.err.println("Example: DiscoveryRunner listings");
+            System.err.println("Example: DiscoveryRunner personwealthxdataMongo lake WealthX");
             System.exit(1);
         }
-        
+
         String collectionName = args[0];
-        
+        String environmentOverride = args.length > 1 ? args[1] : null;
+        String databaseOverride = args.length > 2 ? args[2] : null;
+
         try {
-            // Load configuration
-            ExportConfig config = new ExportConfig();
+            // Load configuration with optional overrides
+            ExportConfig config = new ExportConfig(environmentOverride, databaseOverride);
             String mongoUrl = config.getMongoUrl();
             String databaseName = config.getDatabaseName();
             

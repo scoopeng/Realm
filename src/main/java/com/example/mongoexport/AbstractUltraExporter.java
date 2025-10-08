@@ -65,11 +65,15 @@ public abstract class AbstractUltraExporter {
     protected int expansionDepth = 2;
     
     public AbstractUltraExporter() {
-        this(new ExportOptions());
+        this(new ExportOptions(), null, null);
     }
-    
+
     public AbstractUltraExporter(ExportOptions options) {
-        this.config = new ExportConfig();
+        this(options, null, null);
+    }
+
+    public AbstractUltraExporter(ExportOptions options, String environmentOverride, String databaseOverride) {
+        this.config = new ExportConfig(environmentOverride, databaseOverride);
         this.options = options != null ? options : new ExportOptions();
         MongoClient mongoClient = MongoClients.create(config.getMongoUrl());
         this.database = mongoClient.getDatabase(config.getDatabaseName());

@@ -46,7 +46,17 @@ task discover(type: JavaExec) {
     jvmArgs = ['-Xmx16g', '-Xms8g']
     doFirst {
         def collection = project.hasProperty('collection') ? project.property('collection') : 'listings'
-        args = [collection]
+        def env = project.hasProperty('env') ? project.property('env') : null
+        def database = project.hasProperty('database') ? project.property('database') : null
+
+        def argsList = [collection]
+        if (env != null) {
+            argsList.add(env)
+        }
+        if (database != null) {
+            argsList.add(database)
+        }
+        args = argsList
     }
     description = 'Phase 1: Discovers all fields and creates editable JSON configuration in config/'
 }
@@ -59,12 +69,20 @@ task configExport(type: JavaExec) {
     doFirst {
         def collection = project.hasProperty('collection') ? project.property('collection') : 'listings'
         def rowLimit = project.hasProperty('rowLimit') ? project.property('rowLimit') : null
-        
+        def env = project.hasProperty('env') ? project.property('env') : null
+        def database = project.hasProperty('database') ? project.property('database') : null
+
+        def argsList = [collection]
         if (rowLimit != null) {
-            args = [collection, rowLimit]
-        } else {
-            args = [collection]
+            argsList.add(rowLimit.toString())
         }
+        if (env != null) {
+            argsList.add(env)
+        }
+        if (database != null) {
+            argsList.add(database)
+        }
+        args = argsList
     }
     description = 'Phase 2: Exports using JSON configuration from config/ directory'
 }

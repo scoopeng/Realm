@@ -19,14 +19,17 @@ public class ConfigExportRunner
     {
         if (args.length < 1)
         {
-            System.err.println("Usage: ConfigExportRunner <collection> [rowLimit]");
+            System.err.println("Usage: ConfigExportRunner <collection> [rowLimit] [environment] [database]");
             System.err.println("Example: ConfigExportRunner listings");
             System.err.println("Example: ConfigExportRunner listings 1000");
+            System.err.println("Example: ConfigExportRunner personwealthxdataMongo null lake WealthX");
             System.exit(1);
         }
 
         String collectionName = args[0];
         Integer rowLimit = null;
+        String environmentOverride = null;
+        String databaseOverride = null;
 
         if (args.length > 1)
         {
@@ -36,9 +39,19 @@ public class ConfigExportRunner
                 logger.info("Row limit set to: {}", rowLimit);
             } catch (NumberFormatException e)
             {
-                logger.error("Invalid row limit: {}", args[1]);
-                System.exit(1);
+                // Not a number, might be environment parameter
+                logger.info("No row limit specified");
             }
+        }
+
+        if (args.length > 2)
+        {
+            environmentOverride = args[2];
+        }
+
+        if (args.length > 3)
+        {
+            databaseOverride = args[3];
         }
 
         try
@@ -57,8 +70,8 @@ public class ConfigExportRunner
 
             logger.info("Loading configuration from: {}", configFile.getAbsolutePath());
 
-            // Run export
-            ConfigurationBasedExporter exporter = new ConfigurationBasedExporter(configFile);
+            // Run export with optional environment/database overrides
+            ConfigurationBasedExporter exporter = new ConfigurationBasedExporter(configFile, environmentOverride, databaseOverride);
             if (rowLimit != null)
             {
                 exporter.setRowLimit(rowLimit);

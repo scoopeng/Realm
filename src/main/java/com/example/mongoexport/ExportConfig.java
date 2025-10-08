@@ -23,10 +23,15 @@ public class ExportConfig
 
     public ExportConfig()
     {
+        this(null, null);
+    }
+
+    public ExportConfig(String environmentOverride, String databaseOverride)
+    {
         this.config = ConfigFactory.load();
-        this.currentEnvironment = config.getString("current.environment");
+        this.currentEnvironment = environmentOverride != null ? environmentOverride : config.getString("current.environment");
         this.mongoUrl = loadMongoUrl();
-        this.databaseName = config.getString("database.name");
+        this.databaseName = databaseOverride != null ? databaseOverride : config.getString("database.name");
         this.outputDirectory = config.getString("output.directory");
         createOutputDirectoryIfNeeded();
 

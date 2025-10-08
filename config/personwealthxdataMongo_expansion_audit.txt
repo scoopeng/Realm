@@ -1,0 +1,72 @@
+=================================================================
+FIELD EXPANSION AUDIT TREE
+=================================================================
+Collection: personwealthxdataMongo
+Generated: Wed Oct 08 06:04:21 UTC 2025
+Total Fields: 62
+Included Fields: 40
+Expansion Depth: 3
+=================================================================
+
+DOB [string] (INCLUDED) - 2407 distinct values, 6000 nulls
+__v [integer] (EXCLUDED) - 1 distinct values
+_id [objectId] (EXCLUDED) - 10000 distinct values
+age [integer] (INCLUDED) - 86 distinct values, 6000 nulls
+bio [string] (INCLUDED) - 4727 distinct values, 3634 nulls
+business [object] (INCLUDED) - 0 distinct values
+  business.address [string] (INCLUDED) - 6167 distinct values, 6004 nulls
+  business.city [string] (INCLUDED) - 1037 distinct values, 6038 nulls
+  business.company [string] (INCLUDED) - 6765 distinct values, 1768 nulls
+  business.country [string] (INCLUDED) - 45 distinct values, 2312 nulls
+  business.email [string] (INCLUDED) - 1665 distinct values, 16666 nulls
+  business.phone [string] (INCLUDED) - 5261 distinct values, 7252 nulls
+  business.position [string] (INCLUDED) - 135 distinct values, 1782 nulls
+  business.postalCode [string] (INCLUDED) - 3577 distinct values, 7952 nulls
+  business.state [string] (INCLUDED) - 156 distinct values, 5158 nulls
+cities [string] (INCLUDED) - 3437 distinct values, 4394 nulls
+email [string] (INCLUDED) - 1665 distinct values, 16666 nulls
+firstName [string] (INCLUDED) - 5089 distinct values
+fullName [string] (INCLUDED) - 9876 distinct values
+interests [array] (INCLUDED) - 12421 distinct values
+interests[count] [integer] (EXCLUDED) - 12421 distinct values
+lastIngestion [date] (INCLUDED) - 54 distinct values
+lastName [string] (INCLUDED) - 3919 distinct values
+lastWXUpdate [string] (INCLUDED) - 4196 distinct values, 214 nulls
+lifestyles [null] (EXCLUDED) - 0 distinct values, 20000 nulls
+maritalStatus [string] (INCLUDED) - 6 distinct values, 2206 nulls
+names [string] (INCLUDED) - 9926 distinct values
+netWorth [object] (INCLUDED) - 0 distinct values
+  netWorth.chartURL [string] (INCLUDED) - 10000 distinct values
+  netWorth.householdLiquidAsset [string] (INCLUDED) - 479 distinct values
+  netWorth.householdNetWorth [string] (INCLUDED) - 958 distinct values
+  netWorth.householdTotalAssetFound [string] (INCLUDED) - 289 distinct values
+  netWorth.householdWealth [string] (INCLUDED) - 1202 distinct values
+  netWorth.liquidLower [string] (INCLUDED) - 263 distinct values
+  netWorth.liquidLowerInt [integer] (INCLUDED) - 264 distinct values
+  netWorth.liquidUpper [string] (EXCLUDED) - 1 distinct values
+  netWorth.netWorthHoldings [array] (INCLUDED) - 5599 distinct values
+  netWorth.netWorthHoldings[count] [integer] (EXCLUDED) - 5599 distinct values
+  netWorth.netWorthLower [string] (INCLUDED) - 310 distinct values
+  netWorth.netWorthLowerInt [integer] (INCLUDED) - 311 distinct values
+  netWorth.netWorthUpper [string] (EXCLUDED) - 1 distinct values
+  netWorth.totalAssetFound [string] (INCLUDED) - 173 distinct values
+nickNames [array] (INCLUDED) - 5301 distinct values, 12798 nulls
+nickNames[count] [integer] (EXCLUDED) - 5301 distinct values, 12798 nulls
+photoUrl [string] (INCLUDED) - 5487 distinct values, 9026 nulls
+primary [boolean] (EXCLUDED) - 1 distinct values
+residences [array] (INCLUDED) - 5631 distinct values
+residences[count] [integer] (EXCLUDED) - 5631 distinct values
+sex [integer] (INCLUDED) - 3 distinct values
+tags [null] (EXCLUDED) - 0 distinct values, 20000 nulls
+updatedAt [date] (INCLUDED) - 41 distinct values
+wxId [integer] (EXCLUDED) - 10000 distinct values
+
+=================================================================
+EXPANSION SUMMARY
+=================================================================
+
+Expanded Relationships:
+
+Array References:
+
+Unexpanded ObjectId Fields (potential relationships):
