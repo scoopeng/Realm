@@ -1,5 +1,5 @@
 # CLAUDE.md - MongoDB Export Utility
-*Last Updated: August 25, 2025 - Post-Cleanup*
+*Last Updated: October 8, 2025 - WealthX Database Discovery*
 
 This file provides comprehensive guidance to Claude Code when working with this codebase.
 
@@ -201,13 +201,241 @@ tail -f output/export.log
 
 ## DATABASE CONNECTION
 
+### Available Environments
 Configure in `application.properties`:
 ```properties
-mongodb.url.dev=mongodb://username:password@host:port/?authSource=admin
-current.environment=dev
+# Production environments
+mongodb.url.dev=mongodb+srv://user:pass@realmdev.m0dfg.mongodb.net/
+mongodb.url.stage=mongodb+srv://user:pass@stage.zhil9.mongodb.net/
+mongodb.url.prod=mongodb+srv://user:pass@prod-shared.zhil9.mongodb.net/
+mongodb.url.lake=mongodb+srv://user:pass@realm-big-data.zhil9.mongodb.net/
+
+current.environment=prod
 database.name=realm
 output.directory=./output
 ```
+
+### Environment Details
+- **dev**: Development database with `realm` database
+- **stage**: Staging database with `realm` database
+- **prod**: Production database with `realm` database (current default)
+- **lake**: Big data cluster with `realmLake` and `WealthX` databases
+
+## MONGODB EXPLORER TOOL
+
+### Overview
+Standalone exploration tool for investigating any MongoDB database without modifying existing export workflows.
+
+### Usage
+```bash
+# List all collections in lake/realmLake (default)
+./gradlew explore
+
+# List collections in specific database
+./gradlew explore -Pdatabase=WealthX
+
+# Inspect a specific collection
+./gradlew explore -Pdatabase=WealthX -Pcollection=personwealthxdataMongo
+
+# Use different environment
+./gradlew explore -Penv=prod -Pdatabase=realm
+```
+
+### Features
+- Lists all available databases on a cluster
+- Shows collection names with document counts
+- Samples 100 documents to discover field structure
+- Displays field types, nested paths, and array structures
+- Shows sample document in pretty JSON format
+- Zero impact on production export workflows
+
+### Implementation
+- **File**: `MongoExplorerRunner.java`
+- **Gradle Task**: `explore` in build.gradle
+- **Default Environment**: lake
+- **Default Database**: realmLake
+
+## WEALTHX DATABASE (LAKE CLUSTER)
+
+### Database Overview
+Located on the **lake** environment cluster, contains high-value wealth and demographic data.
+
+### Available Databases on Lake Cluster
+1. **WealthX** - Primary wealth data (5M+ records)
+2. **realmLake** - ListHub real estate data (24M+ records)
+
+### WealthX Database Collections
+```
+Collection Name                    Document Count       Status
+────────────────────────────────────────────────────────────────
+listhubAgents                                   0       Empty
+listhubBrokerages                               0       Empty
+listhubIndex                                    0       Empty
+listhubListings                                 0       Empty
+people                                    311,633       Active
+personwealthxdataMongo                  4,458,826       Active (PRIMARY)
+prospectSearch                                  0       Empty
+wxProfileData                             272,106       Active
+```
+
+### personwealthxdataMongo Collection (4.5M Records)
+
+**Primary wealth data collection** with comprehensive individual profiles.
+
+#### Field Structure (63 unique field paths)
+
+**Personal Information:**
+- `firstName`, `lastName`, `fullName`, `email`
+- `DOB`, `age`, `maritalStatus`, `sex`
+- `photoUrl`, `wxId` (WealthX ID)
+- `nickNames[]` - Array of alternate names
+- `tags[]` - Array of wealth/lifestyle tags
+- `lifestyles[]` - Array of lifestyle indicators
+
+**Business Information:**
+- `business.company`, `business.position`
+- `business.phone`, `business.email`
+- `business.address`, `business.city`, `business.state`, `business.postalCode`, `business.country`
+
+**Residence Data:**
+- `residences[]` - **Array of residence objects**
+  - `address`, `city`, `state`, `postalCode`, `country`
+  - Multiple residences per person common
+
+**Net Worth & Financial Data:**
+- `netWorth.householdWealth` - Total household wealth (string)
+- `netWorth.householdNetWorth` - Net worth value (string)
+- `netWorth.householdLiquidAsset` - Liquid assets (string)
+- `netWorth.liquidLowerInt` - Liquid assets lower bound (integer)
+- `netWorth.netWorthLowerInt` - Net worth lower bound (integer)
+- `netWorth.chartURL` - Link to WealthX asset visualization
+
+**Asset Holdings:**
+- `netWorth.netWorthHoldings[]` - **Array of asset objects**
+  - `type` - Asset category (Alternative Assets, Public Holdings, Cash & Other)
+  - `assetName` - Specific asset name
+  - `assetType` - Asset classification (Property, Stock, etc.)
+  - `valueOfHoldings` - Estimated value (integer)
+  - `remarks` - Detailed description
+  - **For public stock holdings:**
+    - `entityID`, `entityTypeID`, `entityTypeName`
+    - `industryTypeID`, `industryTypeName`
+  - Common assets: Properties, Stock holdings, Cash/investments
+
+**Interests & Hobbies:**
+- `interests[]` - **Array of interest objects**
+  - `hobbyName` - Name of hobby/interest
+  - `hobbyDescription` - Detailed description
+  - Not present for all records (~52% have data)
+
+**Metadata:**
+- `lastIngestion` - Date record was ingested (Date type)
+- `lastWXUpdate` - Last WealthX update timestamp (string)
+- `updatedAt` - Last modification date (Date type)
+- `__v` - Version field
+- `cities`, `names` - Pipe-delimited search fields
+- `primary` - Boolean/String flag
+
+#### Array Handling Considerations for WealthX Export
+
+**Critical Array Fields Requiring Special Handling:**
+
+1. **residences[]** (Present in 100% of records)
+   - **Challenge**: Multiple residences per person very common
+   - **Options**:
+     - `primary` mode: Extract first/primary residence only
+     - `count` mode: Number of residences
+     - `list` mode: Comma-separated cities/states
+     - **Recommendation**: Create separate residence fields (primary + count)
+
+2. **netWorth.netWorthHoldings[]** (Present in ~35% of records)
+   - **Challenge**: Variable number of assets, complex nested structure
+   - **Options**:
+     - `statistics` mode: Sum total holdings, count assets
+     - `primary` mode: Largest asset only
+     - Separate by asset type (property count, stock holdings count, total value)
+     - **Recommendation**: Aggregate statistics (total value, count by type)
+
+3. **interests[]** (Present in ~52% of records)
+   - **Challenge**: Variable array, nested objects
+   - **Options**:
+     - `count` mode: Number of interests
+     - `list` mode: Comma-separated hobby names
+     - **Recommendation**: Simple count or list of names
+
+4. **tags[]**, **lifestyles[]** (Present in 100% of records)
+   - **Challenge**: Array of objects with tagName and score
+   - **Options**:
+     - `list` mode: Comma-separated tag names
+     - `count` mode: Number of tags
+     - **Recommendation**: List mode for tag names
+
+5. **nickNames[]** (Present in 100% of records, often empty)
+   - **Simple array**: Can use standard list mode
+
+#### Sample Record Structure
+```json
+{
+  "fullName": "J. Fredericks",
+  "age": 75,
+  "maritalStatus": "Married",
+  "residences": [
+    {
+      "city": "Sausalito",
+      "state": "California",
+      "postalCode": "94965-2323"
+    }
+  ],
+  "business": {
+    "company": "Main Management",
+    "position": "Partner",
+    "city": "Houston",
+    "state": "Texas"
+  },
+  "netWorth": {
+    "householdWealth": "5500000.00",
+    "householdLiquidAsset": "12000000.00",
+    "netWorthHoldings": [
+      {
+        "type": "Alternative Assets",
+        "assetType": "Property",
+        "assetName": "Property in Sausalito, California",
+        "valueOfHoldings": 700000
+      },
+      {
+        "type": "Public Holdings - Common Stock",
+        "entityTypeName": "Public Company",
+        "industryTypeName": "Finance / Banking / Investment",
+        "valueOfHoldings": 3000000
+      }
+    ]
+  }
+}
+```
+
+#### Export Strategy Recommendations
+
+**For WealthX personwealthxdataMongo export:**
+
+1. **Flatten single-value nested objects** (business, primary residence)
+2. **Aggregate array statistics** (asset counts, total values)
+3. **Extract primary elements** (first residence, largest asset)
+4. **Use list mode for simple arrays** (tags, nickNames)
+5. **Consider separate exports** for complex arrays (one row per asset holding)
+
+**Expected Field Count**: 50-80 flattened fields including:
+- ~15 personal/demographic fields
+- ~10 business fields
+- ~10 primary residence fields
+- ~15 net worth aggregates
+- ~10 array counts/lists
+
+### wxProfileData Collection (272K Records)
+
+Subset of personwealthxdataMongo with additional computed fields:
+- `affordabilityScore` - Calculated affordability metric
+- Similar structure but smaller dataset
+- May have different field coverage
 
 ## GIT INFORMATION
 - Repository: https://github.com/scoopeng/Realm
@@ -253,14 +481,21 @@ Remember:
 4. **Consistency** - Both phases use identical logic (no code duplication)
 5. **Simplicity** - Occam's razor wins (e.g., shortest collection name)
 
-## CURRENT STATUS (August 25, 2025)
+## CURRENT STATUS (October 8, 2025)
 
 ### ✅ System Fully Operational
+
+**Production Exports (Realm Database):**
 - **Discovery**: Finds 73 fields with intelligent filtering
 - **Export**: Successfully exports 573,874 rows with 103 total fields
 - **Supplemental System**: Adds 30 demographic fields via reverse lookup
 - **Performance**: ~600 rows/sec export speed
 - **Data Quality**: All major field groups working with expected coverage
+
+**New Capabilities:**
+- **MongoDB Explorer**: Standalone tool for database investigation (October 8, 2025)
+- **WealthX Database Discovered**: 4.5M wealth records on lake cluster
+- **Multi-Environment Support**: Can now explore dev, stage, prod, and lake clusters
 
 ### Key Achievements:
 1. **Unified Architecture**: Single source of truth for caching (CollectionCacheManager)
@@ -268,10 +503,18 @@ Remember:
 3. **Flexible Export**: Configuration-driven with multiple array handling modes
 4. **Rich Demographics**: Supplemental configuration enables personexternaldatas integration
 5. **Production Ready**: Tested with 573K+ records, stable and performant
+6. **Database Explorer**: Zero-impact tool for investigating new data sources
 
-### Field Statistics:
+### Field Statistics (Realm Production):
 - **Base Fields**: 73 auto-discovered fields
 - **Supplemental Fields**: 30 demographic fields
 - **Total Export**: 103 columns in CSV
 - **Address Coverage**: 30-37% of records
 - **Demographic Coverage**: 6-10% of records (merged from multiple sources)
+
+### Next Steps: WealthX Export Development
+1. **Create discovery configuration** for personwealthxdataMongo collection
+2. **Enhance array handlers** for complex nested arrays (netWorthHoldings)
+3. **Implement aggregate functions** for asset statistics
+4. **Test export performance** with 4.5M record dataset
+5. **Design flattened schema** with 50-80 fields (personal + business + wealth data)

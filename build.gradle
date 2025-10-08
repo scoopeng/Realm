@@ -75,7 +75,27 @@ task checkField(type: JavaExec) {
     description = 'Debug tool to check field values in MongoDB'
 }
 
+// ============================================
+// MONGODB EXPLORER (standalone tool)
+// ============================================
 
+task explore(type: JavaExec) {
+    classpath = sourceSets.main.runtimeClasspath
+    mainClass = 'com.example.mongoexport.MongoExplorerRunner'
+    jvmArgs = ['-Xmx4g']
+    doFirst {
+        def env = project.hasProperty('env') ? project.property('env') : 'lake'
+        def db = project.hasProperty('database') ? project.property('database') : 'realmLake'
+        def collection = project.hasProperty('collection') ? project.property('collection') : null
+
+        if (collection != null) {
+            args = [env, collection, db]
+        } else {
+            args = [env, 'null', db]  // 'null' as placeholder to skip collection
+        }
+    }
+    description = 'Explore MongoDB collections (defaults to lake/realmLake)'
+}
 
 // ============================================
 // HELP TASK
