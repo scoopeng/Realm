@@ -135,6 +135,8 @@ The system is fully data-driven, works with any MongoDB database, and provides i
 ## PRODUCTION COMMANDS
 
 ### Standard Workflow
+
+**Realm Database (default)**:
 ```bash
 # Discovery
 ./gradlew discover -Pcollection=agentclients
@@ -149,12 +151,32 @@ vi config/agentclients_fields.json
 ./gradlew configExport -Pcollection=agentclients -ProwLimit=1000
 ```
 
+**WealthX Database (lake environment)** ⭐ NEW:
+```bash
+# Discovery
+./gradlew discover -Pcollection=personwealthxdataMongo -Penv=lake -Pdatabase=WealthX
+
+# Review/edit configuration (optional)
+vi config/personwealthxdataMongo_fields.json
+
+# Export (test with limit first)
+./gradlew configExport -Pcollection=personwealthxdataMongo -Penv=lake -Pdatabase=WealthX -ProwLimit=1000
+
+# Full export (4.5M records - takes ~8-10 hours estimated)
+./gradlew configExport -Pcollection=personwealthxdataMongo -Penv=lake -Pdatabase=WealthX
+```
+
 ### Available Collections
+
+**Realm Database (prod environment)**:
 - `listings` - ~64K property listings
 - `transactions` - Sales transactions
 - `agents` - ~28K agent profiles
 - `agentclients` - ~573K agent-client relationships
 - `properties` - ~1.9M properties (use with caution)
+
+**WealthX Database (lake environment)** ⭐ NEW:
+- `personwealthxdataMongo` - ~4.5M wealth profiles with net worth, assets, business info
 
 ### Performance Expectations
 - **Discovery**: ~2-3 minutes for 10K sample with expansion
@@ -506,10 +528,19 @@ Remember:
 - **Performance**: ~600 rows/sec export speed
 - **Data Quality**: All major field groups working with expected coverage
 
+**WealthX Export (Lake Database):** ⭐ NEW - October 8, 2025
+- **Discovery**: Finds 62 fields (40 included for export)
+- **Test Export**: Successfully exported 1,000-row sample
+- **Collection**: personwealthxdataMongo (4.5M records)
+- **Performance**: ~145 rows/sec (slower due to complex arrays)
+- **Fields**: Personal info (9) + Business info (9) + Net worth (7) + Arrays (4) + Metadata (6)
+- **Arrays**: nickNames, residences, interests, netWorthHoldings (all comma-separated)
+- **Status**: Ready for production use
+
 **New Capabilities:**
-- **MongoDB Explorer**: Standalone tool for database investigation (October 8, 2025)
-- **WealthX Database Discovered**: 4.5M wealth records on lake cluster
-- **Multi-Environment Support**: Can now explore dev, stage, prod, and lake clusters
+- **MongoDB Explorer**: Standalone tool for database investigation
+- **Multi-Environment Support**: Can now connect to dev, stage, prod, and lake clusters
+- **Environment/Database Overrides**: CLI parameters `-Penv` and `-Pdatabase` for flexibility
 
 ### Key Achievements:
 1. **Unified Architecture**: Single source of truth for caching (CollectionCacheManager)
