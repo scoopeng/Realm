@@ -216,10 +216,12 @@ output.directory=./output
 ```
 
 ### Environment Details
-- **dev**: Development database with `realm` database
-- **stage**: Staging database with `realm` database
-- **prod**: Production database with `realm` database (current default)
+- **dev**: Development database with `realm` database only
+- **stage**: Staging database with `realm` database only
+- **prod**: Production database with `realm` database only (current default)
 - **lake**: Big data cluster with `realmLake` and `WealthX` databases
+
+**Important:** The `WealthX` database exists **ONLY on the lake cluster**. It is not available in dev, stage, or prod environments.
 
 ## MONGODB EXPLORER TOOL
 
@@ -260,9 +262,21 @@ Standalone exploration tool for investigating any MongoDB database without modif
 ### Database Overview
 Located on the **lake** environment cluster, contains high-value wealth and demographic data.
 
+**CRITICAL:** This database exists **ONLY** on the lake cluster. Not available in dev, stage, or prod environments.
+
 ### Available Databases on Lake Cluster
-1. **WealthX** - Primary wealth data (5M+ records)
-2. **realmLake** - ListHub real estate data (24M+ records)
+1. **WealthX** - Primary wealth data (5M+ records) - **LAKE ONLY**
+2. **realmLake** - ListHub real estate data (24M+ records) - **LAKE ONLY**
+
+### Environment Database Availability
+```
+Environment    realm    realmLake    WealthX
+───────────────────────────────────────────────
+dev            ✓        ✗            ✗
+stage          ✓        ✗            ✗
+prod           ✓        ✗            ✗
+lake           ✓        ✓            ✓
+```
 
 ### WealthX Database Collections
 ```
@@ -513,8 +527,14 @@ Remember:
 - **Demographic Coverage**: 6-10% of records (merged from multiple sources)
 
 ### Next Steps: WealthX Export Development
-1. **Create discovery configuration** for personwealthxdataMongo collection
-2. **Enhance array handlers** for complex nested arrays (netWorthHoldings)
-3. **Implement aggregate functions** for asset statistics
-4. **Test export performance** with 4.5M record dataset
-5. **Design flattened schema** with 50-80 fields (personal + business + wealth data)
+1. **Configure environment for lake cluster** - WealthX data only available on lake
+2. **Create discovery configuration** for personwealthxdataMongo collection
+3. **Enhance array handlers** for complex nested arrays (netWorthHoldings)
+4. **Implement aggregate functions** for asset statistics
+5. **Test export performance** with 4.5M record dataset
+6. **Design flattened schema** with 50-80 fields (personal + business + wealth data)
+
+**Important Configuration Note:** To export WealthX data, you must:
+- Set environment to `lake` in the export configuration
+- Specify database as `WealthX` (not `realm`)
+- The existing export system defaults to `prod` environment and `realm` database
