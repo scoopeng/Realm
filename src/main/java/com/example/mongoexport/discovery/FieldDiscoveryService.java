@@ -1181,7 +1181,7 @@ public class FieldDiscoveryService
                     if (isUsefulPrimaryField(field))
                     {
                         fieldsToExtract.add(field);
-                        if (fieldsToExtract.size() >= 4) break;  // Limit to 4 primary fields
+                        if (fieldsToExtract.size() >= 6) break;  // Limit to 6 primary fields
                     }
                 }
             }
@@ -1198,7 +1198,7 @@ public class FieldDiscoveryService
                     if (isUsefulPrimaryField(field))
                     {
                         fieldsToExtract.add(field);
-                        if (fieldsToExtract.size() >= 4) break;  // Limit to 4 primary fields
+                        if (fieldsToExtract.size() >= 6) break;  // Limit to 6 primary fields
                     }
                 }
             }

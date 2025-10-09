@@ -73,9 +73,8 @@ task configExport(type: JavaExec) {
         def database = project.hasProperty('database') ? project.property('database') : null
 
         def argsList = [collection]
-        if (rowLimit != null) {
-            argsList.add(rowLimit.toString())
-        }
+        // Always add rowLimit (as "null" string if not specified) to maintain arg positions
+        argsList.add(rowLimit != null ? rowLimit.toString() : 'null')
         if (env != null) {
             argsList.add(env)
         }

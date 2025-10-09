@@ -1,10 +1,90 @@
 # Session Summary - WealthX Export Implementation
-*Date: October 8, 2025*
-*Duration: ~1.5 hours*
+*Started: October 8, 2025*
+*Updated: October 9, 2025*
+*Total Duration: ~3 hours across 2 sessions*
 
 ## Mission Accomplished ✅
 
-Successfully added WealthX database export capability to the MongoDB export utility. The system can now export 4.5M wealth records from the lake cluster with full array handling.
+Successfully added WealthX database export capability to the MongoDB export utility. The system can now export 4.5M wealth records from the lake cluster with full array handling including PRIMARY and COUNT modes.
+
+**PRODUCTION EXPORT COMPLETE**: Full 4.5M record export finished successfully in 5m38s at 13,401 rows/sec.
+
+## October 9, 2025 - Session 2: Full Production Export Complete
+
+### Final Export Results ✅
+- **File**: `output/personwealthxdataMongo_full_20251009_004219.csv`
+- **Documents Exported**: 4,458,826 rows (100% of collection)
+- **Fields**: 46 columns
+- **File Size**: 2.0 GB (smaller than 3.3 GB estimate)
+- **Export Time**: 5 minutes 38 seconds (332.7 seconds)
+- **Performance**: 13,401 rows/sec (2x faster than 100K test!)
+
+### Critical Bug Fix - Gradle Argument Position
+**Problem**: Full export failed with error `mongodb.url.WealthX not found`
+**Root Cause**: When `rowLimit` parameter not specified, Gradle build.gradle shifted argument positions:
+- args[1] = "lake" (env) was parsed as rowLimit
+- args[2] = "WealthX" (database) was parsed as environment
+- Result: Config looked for `mongodb.url.WealthX` instead of `mongodb.url.lake`
+
+**Fix Applied** (build.gradle:76-77):
+```groovy
+// Always add rowLimit (as "null" string if not specified) to maintain arg positions
+argsList.add(rowLimit != null ? rowLimit.toString() : 'null')
+```
+
+**Impact**: All future exports with env/database overrides will work correctly without rowLimit parameter.
+
+### Performance Analysis
+- **100K test**: 6,632 rows/sec
+- **Full 4.5M export**: 13,401 rows/sec (102% improvement!)
+- **Actual runtime**: 5.6 minutes vs 11 minute estimate
+- **File size**: 2.0 GB vs 3.3 GB estimate (39% smaller due to null values)
+
+## October 9, 2025 - Session 1: Discovery Bug Fix & Enhanced Testing
+
+### Issues Discovered
+1. **Missing State Field**: Discovery phase was limited to 4 PRIMARY fields per array, causing `residences[primary].state` to be omitted
+2. **Discovery Limitation**: The 4-field limit was too conservative for address data (address, city, state, postalCode, country = 5 fields minimum)
+
+### Fixes Implemented
+1. **Manually Added**: `residences[primary].state` field to config
+2. **Increased Limit**: Changed PRIMARY field generation limit from 4 → 6 in FieldDiscoveryService.java (lines 1184, 1201)
+3. **Enabled Fields**: Activated all 6 residence PRIMARY fields + COUNT field (46 total fields now exported)
+
+### Testing Results
+- **100 rows**: 15 rows/sec - ✅ PRIMARY mode verified
+- **5,000 rows**: 651 rows/sec - ✅ All residence fields working
+  - State coverage: 64.4% (3,219/5,000)
+  - Most people have 1 residence (70.9%), some have 2-26
+  - File size: 7.1 MB
+- **100,000 rows**: 6,632 rows/sec - ✅ Production-ready performance
+  - State coverage: 38.7% (38,670/100,000)
+  - File size: 80 MB
+  - **Full 4.5M estimate**: 11.2 minutes, ~3.3 GB file
+
+### Code Cleanup
+- Removed old test exports (100, 1K row files)
+- Archived WEALTHX_EXPORT_PLAN.md (implementation complete)
+- Fixed discovery limit for future exports
+
+### Full Field Validation (100K rows)
+**All 46 fields verified working correctly:**
+
+- ✅ **Personal (10)**: Name (100%), Email (16%), DOB (44%), Age (44%), Marital Status (67%), Sex (100%), Photo (26%), NickNames (20%)
+- ✅ **Business (10)**: Company (81%), Position (81%), Address (48%), City (48%), State (50%), Zip (47%), Country (71%), Phone (41%), Email (16%)
+- ✅ **Net Worth (12)**: Chart URL (100%), Wealth metrics (6-23%), Holdings array (27%)
+- ✅ **Residence (7)**: All PRIMARY & COUNT modes validated
+  - Array (49%): Comma-separated countries
+  - Count (100%): Array length
+  - PRIMARY fields (22-49%): Single value extraction
+    - Address (22%), City (33%), State (39%) ✅, Zip (22%), Country (49%)
+- ✅ **Other (7)**: Bio (62%), Interests (21%), Cities (55%), Names (100%), Metadata (21-100%)
+
+**Quality Checks Passed:**
+- ✅ PRIMARY mode extracts single values (no commas in primary fields)
+- ✅ COUNT mode accurate (18% have 2+ residences)
+- ✅ International data validated (US, China, India, Switzerland)
+- ✅ No data corruption or extraction errors
 
 ## What We Built
 
@@ -179,26 +259,34 @@ All arrays use **comma-separated mode** (matches existing pattern):
 3. **Consistency** - One logic path per operation
 4. **Simplicity** - Occam's razor
 
-### Performance Notes
+### Performance Notes (UPDATED October 9, 2025)
 - Discovery: 10K sample in 4 seconds (2,500 docs/sec)
-- Export: 1,000 rows in 7 seconds (145 rows/sec)
-- Full export estimate: 4.5M ÷ 145 = 31,034 seconds ≈ 8.6 hours
+- Export Performance (validated):
+  - 100 rows: 15 rows/sec
+  - 5,000 rows: 651 rows/sec
+  - 100,000 rows: 6,632 rows/sec ✅
+- **Full 4.5M export estimate**: ~11.2 minutes @ 6,632 rows/sec
+- **Expected file size**: ~3.3 GB
 
-### Known Limitations
-1. Tags and lifestyles fields excluded (low coverage in sample)
-2. Arrays all use comma-separated mode (PRIMARY/COUNT/STATISTICS not yet implemented)
-3. Complex asset holdings collapsed to comma-separated industry names
+### Array Modes (WORKING)
+1. ✅ **COMMA_SEPARATED**: nickNames, netWorthHoldings, interests
+2. ✅ **PRIMARY**: Residence address components (single value extraction)
+3. ✅ **COUNT**: Residence count, interests count (array length)
+4. ⏳ **STATISTICS**: Not yet implemented (Phase 5 - optional)
 
-## Testing Checklist
+## Pre-Flight Checklist - Full 4.5M Export
 
-Before running full 4.5M export:
 - [x] Discovery runs successfully on lake/WealthX
-- [x] Configuration file generated with expected fields
+- [x] Configuration file generated with 46 fields
 - [x] Test export with 1,000 rows successful
-- [ ] Test export with 10,000 rows (optional validation)
-- [ ] Review config file for any field adjustments
-- [ ] Ensure sufficient disk space (~2-3GB estimated for 4.5M CSV)
-- [ ] Schedule during low-usage time (8-10 hour run)
+- [x] Test export with 5,000 rows successful
+- [x] Test export with 100,000 rows successful ✅
+- [x] All 46 fields validated
+- [x] PRIMARY and COUNT modes verified
+- [x] Review config file - **COMPLETE** (state field added manually)
+- [x] Disk space confirmed - 3.3 GB needed, plenty available
+- [x] Performance validated - 11 min runtime acceptable
+- [ ] **READY TO RUN FULL EXPORT**
 
 ## Quick Reference Commands
 
@@ -215,11 +303,14 @@ Before running full 4.5M export:
 # Discovery
 ./gradlew discover -Pcollection=personwealthxdataMongo -Penv=lake -Pdatabase=WealthX
 
-# Test export
+# Test exports (VALIDATED)
 ./gradlew configExport -Pcollection=personwealthxdataMongo -Penv=lake -Pdatabase=WealthX -ProwLimit=1000
+./gradlew configExport -Pcollection=personwealthxdataMongo -Penv=lake -Pdatabase=WealthX -ProwLimit=5000
+./gradlew configExport -Pcollection=personwealthxdataMongo -Penv=lake -Pdatabase=WealthX -ProwLimit=100000
 
-# Full export
+# 🚀 FULL 4.5M EXPORT (Production Ready)
 ./gradlew configExport -Pcollection=personwealthxdataMongo -Penv=lake -Pdatabase=WealthX
+# Expected: ~11 minutes, 3.3 GB file, 4,458,826 rows, 46 columns
 ```
 
 ## Documentation Updated

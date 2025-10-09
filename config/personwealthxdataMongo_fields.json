@@ -688,7 +688,7 @@
     "businessName" : "Residences Count",
     "sourceCollection" : "personwealthxdataMongo",
     "dataType" : "integer",
-    "include" : false,
+    "include" : true,
     "statistics" : {
       "distinctNonNullValues" : 5631,
       "nullCount" : 0
@@ -700,7 +700,7 @@
     "businessName" : "Primary Residences Address",
     "sourceCollection" : "personwealthxdataMongo",
     "dataType" : "string",
-    "include" : false,
+    "include" : true,
     "statistics" : {
       "distinctNonNullValues" : 5631,
       "nullCount" : 0
@@ -713,7 +713,7 @@
     "businessName" : "Primary Residences City",
     "sourceCollection" : "personwealthxdataMongo",
     "dataType" : "string",
-    "include" : false,
+    "include" : true,
     "statistics" : {
       "distinctNonNullValues" : 5631,
       "nullCount" : 0
@@ -726,7 +726,7 @@
     "businessName" : "Primary Residences Country",
     "sourceCollection" : "personwealthxdataMongo",
     "dataType" : "string",
-    "include" : false,
+    "include" : true,
     "statistics" : {
       "distinctNonNullValues" : 5631,
       "nullCount" : 0
@@ -739,7 +739,20 @@
     "businessName" : "Primary Residences Postal Code",
     "sourceCollection" : "personwealthxdataMongo",
     "dataType" : "string",
-    "include" : false,
+    "include" : true,
+    "statistics" : {
+      "distinctNonNullValues" : 5631,
+      "nullCount" : 0
+    },
+    "extractionMode" : "primary",
+    "sourceField" : "residences",
+    "extractionIndex" : 0
+  }, {
+    "fieldPath" : "residences[primary].state",
+    "businessName" : "Primary Residences State",
+    "sourceCollection" : "personwealthxdataMongo",
+    "dataType" : "string",
+    "include" : true,
     "statistics" : {
       "distinctNonNullValues" : 5631,
       "nullCount" : 0
