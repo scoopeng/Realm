@@ -230,9 +230,40 @@ public abstract class AbstractUltraExporter {
     }
     
     /**
+     * Check if a value needs to be quoted in CSV output
+     * Quote if: contains comma, quote, newline, or starts/ends with whitespace
+     */
+    private boolean needsQuoting(String value) {
+        if (value == null || value.isEmpty()) {
+            return false;
+        }
+        // Quote if contains special CSV characters or has leading/trailing whitespace
+        return value.contains(",") ||
+               value.contains("\"") ||
+               value.contains("\n") ||
+               value.contains("\r") ||
+               !value.equals(value.trim());
+    }
+
+    /**
      * Write a CSV row with proper escaping (doubles quotes instead of backslash escaping)
+     * This version quotes all non-empty values for safety.
+     * Subclasses can override or use writeCSVRowWithTypes for type-aware output.
      */
     protected void writeCSVRow(PrintWriter writer, String[] values) {
+        // Default: quote all non-empty values (safe but not type-preserving)
+        writeCSVRowWithTypes(writer, values, null);
+    }
+
+    /**
+     * Write a CSV row with type-aware quoting.
+     * Numeric columns are written without quotes to preserve type information for downstream systems.
+     *
+     * @param writer The output writer
+     * @param values The row values
+     * @param isNumericColumn Array indicating which columns are numeric types (null = quote all)
+     */
+    protected void writeCSVRowWithTypes(PrintWriter writer, String[] values, boolean[] isNumericColumn) {
         for (int i = 0; i < values.length; i++) {
             if (i > 0) {
                 writer.print(',');
@@ -242,10 +273,23 @@ public abstract class AbstractUltraExporter {
                 // Write empty field (no quotes) - just the comma separator
                 // Don't use continue here! We need to preserve the field position
             } else {
-                // Always quote non-empty fields and escape internal quotes by doubling them
-                writer.print('"');
-                writer.print(value.replace("\"", "\"\""));
-                writer.print('"');
+                // Check if this column is numeric and should not be quoted
+                boolean isNumeric = isNumericColumn != null && i < isNumericColumn.length && isNumericColumn[i];
+
+                if (isNumeric && !needsQuoting(value)) {
+                    // Numeric column - write without quotes
+                    writer.print(value);
+                } else if (needsQuoting(value)) {
+                    // Contains special characters - must quote
+                    writer.print('"');
+                    writer.print(value.replace("\"", "\"\""));
+                    writer.print('"');
+                } else {
+                    // Non-numeric, no special chars - still quote for safety
+                    writer.print('"');
+                    writer.print(value);
+                    writer.print('"');
+                }
             }
         }
         writer.println();

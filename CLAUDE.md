@@ -528,16 +528,67 @@ Remember:
 4. **Consistency** - Both phases use identical logic (no code duplication)
 5. **Simplicity** - Occam's razor wins (e.g., shortest collection name)
 
-## CURRENT STATUS (October 9, 2025)
+## CURRENT STATUS (December 2, 2025)
 
-### ✅ System Fully Operational
+### 🚨 CRITICAL DATA LOSS DETECTED - REQUIRES INVESTIGATION
 
-**Production Exports (Realm Database):**
-- **Discovery**: Finds 73 fields with intelligent filtering
-- **Export**: Successfully exports 573,874 rows with 103 total fields
-- **Supplemental System**: Adds 30 demographic fields via reverse lookup
-- **Performance**: ~600 rows/sec export speed
-- **Data Quality**: All major field groups working with expected coverage
+**Latest Export Run: December 2, 2025**
+- **Purpose**: Refresh all Realm production exports for Scoop import
+- **Result**: Discovered 47% data loss in agentclients collection since August 2025
+- **Status**: Exports completed successfully, but MongoDB data integrity issue requires investigation
+
+### Production Exports (Realm Database) - December 2, 2025
+
+#### ⚠️ AGENTCLIENTS - MAJOR DATA LOSS (MongoDB Verified)
+- **August 25, 2025**: 573,874 records in MongoDB → 573,874 rows exported (54 fields, 178 MB)
+- **December 2, 2025**: 301,930 records in MongoDB → 301,930 rows exported (97 fields, 275 MB)
+- **LOSS**: -271,944 records (-47.4%) ⚠️
+- **Fields**: +43 fields (now includes 30 supplemental demographic fields)
+- **File**: `output/agentclients_full_20251202_020623.csv`
+- **Performance**: 2,512 rows/sec (120 seconds total)
+- **MongoDB Verification (Live Query)**:
+  - `agentclients`: 301,930 (active)
+  - `agentclients.removed`: 425 (soft-deleted with reason tags)
+  - **Total accounted for**: 302,355
+  - **HARD DELETED**: 271,519 records (bypassed soft-delete mechanism)
+- **ISSUE**: Records were HARD DELETED, not archived to `.removed` collection
+- **ACTION REQUIRED**: Investigate MongoDB operations logs between August-December 2025
+  - Check for bulk delete operations (not using standard `.removed` pattern)
+  - Verify if intentional data cleanup/archival occurred
+  - Review application logs for agent account deletions
+  - Determine if archived records need restoration
+
+#### LISTINGS - Working As Designed ✅
+- **August 11, 2025**: ~64,503 MongoDB docs → 223,834 CSV rows (107 MB, 51 fields)
+- **December 2, 2025**: 45,742 MongoDB docs → 152,423 CSV rows (73 MB, 51 fields)
+- **Change**: -18,761 MongoDB documents (-29%), -71,411 CSV rows
+- **Multiplier**: 3.33x rows per document (due to array expansion or property relationships)
+- **File**: `output/listings_full_20251202_020838.csv`
+- **Performance**: 2,800 rows/sec (16 seconds total)
+- **MongoDB Verification (Live Query)**:
+  - `listings`: 45,742 (active)
+  - `listings.removed`: 300,086 (archived - mostly duplicates)
+  - **Total in system**: 345,828
+  - Archive reason: `"Dup..."` pattern (duplicate detection)
+- **Status**: ✅ Working as designed - listings properly archived to `.removed` collection
+- **Note**: Row expansion is expected behavior - each listing with multiple properties/relationships creates multiple rows
+
+#### AGENTS - Significant Growth
+- **August 10, 2025**: 57 agents exported
+- **December 2, 2025**: 679 agents exported (25 fields, 795 KB)
+- **Growth**: +622 agents (+1,091%) 📈
+- **File**: `output/agents_full_20251202_021037.csv`
+- **Performance**: 1,492 rows/sec (0.5 seconds total)
+
+#### TRANSACTIONS - First Production Export
+- **December 2, 2025**: 23,513 transactions (20 fields, 4.2 MB)
+- **File**: `output/transactions_full_20251202_020947.csv`
+- **Performance**: 10,354 rows/sec (2.3 seconds total)
+- **Note**: No previous export available for comparison
+
+### Archived Exports
+- Previous exports moved to: `archive/exports_before_dec2025/`
+- Original agentclients export (August 25, 2025) preserved for comparison
 
 **WealthX Export (Lake Database):** ✅ PRODUCTION COMPLETE - October 9, 2025
 - **Discovery**: 62 fields discovered (46 included for export)

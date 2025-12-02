@@ -34,6 +34,7 @@ public class ConfigurationBasedExporter extends AbstractUltraExporter
     private final Map<String, Map<ObjectId, String>> displayValueCache = new HashMap<>();
     private Integer rowLimit = null;
     private String[] cachedHeaders = null;
+    private boolean[] cachedNumericColumns = null;
     private final Map<ObjectId, Document> personExternalDataCache = new HashMap<>();
 
     /**
@@ -118,6 +119,40 @@ public class ConfigurationBasedExporter extends AbstractUltraExporter
             cachedHeaders = includedFields.stream().map(field -> configuration.getExportSettings().isUseBusinessNames() ? field.getBusinessName() : field.getFieldPath()).toArray(String[]::new);
         }
         return cachedHeaders;
+    }
+
+    /**
+     * Build array indicating which columns are numeric types (should not be quoted in CSV)
+     * Uses the dataType from MongoDB field discovery to make this determination
+     */
+    private boolean[] buildNumericColumnFlags()
+    {
+        if (cachedNumericColumns == null)
+        {
+            cachedNumericColumns = new boolean[includedFields.size()];
+            for (int i = 0; i < includedFields.size(); i++)
+            {
+                String dataType = includedFields.get(i).getDataType();
+                // Numeric types from MongoDB: integer, number, double, long, decimal
+                cachedNumericColumns[i] = dataType != null &&
+                    (dataType.equals("integer") ||
+                     dataType.equals("number") ||
+                     dataType.equals("double") ||
+                     dataType.equals("long") ||
+                     dataType.equals("decimal"));
+            }
+        }
+        return cachedNumericColumns;
+    }
+
+    /**
+     * Override to use type-aware CSV writing
+     * Numbers are written without quotes to preserve type information for downstream systems
+     */
+    @Override
+    protected void writeCSVRow(java.io.PrintWriter writer, String[] values)
+    {
+        writeCSVRowWithTypes(writer, values, buildNumericColumnFlags());
     }
 
     @Override
