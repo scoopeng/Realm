@@ -1,5 +1,5 @@
 # CLAUDE.md - MongoDB Export Utility
-*Last Updated: October 9, 2025 - WealthX Full Export Complete (4.5M records)*
+*Last Updated: December 2, 2025 - CSV Trailing Backslash Fix*
 
 This file provides comprehensive guidance to Claude Code when working with this codebase.
 
@@ -102,6 +102,16 @@ The system is fully data-driven, works with any MongoDB database, and provides i
 
 
 ## CRITICAL BUG FIXES & IMPROVEMENTS
+
+### December 2, 2025 - CSV Trailing Backslash Fix
+- **Problem**: Scoop's CSVScanner treated `\"` as escape sequence, causing column misalignment when fields ended with backslash
+- **Symptom**: Price Amount column contained "Carbondale" (a city name) instead of numeric value; 2 rows had only 48 columns instead of 51
+- **Root Cause**: Data fields ending with `\` followed by closing quote `"` were misinterpreted as escaped quotes
+- **Example**: `"...text ending with \"` was parsed as `"...text ending with "` (quote not closed)
+- **Fix**: Added trailing space to fields ending with backslash in `AbstractUltraExporter.writeCSVRowWithTypes()` (lines 284-302)
+- **Files Changed**: `src/main/java/com/example/mongoexport/AbstractUltraExporter.java`
+- **Companion Tool**: Created `CSVProfiler` in Scoop to diagnose CSV type detection issues
+- **Result**: All 45,758 listings rows now parse correctly with numeric Price Amount
 
 ### October 9, 2025 - Discovery PRIMARY Field Limit Fix
 - **Problem**: Discovery phase limited to 4 PRIMARY fields per array, causing `residences[primary].state` to be omitted

@@ -282,12 +282,23 @@ public abstract class AbstractUltraExporter {
                 } else if (needsQuoting(value)) {
                     // Contains special characters - must quote
                     writer.print('"');
-                    writer.print(value.replace("\"", "\"\""));
+                    // Escape quotes by doubling AND escape trailing backslashes
+                    // (some parsers like Scoop's CSVScanner treat \  before " as escape sequence)
+                    String escaped = value.replace("\"", "\"\"");
+                    if (escaped.endsWith("\\")) {
+                        escaped = escaped + " ";  // Add space to prevent \  from escaping the closing quote
+                    }
+                    writer.print(escaped);
                     writer.print('"');
                 } else {
                     // Non-numeric, no special chars - still quote for safety
                     writer.print('"');
-                    writer.print(value);
+                    // Also check for trailing backslash here
+                    if (value.endsWith("\\")) {
+                        writer.print(value + " ");
+                    } else {
+                        writer.print(value);
+                    }
                     writer.print('"');
                 }
             }
